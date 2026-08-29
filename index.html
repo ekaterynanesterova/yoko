@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Кухня Yoko</title>
+<meta name="description" content="Тренажёр по меню Yoko Sushi для кухни: граммовки, составы, соусы, заготовки и раскладка коробок.">
+<meta name="theme-color" content="#FAF8F3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121410" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Кухня Yoko">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="bar">
+  <div class="bar-in">
+    <div class="brandrow">
+      <div class="brand disp"><em>Yoko</em> — кухня</div>
+      <div class="brandsub">Handbuch 06/24 + актуальная карта</div>
+      <button class="themebtn" id="sync" type="button" aria-haspopup="dialog">синхронизация</button>
+      <button class="themebtn" id="theme" type="button">тема</button>
+    </div>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" aria-selected="true" data-p="p-frame">Каркас</button>
+      <button class="tab" role="tab" aria-selected="false" data-p="p-sauce">Соусы</button>
+      <button class="tab" role="tab" aria-selected="false" data-p="p-dish">Блюда</button>
+      <button class="tab" role="tab" aria-selected="false" data-p="p-prep">Заготовки</button>
+      <button class="tab" role="tab" aria-selected="false" data-p="p-box">Меню и коробки</button>
+      <button class="tab" role="tab" aria-selected="false" data-p="p-train">Тренировка</button>
+    </div>
+  </div>
+</div>
+
+<main>
+
+<!-- ============ КАРКАС ============ -->
+<section class="panel" id="p-frame">
+  <p class="lede">Блюд в карте больше двухсот, но <b>заучивать их по одному не надо</b>: почти всё собрано из одного каркаса. Сначала выучи эту страницу — она объясняет 80% меню. Всё остальное потом ляжет само.</p>
+
+  <h2 class="sec"><span class="num">01</span>Типы и граммовки</h2>
+  <p class="seclede">Первое, что спросят на кухне: сколько риса и на сколько кусков режем. Это не запоминается по одному блюду — только по типу.</p>
+  <div class="frame" id="frameCards"></div>
+
+  <div class="note">
+    <span class="lbl">Сверь с шефом</span>
+    В техкарте <b>Yoko Rolls</b> написано «in 4 Stück geschnitten», а в карте они продаются по <b>5 штук</b>. То же с <b>Inari Natur</b>: в техкарте сверху Sweet Sauce, на сайте — Teriyaki. Handbuch от 06/24, карта с тех пор менялась — уточни, как режут и льют у вас.
+  </div>
+
+  <h2 class="sec"><span class="num">02</span>Правила, которые убирают половину зубрёжки</h2>
+  <p class="seclede">Это то, что действует по умолчанию. Запомнив их, ты уже знаешь верх и соус у большинства позиций — останется только начинка.</p>
+  <div class="tw"><table>
+    <thead><tr><th style="width:38%">Правило</th><th>Что из этого следует</th></tr></thead>
+    <tbody id="rulesBody"></tbody>
+  </table></div>
+
+  <h2 class="sec"><span class="num">03</span>Семейства: одна начинка — четыре блюда</h2>
+  <p class="seclede">Один и тот же набор продуктов ездит по разным типам рулета. Увидишь это — и список блюд схлопнется в десяток строк.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Начинка</th><th>Maki</th><th>Inside-Out</th><th>Yoko Roll</th><th>Mini Yoko</th></tr></thead>
+    <tbody id="famBody"></tbody>
+  </table></div>
+</section>
+
+<!-- ============ СОУСЫ ============ -->
+<section class="panel" id="p-sauce" hidden>
+  <p class="lede">Соусов всего десяток. <b>Sweet Sauce</b> и <b>Yoko Cocktailmayonnaise</b> — рабочая пара, они закрывают большинство позиций. Остальные встречаются точечно.</p>
+
+  <h2 class="sec"><span class="num">01</span>Карта соусов</h2>
+  <p class="seclede">Колонка «где» — самое полезное: по ней видно, какой соус к чему идёт по умолчанию.</p>
+  <div class="tw"><table>
+    <thead><tr><th style="width:24%">Соус</th><th style="width:20%">Что это</th><th>Где используется</th></tr></thead>
+    <tbody id="sauceBody"></tbody>
+  </table></div>
+
+  <h2 class="sec"><span class="num">02</span>Соус на выбор гостя</h2>
+  <p class="seclede">Есть позиции, где соус не фиксирован — гость выбирает из списка. Их надо знать наизусть, чтобы не тормозить на кассе.</p>
+  <div class="tw"><table>
+    <thead><tr><th style="width:34%">Позиция</th><th class="n" style="width:14%">Порция</th><th>Варианты дипа (50 мл)</th></tr></thead>
+    <tbody id="dipBody"></tbody>
+  </table></div>
+</section>
+
+<!-- ============ БЛЮДА ============ -->
+<section class="panel" id="p-dish" hidden>
+  <p class="lede">Порядок ингредиентов — <b>как в техкарте</b>, то есть как выкладывать. Жирным с подчёркиванием — соус, стрелкой ↑ — то, что идёт сверху, а не внутрь.</p>
+  <div class="tools">
+    <input type="search" id="q" placeholder="Поиск: Lachs, курица, Sweet Sauce…" aria-label="Поиск по блюдам">
+    <button class="chip" data-f="all" aria-pressed="true" type="button">Все</button>
+    <button class="chip" data-f="veg" aria-pressed="false" type="button">Веган</button>
+    <button class="chip" data-f="fish" aria-pressed="false" type="button">Рыба</button>
+    <button class="chip" data-f="meat" aria-pressed="false" type="button">Мясо</button>
+    <button class="chip" data-f="fried" aria-pressed="false" type="button">Жарится</button>
+  </div>
+  <div id="dishList"></div>
+  <p class="empty" id="dishEmpty" hidden>Ничего не нашлось. Попробуй другое слово — например, часть немецкого названия.</p>
+</section>
+
+<!-- ============ ЗАГОТОВКИ ============ -->
+<section class="panel" id="p-prep" hidden>
+  <p class="lede">Это то, что делается заранее и большими партиями. Пропорции важнее всего остального в этом файле: ошибка здесь портит всю смену, а не одну порцию.</p>
+  <h2 class="sec"><span class="num">01</span>База</h2>
+  <div class="preps" id="prepBase"></div>
+  <h2 class="sec"><span class="num">02</span>Соусы и дрессинги</h2>
+  <div class="preps" id="prepSauce"></div>
+  <h2 class="sec"><span class="num">03</span>Продукты</h2>
+  <div class="preps" id="prepFood"></div>
+</section>
+
+<!-- ============ МЕНЮ И КОРОБКИ ============ -->
+<section class="panel" id="p-box" hidden>
+  <p class="printhint">Эта вкладка задумана для печати: <b>Ctrl + P</b> (на Mac ⌘P) распечатает всё содержимое без меню и кнопок, по A4. Можно повесить у стола сборки.</p>
+
+  <h2 class="sec"><span class="num">01</span>Размеры упаковки</h2>
+  <p class="seclede">Комплект «васаби + имбирь + соус» кладётся почти всегда — разница в количестве и в том, какой соус.</p>
+  <div class="tw"><table>
+    <thead><tr><th style="width:30%">Меню</th><th class="n" style="width:11%">Штук</th><th class="n" style="width:13%">Коробка</th><th style="width:22%">В комплект</th><th>Топпинг / примечание</th></tr></thead>
+    <tbody id="menuBody"></tbody>
+  </table></div>
+
+  <h2 class="sec"><span class="num">02</span>Состав сет-меню</h2>
+  <p class="seclede">Что физически кладём в коробку. Собирается из уже знакомых роллов — ничего нового учить не надо.</p>
+  <div class="tw"><table>
+    <thead><tr><th style="width:30%">Меню</th><th>Содержимое</th></tr></thead>
+    <tbody id="setBody"></tbody>
+  </table></div>
+
+  <h2 class="sec"><span class="num">03</span>Снеки: сколько штук и с чем</h2>
+  <div class="tw"><table>
+    <thead><tr><th style="width:32%">Позиция</th><th class="n" style="width:12%">Штук</th><th class="n" style="width:14%">Коробка</th><th>Соус</th></tr></thead>
+    <tbody id="snackBody"></tbody>
+  </table></div>
+</section>
+
+<!-- ============ ТРЕНИРОВКА ============ -->
+<section class="panel" id="p-train" hidden>
+  <div class="tr-wrap">
+    <div class="tr-modes" id="trModes">
+      <button class="chip" data-m="fill" aria-pressed="true" type="button">Что внутри</button>
+      <button class="chip" data-m="sauce" aria-pressed="false" type="button">Какой соус</button>
+      <button class="chip" data-m="gram" aria-pressed="false" type="button">Граммовки</button>
+      <button class="chip" data-m="quiz" aria-pressed="false" type="button">Тест</button>
+    </div>
+    <div class="tr-stats">
+      <span>колода <b id="stDeck">0</b></span>
+      <span>выучено <b id="stKnown">0</b></span>
+      <span>подряд <b id="stStreak">0</b></span>
+    </div>
+    <div class="progress"><i id="prog" style="width:0%"></i></div>
+    <div class="card" id="card"></div>
+    <div class="tr-actions" id="trActions"></div>
+    <p class="empty" style="font-size:12px;padding-top:22px">Прогресс сохраняется в этом браузере. «Ещё раз» вернёт карточку в конец колоды.</p>
+  </div>
+</section>
+
+</main>
+
+<div class="sheet" id="authSheet" hidden>
+  <div class="sheet-in" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+    <h3 id="authTitle">Синхронизация прогресса</h3>
+    <p class="sheet-note" id="authNote">Войди тем же аккаунтом, что в KALORIYA — прогресс тренажёра будет общим на телефоне и ноутбуке. Без входа всё работает, просто остаётся на этом устройстве.</p>
+    <div class="sheet-form" id="authForm">
+      <input type="email" id="authEmail" placeholder="почта" autocomplete="username" aria-label="Почта">
+      <input type="password" id="authPw" placeholder="пароль" autocomplete="current-password" aria-label="Пароль">
+      <div class="sheet-actions">
+        <button class="btn primary" id="authIn" type="button">Войти</button>
+        <button class="btn" id="authUp" type="button">Создать аккаунт</button>
+      </div>
+    </div>
+    <div class="sheet-actions" id="authOut" hidden><button class="btn" id="authSignOut" type="button">Выйти</button></div>
+    <p class="sheet-msg" id="authMsg" role="status"></p>
+    <button class="sheet-close" id="authClose" type="button" aria-label="Закрыть">×</button>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="progress.js"></script>
+<script src="sync.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+"use strict";
+/* ============================================================
+   Синхронизация прогресса между устройствами.
+   Supabase REST напрямую, без SDK — чтобы страница работала офлайн
+   и не тянула скрипт со стороннего CDN.
+   Аккаунт тот же, что в KALORIYA (общий Supabase-проект).
+   ============================================================ */
+const Sync = (function () {
+  const URL = "https://rezyccwdgnvaolxxrtut.supabase.co";
+  const KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJlenljY3dkZ252YW9seHhydHV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyMTIzMjQsImV4cCI6MjA5Nzc4ODMyNH0.LcCSZHOuGq6bvEqGret-2CAtak1DAGJhEAx1RwLLyzU";
+  const AUTH_LS = "yoko.auth";
+  const TABLE = "yoko_progress";
+
+  let session = null;   // {access_token, refresh_token, expires_at, email, user_id}
+  let pushTimer = null;
+  let pulling = false;
+  let status = "off";   // off | ok | busy | error
+  let statusText = "";
+
+  try { session = JSON.parse(localStorage.getItem(AUTH_LS) || "null"); } catch (e) { session = null; }
+
+  const saveSession = () => {
+    try {
+      if (session) localStorage.setItem(AUTH_LS, JSON.stringify(session));
+      else localStorage.removeItem(AUTH_LS);
+    } catch (e) {}
+  };
+
+  function setStatus(s, text) {
+    status = s; statusText = text || "";
+    if (api.onStatus) api.onStatus(s, statusText);
+  }
+
+  async function req(path, opts = {}) {
+    const headers = Object.assign({
+      "apikey": KEY,
+      "Content-Type": "application/json"
+    }, opts.headers || {});
+    if (opts.auth !== false && session) headers["Authorization"] = "Bearer " + session.access_token;
+    const r = await fetch(URL + path, { method: opts.method || "GET", headers, body: opts.body });
+    const text = await r.text();
+    let data = null;
+    try { data = text ? JSON.parse(text) : null; } catch (e) { data = text; }
+    if (!r.ok) {
+      const msg = (data && (data.error_description || data.msg || data.message || data.error)) || ("HTTP " + r.status);
+      const err = new Error(msg); err.status = r.status; err.data = data; throw err;
+    }
+    return data;
+  }
+
+  function adopt(d) {
+    session = {
+      access_token: d.access_token,
+      refresh_token: d.refresh_token,
+      expires_at: Date.now() + (d.expires_in || 3600) * 1000 - 60000,
+      email: d.user && d.user.email,
+      user_id: d.user && d.user.id
+    };
+    saveSession();
+  }
+
+  async function ensureFresh() {
+    if (!session) return false;
+    if (Date.now() < session.expires_at) return true;
+    try {
+      const d = await req("/auth/v1/token?grant_type=refresh_token", {
+        method: "POST", auth: false,
+        body: JSON.stringify({ refresh_token: session.refresh_token })
+      });
+      adopt(d);
+      return true;
+    } catch (e) {
+      session = null; saveSession();
+      setStatus("error", "сессия истекла, войди заново");
+      return false;
+    }
+  }
+
+  async function signIn(email, password) {
+    setStatus("busy", "вход…");
+    const d = await req("/auth/v1/token?grant_type=password", {
+      method: "POST", auth: false,
+      body: JSON.stringify({ email, password })
+    });
+    adopt(d);
+    await pull();
+    await push();
+    setStatus("ok", session.email);
+    return session;
+  }
+
+  async function signUp(email, password) {
+    setStatus("busy", "создаём аккаунт…");
+    const d = await req("/auth/v1/signup", {
+      method: "POST", auth: false,
+      body: JSON.stringify({ email, password })
+    });
+    if (d && d.access_token) { adopt(d); await push(); setStatus("ok", session.email); return session; }
+    setStatus("off", "подтверди адрес письмом, потом войди");
+    return null;
+  }
+
+  function signOut() {
+    session = null; saveSession();
+    setStatus("off", "");
+  }
+
+  async function pull() {
+    if (!session || pulling || !navigator.onLine) return false;
+    if (!(await ensureFresh())) return false;
+    pulling = true;
+    try {
+      const rows = await req("/rest/v1/" + TABLE + "?select=known,cleared&user_id=eq." + session.user_id);
+      if (Array.isArray(rows) && rows.length) P.merge(rows[0]);
+      setStatus("ok", session.email);
+      return true;
+    } catch (e) {
+      setStatus("error", e.message);
+      return false;
+    } finally { pulling = false; }
+  }
+
+  async function push() {
+    if (!session || !navigator.onLine) return false;
+    if (!(await ensureFresh())) return false;
+    const snap = P.snapshot();
+    try {
+      await req("/rest/v1/" + TABLE, {
+        method: "POST",
+        headers: { "Prefer": "resolution=merge-duplicates,return=minimal" },
+        body: JSON.stringify({
+          user_id: session.user_id,
+          known: snap.known,
+          cleared: snap.cleared,
+          updated_at: new Date().toISOString()
+        })
+      });
+      setStatus("ok", session.email);
+      return true;
+    } catch (e) {
+      setStatus("error", e.message);
+      return false;
+    }
+  }
+
+  function queuePush() {
+    if (!session) return;
+    clearTimeout(pushTimer);
+    pushTimer = setTimeout(push, 1500);
+  }
+
+  /* Периодический подтяг и досылка при возврате в сеть. */
+  if (session) { pull(); }
+  setInterval(() => { if (session && document.visibilityState === "visible") pull(); }, 60000);
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") pull(); });
+  window.addEventListener("online", () => { pull().then(push); });
+  window.addEventListener("beforeunload", () => {
+    if (session && pushTimer) { clearTimeout(pushTimer); push(); }
+  });
+
+  const api = {
+    signIn, signUp, signOut, pull, push, queuePush,
+    get session() { return session; },
+    get status() { return status; },
+    get statusText() { return statusText; },
+    onStatus: null
+  };
+  return api;
+})();
