@@ -125,8 +125,8 @@ function renderDishes() {
   $("#dishList").innerHTML = out;
   $("#dishEmpty").hidden = any;
 
-  const sauceKey = '<span><b class="scdemo">Sauce ↓</b> соус внутрь, <b class="scdemo">Sauce ↑</b> соус сверху</span>';
-  const topKey = '<span><i class="sw" style="background:var(--cell-top)"></i> без заливки — кладётся сверху</span>';
+  const sauceKey = '<span><b class="scdemo">Sauce ↓</b> соус, который идёт внутрь</span>';
+  const topKey = '<span><i class="sw" style="background:transparent"></i> прозрачная ячейка — кладётся сверху</span>';
   $("#legend").innerHTML = paint === "fry"
     ? '<span><i class="sw" style="background:var(--green-band)"></i> ролл не жарится</span>'
       + '<span><i class="sw" style="background:var(--amber-band)"></i> ролл целиком во фритюре</span>'
