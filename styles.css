@@ -86,25 +86,43 @@ h2.sec .num{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:70
 .fcard .rule{padding-left:8px;margin-top:11px;padding-top:10px;border-top:1px dashed var(--line);font-size:13px;color:var(--ink-2)}
 .fcard .rule b{color:var(--ink)}
 
-/* ---------- bands (dish rows) ---------- */
-.cat{margin:0 0 26px}
-.cathead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:9px;padding-bottom:6px;border-bottom:2px solid var(--ink)}
-.cathead h3{font-size:23px;text-transform:uppercase}
-.cathead .spec{font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--muted);letter-spacing:-.01em}
-.rows{display:flex;flex-direction:column;gap:3px}
-.row{display:grid;grid-template-columns:minmax(150px,230px) 1fr;gap:0;align-items:stretch;border-radius:5px;overflow:hidden;background:var(--sunk)}
-.row .nm{padding:7px 10px;background:var(--surface);border-right:2px solid var(--paper)}
-.row .nm .de{font-weight:600;font-size:14px;line-height:1.25}
-.row .nm .ru{font-size:11.5px;color:var(--muted);line-height:1.3}
-.row .ing{padding:7px 10px;display:flex;flex-wrap:wrap;gap:4px;align-content:center;background:var(--band,var(--green-band))}
-.ii{font-size:12.5px;line-height:1.25;color:var(--bink,var(--green-ink));white-space:nowrap;font-weight:500}
-.ii+.ii::before{content:"·";margin-right:5px;opacity:.5}
-.ii.top{font-weight:700}
-.ii.top::after{content:" ↑";opacity:.55;font-size:10px}
-.ii.sauce{font-weight:700;text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:2px}
-.row .ing.plain{background:var(--sunk)}
-.row .ing.plain .ii{color:var(--ink-2)}
-.rowtag{font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--muted);padding:0 10px 6px;background:var(--surface)}
+/* ---------- таблицы блюд: как распечатки из папки ---------- */
+.cat{margin:0 0 24px}
+.cathead{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:7px}
+.cathead h3{font-size:26px;text-transform:none;letter-spacing:0}
+.cathead .spec{font-size:13.5px;font-weight:600;color:var(--ink-2)}
+.cathead .spec .mono{font-weight:700}
+
+.rows{display:flex;flex-direction:column;gap:5px}
+.hrow{display:grid;grid-template-columns:minmax(132px,206px) 1fr;gap:5px;align-items:stretch}
+.hname{border:2px solid var(--ink);background:var(--surface);padding:3px 8px;
+  display:flex;flex-direction:column;justify-content:center;min-height:32px;position:relative}
+.hname b{font-weight:700;font-size:13.5px;line-height:1.15;letter-spacing:-.01em}
+.hname i{font-style:normal;font-size:10.5px;color:var(--muted);line-height:1.2}
+.hcells{display:grid;grid-template-columns:repeat(var(--cols,3),1fr);gap:3px}
+.cell{border:2px solid var(--ink);padding:3px 8px;background:var(--fill,var(--green-band));
+  color:var(--fink,var(--green-ink));display:flex;flex-direction:column;justify-content:center;
+  min-height:32px;overflow:hidden}
+.cell b{font-weight:600;font-size:13px;line-height:1.15;letter-spacing:-.01em}
+.cell i{font-style:normal;font-size:10px;opacity:.7;line-height:1.15}
+.cell.blank{border-color:var(--ink);opacity:1}
+.cell.blank b{visibility:hidden}
+/* белая ячейка = кладётся сверху, как в оригинале */
+.cell.on{background:var(--surface);color:var(--ink)}
+.cell.on b::after{content:" ↑";font-size:9px;opacity:.55}
+/* метка жарки */
+.fry{position:absolute;top:-2px;right:-2px;background:var(--red);color:#fff;font-family:"JetBrains Mono",monospace;
+  font-size:8.5px;font-weight:700;padding:1px 4px;letter-spacing:.04em;line-height:1.3}
+:root[data-theme="dark"] .fry{color:#2A0E0E}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .fry{color:#2A0E0E}}
+.bowlbase{font-size:12px;color:var(--muted);margin:0 0 6px;padding-left:2px}
+.bowlbase b{color:var(--ink-2);font-weight:600}
+
+@media (max-width:640px){
+  .hrow{grid-template-columns:1fr;gap:3px}
+  .hcells{grid-template-columns:repeat(2,1fr)}
+  .cell.blank{display:none}
+}
 
 /* ---------- generic table ---------- */
 .tw{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);box-shadow:var(--sh)}
@@ -152,6 +170,10 @@ input[type=search]{flex:1 1 220px;min-width:0}
 .card .q{font-family:"Big Shoulders Display",sans-serif;font-weight:800;font-size:36px;line-height:1;text-transform:uppercase}
 .card .qru{font-size:13px;color:var(--muted);margin-top:-6px}
 .card .a{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding-top:6px;border-top:1px dashed var(--line);width:100%;margin-top:4px}
+.ii{font-size:12.5px;line-height:1.25;color:var(--ink);font-weight:500}
+.ii.top{font-weight:700}
+.ii.top::after{content:" ↑";opacity:.55;font-size:10px}
+.ii.sauce{font-weight:700;text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:2px}
 .card .a .ii{white-space:normal;color:var(--ink)}
 .card .big{font-family:"JetBrains Mono",monospace;font-weight:700;font-size:40px;letter-spacing:-.02em}
 .tr-actions{display:flex;gap:8px;margin-top:14px;justify-content:center;flex-wrap:wrap}
@@ -184,7 +206,10 @@ input[type=search]{flex:1 1 220px;min-width:0}
   .cat,.fcard,.prep,.tw{break-inside:avoid}
   h2.sec{break-after:avoid;font-size:20px;margin-top:14px}
   .cathead h3{font-size:16px}
-  .row .nm .de{font-size:10.5px}.ii{font-size:9.5px}.row .nm .ru{font-size:8.5px}
+  .hname b{font-size:9.5px}.hname i{font-size:7.5px}.cell b{font-size:9px}.cell i{font-size:7px}
+  .hname,.cell{border-width:1.5px;min-height:0;padding:2px 5px}
+  .hrow{gap:3px}.rows{gap:3px}.hcells{gap:2px}
+  .legend{display:none}
   .frame{grid-template-columns:repeat(3,1fr)}
   .preps{grid-template-columns:repeat(2,1fr)}
   #p-train{display:none!important}
@@ -193,7 +218,7 @@ input[type=search]{flex:1 1 220px;min-width:0}
 }
 @media (max-width:560px){
   .row{grid-template-columns:1fr}
-  .row .nm{border-right:0;border-bottom:1px solid var(--paper)}
+
   .tools{position:static}
   .card .q{font-size:29px}
 }
@@ -220,3 +245,8 @@ input[type=search]{flex:1 1 220px;min-width:0}
   font-size:26px;line-height:1;cursor:pointer;padding:2px 6px}
 .sheet-close:hover{color:var(--ink)}
 @media print{.sheet{display:none!important}}
+.tsep{width:1px;align-self:stretch;background:var(--line);margin:0 3px}
+.legend{font-size:12px;color:var(--muted);margin:-6px 0 14px;display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend .sw{width:15px;height:13px;border:2px solid var(--ink);display:inline-block}
+.legend .fry{position:static;font-size:8.5px}

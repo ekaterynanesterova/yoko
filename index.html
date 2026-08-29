@@ -88,15 +88,19 @@
 
 <!-- ============ БЛЮДА ============ -->
 <section class="panel" id="p-dish" hidden>
-  <p class="lede">Порядок ингредиентов — <b>как в техкарте</b>, то есть как выкладывать. Жирным с подчёркиванием — соус, стрелкой ↑ — то, что идёт сверху, а не внутрь.</p>
+  <p class="lede">Как в распечатках из папки: цветная ячейка — <b>внутрь</b>, белая — <b>сверху</b>. Ингредиенты стоят в порядке выкладки. Значок <b>ФРИ</b> — ролл целиком уходит во фритюр, это важно при сборке меню.</p>
   <div class="tools">
     <input type="search" id="q" placeholder="Поиск: Lachs, курица, Sweet Sauce…" aria-label="Поиск по блюдам">
     <button class="chip" data-f="all" aria-pressed="true" type="button">Все</button>
     <button class="chip" data-f="veg" aria-pressed="false" type="button">Веган</button>
     <button class="chip" data-f="fish" aria-pressed="false" type="button">Рыба</button>
     <button class="chip" data-f="meat" aria-pressed="false" type="button">Мясо</button>
-    <button class="chip" data-f="fried" aria-pressed="false" type="button">Жарится</button>
+    <button class="chip" data-f="fried" aria-pressed="false" type="button">Есть жарка</button>
+    <span class="tsep" aria-hidden="true"></span>
+    <button class="chip" data-paint="book" aria-pressed="true" type="button">цвет как в папке</button>
+    <button class="chip" data-paint="fry" aria-pressed="false" type="button">цвет по жарке</button>
   </div>
+  <p class="legend" id="legend"></p>
   <div id="dishList"></div>
   <p class="empty" id="dishEmpty" hidden>Ничего не нашлось. Попробуй другое слово — например, часть немецкого названия.</p>
 </section>

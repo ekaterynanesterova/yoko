@@ -1,5 +1,5 @@
 /* Офлайн-режим: на кухне вайфай может пропасть, страница должна открываться всё равно. */
-const CACHE = "yoko-v2";
+const CACHE = "yoko-v3";
 const SHELL = [
   "./", "./index.html", "./styles.css",
   "./data.js", "./progress.js", "./sync.js", "./app.js",
@@ -41,17 +41,23 @@ self.addEventListener("fetch", e => {
 
   if (url.origin !== self.location.origin) return;
 
-  /* Свои файлы: отдаём из кэша сразу, в фоне обновляем. */
+  /* Картинки не меняются — их можно отдавать из кэша сразу. */
+  if (/\.(png|svg|ico)$/i.test(url.pathname)) {
+    e.respondWith(caches.match(req).then(hit => hit || fetch(req)));
+    return;
+  }
+
+  /* Остальное: сначала сеть, кэш — запасной вариант.
+     Иначе после деплоя телефон продолжает показывать старую версию. */
   e.respondWith(
-    caches.match(req).then(hit => {
-      const net = fetch(req).then(res => {
+    fetch(req)
+      .then(res => {
         if (res && res.ok) {
           const copy = res.clone();
           caches.open(CACHE).then(c => c.put(req, copy)).catch(() => {});
         }
         return res;
-      }).catch(() => hit || caches.match("./index.html"));
-      return hit || net;
-    })
+      })
+      .catch(() => caches.match(req).then(hit => hit || caches.match("./index.html")))
   );
 });

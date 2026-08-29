@@ -135,31 +135,31 @@ const D = [
 ["premium","Peanut Chicken Deluxe","Арахисовая курица делюкс",["Hühnchen","Avocado"],["Granatapfelkerne","Erdnüsse"],["Erdnusssauce"],["meat","fried"]],
 
 /* --- YOKO ROLLS, 120 г --- */
-["yoko","Yoko Roll Chicken","Yoko ролл с курицей",["Frischkäse","Gurke","Frühlingszwiebeln","Hühnchen"],["Sesam"],["Sweet Sauce"],["meat","fried"]],
-["yoko","Yoko Roll Garnele","Yoko ролл с креветкой",["Cocktailmayo","Gurke","Frühlingszwiebeln","Garnele"],["Sesam"],["Sweet Sauce"],["fish","fried"]],
-["yoko","Yoko Roll Lachs","Yoko ролл с лососем",["Cocktailmayo","Gurke","Avocado","Lachs"],["Sesam"],["Sweet Sauce"],["fish","fried"]],
-["yoko","Yoko Roll Salmon","Yoko ролл с кожей лосося",["Cocktailmayo","Gurke","Frühlingszwiebeln","Lachshaut"],["Sesam"],["Sweet Sauce"],["fish","fried"]],
-["yoko","Yoko Roll Vegetaria","Yoko ролл вегетарианский",["Frischkäse","Sesam","Gurke","Avocado","Möhre","Frühlingszwiebeln"],["Sesam"],["Sweet Sauce"],["veg","fried"]],
-["yoko","Yoko Roll Ente","Yoko ролл с уткой",["Entenbrust","Gurke","Rotkohl","Frühlingszwiebeln","Frischkäse"],["Sesam"],["Sweet Sauce"],["meat","fried"]],
-["yoko","Yoko Roll Tuna","Yoko ролл с тунцом",["gebratener Thunfisch","Frühlingszwiebeln"],["Sesam"],["Yoko Cocktailmayonnaise"],["fish","fried"]],
-["yoko","Yoko Roll Peanut Chicken","Yoko ролл арахисовый",["Chicken","Gurke","Frühlingszwiebeln","Frischkäse"],[],["Erdnusssauce"],["meat","fried"]],
-["yoko","Yoko Roll Cranberry Chicken","Yoko ролл клюквенный",["Chicken","Gurke","Frühlingszwiebeln","Frischkäse"],[],["Cranberry Teriyaki Sauce"],["meat","fried"]],
-["yoko","Yoko Roll Chicken Guacamole","Yoko ролл курица-гуакамоле",["Chicken","Gurke","Frühlingszwiebeln","Frischkäse"],["Guacamole"],["Sweet Sauce"],["meat","fried"]],
-["yoko","Korean Crunch Roll","Корейский кранч",["Korean fried Chicken","Asian Coleslaw","Gurke","Cocktailmayo"],["Sesam"],["Korean BBQ Sauce"],["meat","fried"]],
-["yoko","Crunchy Chicken Roll","Кранчи с курицей",["Hühnchen","Gurke","Frühlingszwiebeln","Cocktailmayo"],["Sesam"],["Cranberry Teriyaki Sauce"],["meat","fried"]],
-["yoko","Crunchy Sake Roll","Кранчи с лососем",["Lachs","Avocado","Cocktailmayo"],["Sesam"],["Cranberry Teriyaki Sauce"],["fish","fried"]],
-["yoko","Crunchy Veggie Roll","Кранчи вегетарианский",["Rucola","Frischkäse","Möhre","Avocado","Cocktailmayo"],["Sesam"],["Cranberry Teriyaki Sauce"],["veg","fried"]],
-["yoko","Crunchy Spargel Roll","Кранчи со спаржей",["Hühnchen","Frischkäse","grüner Spargel"],["Schnittlauch"],["Sauce Hollandaise"],["meat","fried"]],
+["yoko","Yoko Roll Chicken","Yoko ролл с курицей",["Frischkäse","Gurke","Frühlingszwiebeln","Hühnchen"],["Sesam"],["Sweet Sauce"],["meat","fried","deepfried"]],
+["yoko","Yoko Roll Garnele","Yoko ролл с креветкой",["Cocktailmayo","Gurke","Frühlingszwiebeln","Garnele"],["Sesam"],["Sweet Sauce"],["fish","fried","deepfried"]],
+["yoko","Yoko Roll Lachs","Yoko ролл с лососем",["Cocktailmayo","Gurke","Avocado","Lachs"],["Sesam"],["Sweet Sauce"],["fish","fried","deepfried"]],
+["yoko","Yoko Roll Salmon","Yoko ролл с кожей лосося",["Cocktailmayo","Gurke","Frühlingszwiebeln","Lachshaut"],["Sesam"],["Sweet Sauce"],["fish","fried","deepfried"]],
+["yoko","Yoko Roll Vegetaria","Yoko ролл вегетарианский",["Frischkäse","Sesam","Gurke","Avocado","Möhre","Frühlingszwiebeln"],["Sesam"],["Sweet Sauce"],["veg","fried","deepfried"]],
+["yoko","Yoko Roll Ente","Yoko ролл с уткой",["Entenbrust","Gurke","Rotkohl","Frühlingszwiebeln","Frischkäse"],["Sesam"],["Sweet Sauce"],["meat","fried","deepfried"]],
+["yoko","Yoko Roll Tuna","Yoko ролл с тунцом",["gebratener Thunfisch","Frühlingszwiebeln"],["Sesam"],["Yoko Cocktailmayonnaise"],["fish","fried","deepfried"]],
+["yoko","Yoko Roll Peanut Chicken","Yoko ролл арахисовый",["Chicken","Gurke","Frühlingszwiebeln","Frischkäse"],[],["Erdnusssauce"],["meat","fried","deepfried"]],
+["yoko","Yoko Roll Cranberry Chicken","Yoko ролл клюквенный",["Chicken","Gurke","Frühlingszwiebeln","Frischkäse"],[],["Cranberry Teriyaki Sauce"],["meat","fried","deepfried"]],
+["yoko","Yoko Roll Chicken Guacamole","Yoko ролл курица-гуакамоле",["Chicken","Gurke","Frühlingszwiebeln","Frischkäse"],["Guacamole"],["Sweet Sauce"],["meat","fried","deepfried"]],
+["yoko","Korean Crunch Roll","Корейский кранч",["Korean fried Chicken","Asian Coleslaw","Gurke","Cocktailmayo"],["Sesam"],["Korean BBQ Sauce"],["meat","fried","deepfried"]],
+["yoko","Crunchy Chicken Roll","Кранчи с курицей",["Hühnchen","Gurke","Frühlingszwiebeln","Cocktailmayo"],["Sesam"],["Cranberry Teriyaki Sauce"],["meat","fried","deepfried"]],
+["yoko","Crunchy Sake Roll","Кранчи с лососем",["Lachs","Avocado","Cocktailmayo"],["Sesam"],["Cranberry Teriyaki Sauce"],["fish","fried","deepfried"]],
+["yoko","Crunchy Veggie Roll","Кранчи вегетарианский",["Rucola","Frischkäse","Möhre","Avocado","Cocktailmayo"],["Sesam"],["Cranberry Teriyaki Sauce"],["veg","fried","deepfried"]],
+["yoko","Crunchy Spargel Roll","Кранчи со спаржей",["Hühnchen","Frischkäse","grüner Spargel"],["Schnittlauch"],["Sauce Hollandaise"],["meat","fried","deepfried"]],
 ["yoko","Sushi Burger Sake","Суши-бургер с лососем",["Lachs","Avocado","Cocktailmayo"],["Frühlingszwiebeln"],["Sweet Sauce"],["fish"]],
 ["yoko","Sushi Burger Chicken","Суши-бургер с курицей",["Hühnchen","Avocado","Möhrenstreifen","Gurke","Cocktailmayo"],["Frühlingszwiebeln"],["Sweet Sauce"],["meat"]],
 ["yoko","Sushi Burger Veggie","Суши-бургер вегетарианский",["Avocado","Rucola","Möhrenstreifen","Cocktailmayo"],["Frühlingszwiebeln"],["Sweet Sauce"],["veg"]],
 
 /* --- MINI YOKO, 8 шт --- */
-["mini","Mini Yoko Roll Avocado","Мини с авокадо",["Avocado"],[],["Yoko Cocktailmayonnaise"],["veg","fried"]],
-["mini","Mini Yoko Roll Sake","Мини с лососем",["Lachs"],[],["Yoko Cocktailmayonnaise"],["fish","fried"]],
-["mini","Mini Yoko Roll Salmon","Мини с кожей лосося",["Lachshaut"],[],["Yoko Cocktailmayonnaise"],["fish","fried"]],
-["mini","Mini Yoko Roll Ebi","Мини с креветкой",["Garnele"],[],["Yoko Cocktailmayonnaise"],["fish","fried"]],
-["mini","Mini Yoko Roll Chicken","Мини с курицей",["Hühnchen","Frühlingszwiebeln","Frischkäse"],[],["Yoko Cocktailmayonnaise"],["meat","fried"]],
+["mini","Mini Yoko Roll Avocado","Мини с авокадо",["Avocado"],[],["Yoko Cocktailmayonnaise"],["veg","fried","deepfried"]],
+["mini","Mini Yoko Roll Sake","Мини с лососем",["Lachs"],[],["Yoko Cocktailmayonnaise"],["fish","fried","deepfried"]],
+["mini","Mini Yoko Roll Salmon","Мини с кожей лосося",["Lachshaut"],[],["Yoko Cocktailmayonnaise"],["fish","fried","deepfried"]],
+["mini","Mini Yoko Roll Ebi","Мини с креветкой",["Garnele"],[],["Yoko Cocktailmayonnaise"],["fish","fried","deepfried"]],
+["mini","Mini Yoko Roll Chicken","Мини с курицей",["Hühnchen","Frühlingszwiebeln","Frischkäse"],[],["Yoko Cocktailmayonnaise"],["meat","fried","deepfried"]],
 
 /* --- NIGIRI / INARI, 25 г, 2 шт --- */
 ["nigiri","Nigiri Sake","Нигири с лососем",["Lachs"],[],[],["fish"]],
@@ -195,14 +195,14 @@ const D = [
 ];
 
 const CATS = {
- maki:{ru:"Maki",   sub:"Маки",              band:"--green-band", ink:"--green-ink"},
- io:{ru:"Inside Outside Rolls", sub:"Рис снаружи", band:"--green-band", ink:"--green-ink"},
- premium:{ru:"Premium Rolls", sub:"С топпингом", band:"--green-band", ink:"--green-ink"},
- yoko:{ru:"Yoko Rolls", sub:"Жареные",        band:"--amber-band", ink:"--amber-ink"},
- mini:{ru:"Mini Yoko Rolls", sub:"Жареные, маленькие", band:"--amber-band", ink:"--amber-ink"},
- nigiri:{ru:"Nigiris / Inaris", sub:"Парами", band:"--slate-band", ink:"--slate-ink"},
- sommer:{ru:"Sommerrollen", sub:"Рисовая бумага", band:"--yellow-band", ink:"--yellow-ink"},
- bowl:{ru:"Yoko Poke Bowls", sub:"База одинаковая", band:"--amber-band", ink:"--amber-ink"}
+ maki:{ru:"Makis",          sub:"Маки",              cols:3, band:"--green-band", ink:"--green-ink"},
+ io:{ru:"Inside Outside Rolls", sub:"Рис снаружи",    cols:4, band:"--green-band", ink:"--green-ink"},
+ premium:{ru:"Premium Rolls", sub:"С топпингом",      cols:3, band:"--green-band", ink:"--green-ink"},
+ yoko:{ru:"Yoko Rolls",      sub:"Жареные",           cols:3, band:"--amber-band", ink:"--amber-ink"},
+ mini:{ru:"Mini Yoko Rolls", sub:"Жареные, маленькие", cols:3, band:"--amber-band", ink:"--amber-ink"},
+ nigiri:{ru:"Nigiris / Inaris", sub:"Парами",          cols:3, band:"--slate-band", ink:"--slate-ink"},
+ sommer:{ru:"Sommerrollen",  sub:"Рисовая бумага",     cols:3, band:"--yellow-band", ink:"--yellow-ink"},
+ bowl:{ru:"Yoko Poke Bowls", sub:"База одинаковая",    cols:3, band:"--amber-band", ink:"--amber-ink"}
 };
 
 const BOWL_BASE = ["Edamame","Gurke","Möhre","Frühlingszwiebeln","Algensalat","Salatmix","Avocado","Erdnüsse","Sesam"];

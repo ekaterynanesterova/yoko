@@ -52,50 +52,101 @@ const dishes = D.map((d,i)=>({
 }));
 function typeOf(cat){ return TYPES.find(t=>t.id===cat); }
 
-function ingHTML(d){
-  const parts = [];
-  d.f.forEach(x => parts.push(`<span class="ii${SAUCES.has(x)?" sauce":""}" title="${esc(ru(x))}">${esc(x)}</span>`));
-  d.t.forEach(x => parts.push(`<span class="ii top" title="${esc(ru(x))}">${esc(x)}</span>`));
-  d.s.forEach(x => parts.push(`<span class="ii sauce top" title="${esc(ru(x))}">${esc(x)}</span>`));
-  return parts.join("");
+const PAINT_LS = "yoko.paint";
+let paint = "book";
+try { paint = localStorage.getItem(PAINT_LS) || "book"; } catch (e) {}
+
+/* Цвет ячейки: либо как в печатной папке (по разделу), либо по тому, жарится ли блюдо. */
+function fillOf(d, meta) {
+  if (paint === "fry") {
+    return d.tags.includes("deepfried")
+      ? { band: "--amber-band", ink: "--amber-ink" }
+      : { band: "--green-band", ink: "--green-ink" };
+  }
+  return { band: meta.band, ink: meta.ink };
 }
-function renderDishes(){
+
+function cell(x, cls, style) {
+  const r = ru(x);
+  return `<div class="cell ${cls}" ${style}><b>${esc(x)}</b>${r ? `<i>${esc(r)}</i>` : ""}</div>`;
+}
+
+function cellsHTML(d, meta) {
+  const c = fillOf(d, meta);
+  const style = `style="--fill:var(${c.band});--fink:var(${c.ink})"`;
+  const cells = [];
+  d.f.forEach(x => cells.push(cell(x, "", style)));
+  /* Белая ячейка — то, что кладётся сверху. Ровно как в оригинале. */
+  d.t.concat(d.s).forEach(x => cells.push(cell(x, "on", "")));
+  if (!cells.length) cells.push(`<div class="cell" ${style}><b>только рис и нори</b></div>`);
+  /* Добираем пустыми ячейками до конца строки — в папке полоса всегда во всю ширину. */
+  const cols = meta.cols;
+  while (cells.length % cols !== 0) cells.push(`<div class="cell blank" ${style}><b>.</b></div>`);
+  return cells.join("");
+}
+
+function renderDishes() {
   const q = $("#q").value.trim().toLowerCase();
-  const f = document.querySelector('.tools .chip[aria-pressed="true"]').dataset.f;
+  const f = document.querySelector('.tools .chip[data-f][aria-pressed="true"]').dataset.f;
   let out = "", any = false;
-  for (const key of Object.keys(CATS)){
+
+  for (const key of Object.keys(CATS)) {
     const t = typeOf(key), meta = CATS[key];
-    const list = dishes.filter(d => d.cat===key)
-      .filter(d => f==="all" || d.tags.includes(f))
-      .filter(d => !q || (d.de+" "+d.ru+" "+d.f.concat(d.t,d.s).join(" ")+" "
-                          + d.f.concat(d.t,d.s).map(ru).join(" ")).toLowerCase().includes(q));
+    const list = dishes.filter(d => d.cat === key)
+      .filter(d => f === "all" || d.tags.includes(f))
+      .filter(d => !q || (d.de + " " + d.ru + " " + d.f.concat(d.t, d.s).join(" ") + " "
+                          + d.f.concat(d.t, d.s).map(ru).join(" ")).toLowerCase().includes(q));
     if (!list.length) continue;
     any = true;
-    const base = key==="bowl"
-      ? `<div class="rowtag">База во всех боулах: ${BOWL_BASE.join(" · ")}</div>` : "";
+
+    const base = key === "bowl"
+      ? `<p class="bowlbase"><b>База во всех боулах:</b> ${BOWL_BASE.join(" · ")}</p>` : "";
+    const cut = t.pcs === 1 ? "порция" : `in <span class="mono">${t.pcs}</span> Stück geschnitten`;
+
     out += `<div class="cat">
-      <div class="cathead"><h3>${esc(meta.ru)}</h3>
-        <span class="spec">${t.rice} г риса · ${t.pcs===1?"порция":t.pcs+" шт"} · ${esc(meta.sub)}</span></div>
+      <div class="cathead">
+        <h3>${esc(meta.ru)}</h3>
+        <span class="spec"><span class="mono">${t.rice} g</span> Reis</span>
+        <span class="spec">${cut}</span>
+      </div>
       ${base}
-      <div class="rows">${list.map(d=>`
-        <div class="row">
-          <div class="nm"><div class="de">${esc(d.de)}</div><div class="ru">${esc(d.ru)}</div></div>
-          <div class="ing ${(d.f.length+d.t.length+d.s.length)?"":"plain"}"
-               style="--band:var(${meta.band});--bink:var(${meta.ink})">
-            ${ingHTML(d) || '<span class="ii">только рис и нори</span>'}
-            ${d.note?`<span class="ii" style="opacity:.7;font-weight:400">— ${esc(d.note)}</span>`:""}
+      <div class="rows">${list.map(d => `
+        <div class="hrow">
+          <div class="hname">
+            ${d.tags.includes("deepfried") ? '<span class="fry">ФРИ</span>' : ""}
+            <b>${esc(d.de)}</b><i>${esc(d.ru)}${d.note ? " · " + esc(d.note) : ""}</i>
           </div>
+          <div class="hcells" style="--cols:${meta.cols}">${cellsHTML(d, meta)}</div>
         </div>`).join("")}</div>
     </div>`;
   }
   $("#dishList").innerHTML = out;
   $("#dishEmpty").hidden = any;
+
+  $("#legend").innerHTML = paint === "fry"
+    ? '<span><i class="sw" style="background:var(--green-band)"></i> ролл не жарится</span>'
+      + '<span><i class="sw" style="background:var(--amber-band)"></i> ролл целиком во фритюре</span>'
+      + '<span><i class="sw" style="background:var(--surface)"></i> белая ячейка — кладётся сверху</span>'
+    : '<span><i class="sw" style="background:var(--surface)"></i> белая ячейка — кладётся сверху, не внутрь</span>'
+      + '<span><span class="fry">ФРИ</span> ролл целиком во фритюре</span>';
 }
+
 $("#q").addEventListener("input", renderDishes);
-document.querySelectorAll(".tools .chip").forEach(c => c.addEventListener("click", () => {
-  document.querySelectorAll(".tools .chip").forEach(x => x.setAttribute("aria-pressed","false"));
-  c.setAttribute("aria-pressed","true"); renderDishes();
+document.querySelectorAll('.tools .chip[data-f]').forEach(c => c.addEventListener("click", () => {
+  document.querySelectorAll('.tools .chip[data-f]').forEach(x => x.setAttribute("aria-pressed", "false"));
+  c.setAttribute("aria-pressed", "true"); renderDishes();
 }));
+document.querySelectorAll('.tools .chip[data-paint]').forEach(c => {
+  c.setAttribute("aria-pressed", String(c.dataset.paint === paint));
+  c.addEventListener("click", () => {
+    document.querySelectorAll('.tools .chip[data-paint]').forEach(x => x.setAttribute("aria-pressed", "false"));
+    c.setAttribute("aria-pressed", "true");
+    paint = c.dataset.paint;
+    try { localStorage.setItem(PAINT_LS, paint); } catch (e) {}
+    renderDishes();
+  });
+});
+
 renderDishes();
 
 /* ============================================================
