@@ -28,10 +28,10 @@
     </div>
     <div class="tabs" role="tablist">
       <button class="tab" role="tab" aria-selected="true" data-p="p-frame">Каркас</button>
-      <button class="tab" role="tab" aria-selected="false" data-p="p-sauce">Соусы</button>
       <button class="tab" role="tab" aria-selected="false" data-p="p-dish">Блюда</button>
-      <button class="tab" role="tab" aria-selected="false" data-p="p-prep">Заготовки</button>
       <button class="tab" role="tab" aria-selected="false" data-p="p-box">Меню и коробки</button>
+      <button class="tab" role="tab" aria-selected="false" data-p="p-sauce">Соусы</button>
+      <button class="tab" role="tab" aria-selected="false" data-p="p-prep">Заготовки</button>
       <button class="tab" role="tab" aria-selected="false" data-p="p-train">Тренировка</button>
     </div>
   </div>
@@ -67,26 +67,6 @@
   </table></div>
 </section>
 
-<!-- ============ СОУСЫ ============ -->
-<section class="panel" id="p-sauce" hidden>
-  <p class="lede">Соусов всего десяток. <b>Sweet Sauce</b> и <b>Yoko Cocktailmayonnaise</b> — рабочая пара, они закрывают большинство позиций. Остальные встречаются точечно.</p>
-
-  <h2 class="sec"><span class="num">01</span>Карта соусов</h2>
-  <p class="seclede">Колонка «где» — самое полезное: по ней видно, какой соус к чему идёт по умолчанию.</p>
-  <div class="tw"><table>
-    <thead><tr><th style="width:24%">Соус</th><th style="width:20%">Что это</th><th>Где используется</th></tr></thead>
-    <tbody id="sauceBody"></tbody>
-  </table></div>
-
-  <h2 class="sec"><span class="num">02</span>Соус на выбор гостя</h2>
-  <p class="seclede">Есть позиции, где соус не фиксирован — гость выбирает из списка. Их надо знать наизусть, чтобы не тормозить на кассе.</p>
-  <div class="tw"><table>
-    <thead><tr><th style="width:34%">Позиция</th><th class="n" style="width:14%">Порция</th><th>Варианты дипа (50 мл)</th></tr></thead>
-    <tbody id="dipBody"></tbody>
-  </table></div>
-</section>
-
-<!-- ============ БЛЮДА ============ -->
 <section class="panel" id="p-dish" hidden>
   <p class="lede">Как в распечатках из папки: ячейка с заливкой — <b>внутрь</b>, без заливки — <b>сверху</b>. Ингредиенты стоят в порядке выкладки. Соус, который идёт <b>внутрь</b>, подчёркнут и помечен стрелкой <b>↓</b> — его легко проглядеть среди продуктов. Значок <b>ФРИ</b> — ролл целиком уходит во фритюр, это важно при сборке меню.</p>
   <nav class="jumprow" id="jump" aria-label="Разделы меню"></nav>
@@ -108,7 +88,39 @@
   <p class="empty" id="dishEmpty" hidden>Ничего не нашлось. Попробуй другое слово — например, часть немецкого названия.</p>
 </section>
 
-<!-- ============ ЗАГОТОВКИ ============ -->
+<section class="panel" id="p-box" hidden>
+  <p class="printhint">Эта вкладка задумана для печати: <b>Ctrl + P</b> (на Mac ⌘P) распечатает всё содержимое без меню и кнопок, по A4. Можно повесить у стола сборки.</p>
+
+  <h2 class="sec"><span class="num">01</span>Сет-меню: что кладём в коробку</h2>
+  <p class="seclede">Одна карточка — одно меню: состав, размер коробки и комплект в одном месте, чтобы не искать по двум таблицам. Цвет ячейки — жарится позиция или нет.</p>
+  <p class="legend" id="setLegend"></p>
+  <div id="setList"></div>
+
+  <h2 class="sec"><span class="num">02</span>Снеки: сколько штук и с чем</h2>
+  <div class="tw"><table>
+    <thead><tr><th style="width:32%">Позиция</th><th class="n" style="width:12%">Штук</th><th class="n" style="width:14%">Коробка</th><th>Соус</th></tr></thead>
+    <tbody id="snackBody"></tbody>
+  </table></div>
+</section>
+
+<section class="panel" id="p-sauce" hidden>
+  <p class="lede">Соусов всего десяток. <b>Sweet Sauce</b> и <b>Yoko Cocktailmayonnaise</b> — рабочая пара, они закрывают большинство позиций. Остальные встречаются точечно.</p>
+
+  <h2 class="sec"><span class="num">01</span>Карта соусов</h2>
+  <p class="seclede">Колонка «где» — самое полезное: по ней видно, какой соус к чему идёт по умолчанию.</p>
+  <div class="tw"><table>
+    <thead><tr><th style="width:24%">Соус</th><th style="width:20%">Что это</th><th>Где используется</th></tr></thead>
+    <tbody id="sauceBody"></tbody>
+  </table></div>
+
+  <h2 class="sec"><span class="num">02</span>Соус на выбор гостя</h2>
+  <p class="seclede">Есть позиции, где соус не фиксирован — гость выбирает из списка. Их надо знать наизусть, чтобы не тормозить на кассе.</p>
+  <div class="tw"><table>
+    <thead><tr><th style="width:34%">Позиция</th><th class="n" style="width:14%">Порция</th><th>Варианты дипа (50 мл)</th></tr></thead>
+    <tbody id="dipBody"></tbody>
+  </table></div>
+</section>
+
 <section class="panel" id="p-prep" hidden>
   <p class="lede">Это то, что делается заранее и большими партиями. Пропорции важнее всего остального в этом файле: ошибка здесь портит всю смену, а не одну порцию.</p>
   <h2 class="sec"><span class="num">01</span>База</h2>
@@ -119,32 +131,6 @@
   <div class="preps" id="prepFood"></div>
 </section>
 
-<!-- ============ МЕНЮ И КОРОБКИ ============ -->
-<section class="panel" id="p-box" hidden>
-  <p class="printhint">Эта вкладка задумана для печати: <b>Ctrl + P</b> (на Mac ⌘P) распечатает всё содержимое без меню и кнопок, по A4. Можно повесить у стола сборки.</p>
-
-  <h2 class="sec"><span class="num">01</span>Размеры упаковки</h2>
-  <p class="seclede">Комплект «васаби + имбирь + соус» кладётся почти всегда — разница в количестве и в том, какой соус.</p>
-  <div class="tw"><table>
-    <thead><tr><th style="width:30%">Меню</th><th class="n" style="width:11%">Штук</th><th class="n" style="width:13%">Коробка</th><th style="width:22%">В комплект</th><th>Топпинг / примечание</th></tr></thead>
-    <tbody id="menuBody"></tbody>
-  </table></div>
-
-  <h2 class="sec"><span class="num">02</span>Состав сет-меню</h2>
-  <p class="seclede">Что физически кладём в коробку. Собирается из уже знакомых роллов — ничего нового учить не надо.</p>
-  <div class="tw"><table>
-    <thead><tr><th style="width:30%">Меню</th><th>Содержимое</th></tr></thead>
-    <tbody id="setBody"></tbody>
-  </table></div>
-
-  <h2 class="sec"><span class="num">03</span>Снеки: сколько штук и с чем</h2>
-  <div class="tw"><table>
-    <thead><tr><th style="width:32%">Позиция</th><th class="n" style="width:12%">Штук</th><th class="n" style="width:14%">Коробка</th><th>Соус</th></tr></thead>
-    <tbody id="snackBody"></tbody>
-  </table></div>
-</section>
-
-<!-- ============ ТРЕНИРОВКА ============ -->
 <section class="panel" id="p-train" hidden>
   <div class="tr-wrap">
     <div class="tr-modes" id="trModes">

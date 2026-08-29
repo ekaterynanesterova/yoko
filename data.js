@@ -109,6 +109,7 @@ const D = [
 ["maki","Maki Wakame","Маки с вакамэ",["Algensalat","Möhrenstreifen"],["Sesam"],[],["veg"]],
 ["maki","Maki Tekka","Маки с тунцом",["Thunfisch"],[],[],["fish"]],
 ["maki","Maki Tuna","Маки с жареным тунцом",["gebratener Thunfisch","Frühlingszwiebeln"],[],["Yoko Cocktailmayonnaise"],["fish"]],
+["maki","Maki Tempura Spargel","Маки с тайской спаржей в темпуре",["Thai-Spargel Tempura"],[],[],["veg","fried"]],
 ["maki","Maki Sake Spicy","Маки лосось острый",["Lachs","Frühlingszwiebeln"],[],["scharfe Sauce","Teriyaki Sauce"],["fish"]],
 
 /* --- INSIDE OUTSIDE, 130 г, 8 шт --- */
@@ -292,43 +293,133 @@ const PREPS_FOOD = [
 /* ============================================================
    МЕНЮ И КОРОБКИ
    ============================================================ */
-const MENUS = [
- ["Maki Menü","24","M","васаби · имбирь · соевый extra","—"],
- ["Westcoast Menü","24","L","васаби · имбирь · соевый","—"],
- ["Chicken Menü","21","M","васаби · имбирь · Sweet Sauce","Sweet Sauce и кунжут сверху"],
- ["Yoko Stars Menü","21","M","васаби · имбирь · соевый","Sweet Sauce и кунжут сверху"],
- ["Big Salmon Menü","29","L","васаби · имбирь · Sweet Sauce · Cocktail Mayo","Sweet Sauce и кунжут на Yoko Rolls"],
- ["Master of the Rolls Menü","42","L","васаби · имбирь · Sweet Sauce","Sweet Sauce и кунжут сверху"],
- ["Fitness Menü","29","M","васаби · имбирь · Sweet Sauce","Sweet Sauce и кунжут сверху"],
- ["Yoko Single Menü Chicken","16","M","васаби · имбирь · Cocktail Mayo","аналогично Sake и Veggie"],
- ["Magic Mix Menü","21","M","васаби · имбирь · Sweet Sauce","Sweet Chili сверху"],
- ["Mini Yoko Roll Menü","24","L","васаби · имбирь · <b>2×</b> Cocktail Mayo","—"],
- ["Yoko Roll Menü","15","XL","васаби · имбирь · <b>2×</b> Sweet Sauce","Sweet Sauce и кунжут сверху"],
- ["Party Menü","52","L","васаби · <b>2×</b> имбирь · <b>2×</b> соевый","—"],
- ["Lachsmenü","26","L","васаби · имбирь · соевый","—"],
- ["XL Lachsmenü","39","L","васаби · имбирь · соевый","—"],
- ["Happy Sushi Menü","—","XXL","<b>2×</b> васаби · <b>3×</b> имбирь · <b>2×</b> соевый","—"],
- ["Big Yoko Menü","—","XXL","<b>2×</b> васаби · <b>3×</b> имбирь · <b>2×</b> соевый","—"]
-];
+/* ============================================================
+   СЕТ-МЕНЮ: состав, упаковка, комплект в одной карточке
+   items: [штук, немецкое название, обсыпка]
+   Название должно совпадать с полем de в D — по нему берётся
+   состав и признак «жарится целиком».
+   ============================================================ */
+const SET_EXTRA = {
+  "Miso Suppe":       { ru: "мисо-суп", fried: false },
+  "Algensalat":       { ru: "салат вакамэ", fried: false },
+  "Crispy Ebi Sticks":{ ru: "креветки в темпуре", fried: true }
+};
 
-const SETS = [
- ["Maki Menü","8 Maki Sake · 8 Maki Kappa · 8 Maki Crispy Ebi"],
- ["Westcoast Menü","8 California (кунжут) · 8 Alaska (шнитт-лук) · 8 Crispy Ebi (масаго)"],
- ["Chicken Menü","8 Maki Chicken · 5 Yoko Roll Chicken · 8 Chicken Teriyaki Roll"],
- ["Yoko Stars Menü","8 Maki Sake · 5 Yoko Roll Lachs · 8 Philadelphia (шнитт-лук)"],
- ["Big Salmon Menü","8 Maki Salmon Avocado · 8 Mini Yoko Salmon · 5 Yoko Roll Salmon · 8 Salmon Roll — <b>всё на коже лосося</b>"],
- ["Master of the Rolls","8 California (масаго) · 8 Chicken Teriyaki (кунжут) · 8 Maki Sake · 8 Maki Kappa · 5 Yoko Roll Lachs · 5 Yoko Roll Vegetaria"],
- ["Fitness Menü (веган)","8 Fitness Roll (шнитт-лук) · 8 Maki Avocado · 8 Maki Rucola · 5 Yoko Roll Vegetaria"],
- ["Lachsmenü","2 Nigiri Sake · 8 Maki Sake · 8 Alaska (масаго) · 8 Philadelphia (шнитт-лук)"],
- ["XL Lachsmenü","то же + 8 Mini Yoko Sake · 5 Yoko Roll Lachs"],
- ["Party Menü","8 California (масаго) · 8 Alaska (шнитт-лук) · 8 Fitness (кунжут) · 8 Maki Sake · 8 Maki Avocado · 8 Maki Kappa · 4 Nigiri Sake"],
- ["Magic Mix Menü","8 Magic Garden · 8 Japanese fried Chicken · 5 Yoko Roll Vegetaria со Sweet Chili"],
- ["Mini Yoko Roll Menü","8 Sake · 8 Chicken · 8 Avocado — все Mini Yoko, + Cocktailmayo"],
- ["Yoko Roll Menü","5 Garnele · 5 Chicken · 5 Vegetaria + Sweet Sauce"],
- ["Yoko Single Sake / Chicken / Veggie","8 Philadelphia + 8 Mini Sake · 8 Chicken Teriyaki + 8 Mini Chicken · 8 Fitness + 8 Mini Avocado"],
- ["Family Lachs Deluxe","65 шт: 8 Maki Sake · 8 Alaska · 8 Philadelphia · 4 Nigiri Sake · 5 Yoko Roll Lachs · 16 Mini Sake · 16 Crunchy Sake"],
- ["Family Chicken Deluxe","61 шт: 8 Maki Chicken · 5 Yoko Roll Chicken · 16 Chicken Teriyaki · 16 Mini Chicken · 16 Crunchy Chicken"],
- ["Family Veggie Deluxe","69 шт: 8 Maki Avocado · 8 Maki Rucola · 8 Maki Kappa · 8 Fitness · 5 Yoko Vegetaria · 16 Mini Avocado · 16 Crunchy Veggie"]
+const MENUCARDS = [
+ {name:"Maki Menü", pcs:24, box:"M", kit:"васаби · имбирь · соевый extra",
+  items:[[8,"Maki Sake"],[8,"Maki Kappa"],[8,"Maki Crispy Ebi"]]},
+
+ {name:"Westcoast Menü", pcs:24, box:"L", kit:"васаби · имбирь · соевый",
+  items:[[8,"California Roll","кунжут"],[8,"Alaska Roll","шнитт-лук"],[8,"Crispy Ebi Roll","масаго"]]},
+
+ {name:"Chicken Menü", pcs:21, box:"M", kit:"васаби · имбирь · Sweet Sauce",
+  note:"Sweet Sauce и кунжут сверху",
+  items:[[8,"Maki Chicken"],[5,"Yoko Roll Chicken"],[8,"Chicken Teriyaki Roll"]]},
+
+ {name:"Yoko Stars Menü", pcs:21, box:"M", kit:"васаби · имбирь · соевый",
+  note:"Sweet Sauce и кунжут сверху",
+  items:[[8,"Maki Sake"],[5,"Yoko Roll Lachs"],[8,"Philadelphia Roll","шнитт-лук"]]},
+
+ {name:"Big Salmon Menü", pcs:29, box:"L", kit:"васаби · имбирь · Sweet Sauce · Cocktail Mayo",
+  note:"Всё на жареной коже лосося. Sweet Sauce и кунжут на Yoko Rolls",
+  items:[[8,"Maki Salmon Avocado"],[8,"Mini Yoko Roll Salmon"],[5,"Yoko Roll Salmon"],[8,"Salmon Roll"]]},
+
+ {name:"Master of the Rolls Menü", pcs:42, box:"L", kit:"васаби · имбирь · Sweet Sauce",
+  note:"Sweet Sauce и кунжут сверху",
+  items:[[8,"California Roll","масаго"],[8,"Chicken Teriyaki Roll","кунжут"],[8,"Maki Sake"],
+         [8,"Maki Kappa"],[5,"Yoko Roll Lachs"],[5,"Yoko Roll Vegetaria"]]},
+
+ {name:"Fitness Menü", pcs:29, box:"M", kit:"васаби · имбирь · Sweet Sauce",
+  note:"Веганское. Sweet Sauce и кунжут сверху",
+  items:[[8,"Fitness Roll","шнитт-лук"],[8,"Maki Avocado"],[8,"Maki Rucola"],[5,"Yoko Roll Vegetaria"]]},
+
+ {name:"Magic Mix Menü", pcs:21, box:"M", kit:"васаби · имбирь · Sweet Sauce",
+  note:"Sweet Chili сверху",
+  items:[[8,"Magic Garden Roll"],[8,"Japanese fried Chicken Roll"],[5,"Yoko Roll Vegetaria"]]},
+
+ {name:"Mini Yoko Roll Menü", pcs:24, box:"L", kit:"васаби · имбирь · 2× Cocktail Mayo",
+  items:[[8,"Mini Yoko Roll Sake"],[8,"Mini Yoko Roll Chicken"],[8,"Mini Yoko Roll Avocado"]]},
+
+ {name:"Yoko Roll Menü", pcs:15, box:"XL", kit:"васаби · имбирь · 2× Sweet Sauce",
+  note:"Sweet Sauce и кунжут сверху",
+  items:[[5,"Yoko Roll Garnele"],[5,"Yoko Roll Chicken"],[5,"Yoko Roll Vegetaria"]]},
+
+ {name:"Yoko Single Menü Sake", pcs:16, box:"M", kit:"васаби · имбирь · Cocktail Mayo",
+  items:[[8,"Philadelphia Roll"],[8,"Mini Yoko Roll Sake"]]},
+
+ {name:"Yoko Single Menü Chicken", pcs:16, box:"M", kit:"васаби · имбирь · Cocktail Mayo",
+  items:[[8,"Chicken Teriyaki Roll"],[8,"Mini Yoko Roll Chicken"]]},
+
+ {name:"Yoko Single Menü Veggie", pcs:16, box:"M", kit:"васаби · имбирь · Cocktail Mayo",
+  items:[[8,"Fitness Roll"],[8,"Mini Yoko Roll Avocado"]]},
+
+ {name:"Party Menü", pcs:52, box:"L", kit:"васаби · 2× имбирь · 2× соевый",
+  items:[[8,"California Roll","масаго"],[8,"Alaska Roll","шнитт-лук"],[8,"Fitness Roll","кунжут"],
+         [8,"Maki Sake"],[8,"Maki Avocado"],[8,"Maki Kappa"],[4,"Nigiri Sake"]]},
+
+ {name:"Lachsmenü", pcs:26, box:"L", kit:"васаби · имбирь · соевый",
+  items:[[2,"Nigiri Sake"],[8,"Maki Sake"],[8,"Alaska Roll","масаго"],[8,"Philadelphia Roll","шнитт-лук"]]},
+
+ {name:"XL Lachsmenü", pcs:39, box:"L", kit:"васаби · имбирь · соевый",
+  items:[[2,"Nigiri Sake"],[8,"Maki Sake"],[8,"Alaska Roll","масаго"],[8,"Philadelphia Roll","шнитт-лук"],
+         [8,"Mini Yoko Roll Sake"],[5,"Yoko Roll Lachs"]]},
+
+ {name:"Family Lachs Deluxe", pcs:65, box:"", kit:"соевый · Cranberry Teriyaki · Cocktailmayo",
+  items:[[8,"Maki Sake"],[8,"Alaska Roll"],[8,"Philadelphia Roll"],[4,"Nigiri Sake"],
+         [5,"Yoko Roll Lachs"],[16,"Mini Yoko Roll Sake"],[16,"Crunchy Sake Roll"]]},
+
+ {name:"Family Chicken Deluxe", pcs:61, box:"", kit:"соевый · Cranberry Teriyaki · Cocktailmayo",
+  items:[[8,"Maki Chicken"],[5,"Yoko Roll Chicken"],[16,"Chicken Teriyaki Roll"],
+         [16,"Mini Yoko Roll Chicken"],[16,"Crunchy Chicken Roll"]]},
+
+ {name:"Family Veggie Deluxe", pcs:69, box:"", kit:"соевый · Cranberry Teriyaki · Cocktailmayo",
+  items:[[8,"Maki Avocado"],[8,"Maki Rucola"],[8,"Maki Kappa"],[8,"Fitness Roll"],
+         [5,"Yoko Roll Vegetaria"],[16,"Mini Yoko Roll Avocado"],[16,"Crunchy Veggie Roll"]]},
+
+ {name:"Crunchy Chicken Menü", pcs:16, box:"", kit:"",
+  items:[[8,"Crunchy Chicken Roll"],[8,"Maki Chicken"]]},
+
+ {name:"Crunchy Sake Menü", pcs:16, box:"", kit:"",
+  items:[[8,"Crunchy Sake Roll"],[8,"Maki Sake"]]},
+
+ {name:"Crunchy Veggie Menü", pcs:16, box:"", kit:"",
+  items:[[8,"Crunchy Veggie Roll"],[8,"Maki Avocado"]]},
+
+ {name:"Crunchy Spargel Menü", pcs:16, box:"", kit:"",
+  items:[[8,"Crunchy Spargel Roll"],[8,"Maki Tempura Spargel"]]},
+
+ {name:"Premium Lunch", pcs:15, box:"", kit:"",
+  items:[[5,"Yoko Roll Chicken"],[2,"Sommerrolle Black Tiger Garnele"],[8,"Philadelphia Roll","кунжут"]]},
+
+ {name:"Veggie Lunch", pcs:15, box:"", kit:"",
+  items:[[5,"Yoko Roll Vegetaria"],[2,"Sommerrolle Natur"],[8,"Fitness Roll","кунжут"]]},
+
+ {name:"Peanut Pokal Menü", pcs:15, box:"", kit:"Erdnuss Sauce",
+  items:[[2,"Sommerrolle Peanut Chicken"],[5,"Yoko Roll Peanut Chicken"],[5,"Peanut Chicken Deluxe"]]},
+
+ {name:"Mittagsmenü 1", pcs:null, box:"", kit:"", note:"Не участвует в акциях",
+  items:[[1,"Miso Suppe"],[8,"Maki Sake"],[8,"California Roll","масаго"]]},
+
+ {name:"Mittagsmenü 2", pcs:null, box:"", kit:"", note:"Не участвует в акциях",
+  items:[[1,"Algensalat"],[8,"Maki Avocado"],[8,"Maki Rucola"]]},
+
+ {name:"Mittagsmenü 3", pcs:null, box:"", kit:"", note:"Не участвует в акциях",
+  items:[[1,"Miso Suppe"],[8,"Maki Sake Avocado"],[8,"Maki Salmon"]]},
+
+ {name:"Mittagsmenü 4", pcs:null, box:"", kit:"", note:"Не участвует в акциях",
+  items:[[1,"Miso Suppe"],[8,"Maki Kappa"],[8,"Alaska Roll","шнитт-лук"]]},
+
+ {name:"Mittagsmenü 5", pcs:null, box:"", kit:"", note:"Не участвует в акциях",
+  items:[[6,"Crispy Ebi Sticks"],[8,"Chicken Teriyaki Roll"]]},
+
+ {name:"Mittagsmenü 6", pcs:null, box:"", kit:"", note:"Не участвует в акциях; дип и обсыпка на выбор",
+  items:[[2,"Sommerrolle Chicken"],[8,"Philadelphia Roll"]]},
+
+ {name:"Happy Sushi Menü", pcs:null, box:"XXL", kit:"2× васаби · 3× имбирь · 2× соевый",
+  note:"Состав в техкартах не расписан — есть только фото раскладки", items:[]},
+
+ {name:"Big Yoko Menü", pcs:null, box:"XXL", kit:"2× васаби · 3× имбирь · 2× соевый",
+  note:"Состав в техкартах не расписан — есть только фото раскладки", items:[]}
 ];
 
 const SNACKS = [

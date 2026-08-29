@@ -40,9 +40,6 @@ $("#prepSauce").innerHTML = PREPS_SAUCE.map(prepCard).join("");
 $("#prepFood").innerHTML  = PREPS_FOOD.map(prepCard).join("");
 
 /* -- меню и коробки -- */
-$("#menuBody").innerHTML = MENUS.map(m=>
-  `<tr><td><b>${esc(m[0])}</b></td><td class="n">${esc(m[1])}</td><td class="n">${esc(m[2])}</td><td>${m[3]}</td><td>${esc(m[4])}</td></tr>`).join("");
-$("#setBody").innerHTML = SETS.map(s=>`<tr><td><b>${esc(s[0])}</b></td><td>${s[1]}</td></tr>`).join("");
 $("#snackBody").innerHTML = SNACKS.map(s=>
   `<tr><td><b>${esc(s[0])}</b></td><td class="n">${esc(s[1])}</td><td class="n">${esc(s[2])}</td><td>${esc(s[3])}</td></tr>`).join("");
 
@@ -51,6 +48,59 @@ const dishes = D.map((d,i)=>({
   i, cat:d[0], de:d[1], ru:d[2], f:d[3], t:d[4], s:d[5], tags:d[6], note:d[7]||""
 }));
 function typeOf(cat){ return TYPES.find(t=>t.id===cat); }
+
+/* ============================================================
+   СЕТ-МЕНЮ
+   Каждая позиция — своя ячейка, цвет по тому, жарится она или нет.
+   ============================================================ */
+const dishByDe = new Map(dishes.map(d => [d.de, d]));
+
+function setItemCell(it) {
+  const [n, name, umh] = it;
+  const d = dishByDe.get(name);
+  const extra = SET_EXTRA[name];
+  const fried = d ? d.tags.includes("deepfried") : (extra ? extra.fried : false);
+  const known = !!(d || extra);
+  const ruName = d ? d.ru : (extra ? extra.ru : "");
+  const cls = !known ? "s-none" : (fried ? "s-fry" : "s-nofry");
+  return `<div class="scell ${cls}">
+    <span class="cnt">${n}</span>
+    <span class="txt"><b>${esc(name)}</b>${ruName ? `<i>${esc(ruName)}</i>` : ""}${
+      umh ? `<u>обсыпка: ${esc(umh)}</u>` : ""}</span>
+  </div>`;
+}
+
+function renderSets() {
+  $("#setList").innerHTML = MENUCARDS.map(m => {
+    const items = m.items || [];
+    const sum = items.reduce((a, i) => a + i[0], 0);
+    /* Сумма по списку должна сходиться с заявленным количеством —
+       если нет, это ошибка в источнике, и её лучше видеть. */
+    const mismatch = m.pcs && items.length && sum !== m.pcs;
+
+    const meta = [];
+    if (m.pcs) meta.push(`<span class="mono">${m.pcs}</span> шт`);
+    else if (sum) meta.push(`<span class="mono">${sum}</span> шт`);
+    if (m.box) meta.push(`коробка <span class="mono">${esc(m.box)}</span>`);
+    if (m.kit) meta.push(esc(m.kit));
+
+    return `<article class="setcard">
+      <header class="sethead">
+        <h3>${esc(m.name)}</h3>
+        <div class="setmeta">${meta.join('<span class="dot">·</span>')}</div>
+      </header>
+      ${m.note ? `<p class="setnote">${esc(m.note)}</p>` : ""}
+      ${mismatch ? `<p class="setwarn">Заявлено ${m.pcs} шт, а по списку выходит ${sum}. Сверь у шефа.</p>` : ""}
+      ${items.length ? `<div class="scells">${items.map(setItemCell).join("")}</div>` : ""}
+    </article>`;
+  }).join("");
+
+  $("#setLegend").innerHTML =
+    '<span><i class="sw" style="background:var(--green-band)"></i> не жарится</span>'
+    + '<span><i class="sw" style="background:var(--amber-band)"></i> жарится во фритюре</span>'
+    + '<span><span class="cntdemo">8</span> сколько штук этой позиции в коробке</span>';
+}
+renderSets();
 
 const PAINT_LS = "yoko.paint";
 let paint = "book";
