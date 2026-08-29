@@ -68,7 +68,9 @@ function fillOf(d, meta) {
 
 function cell(x, cls, style) {
   const r = ru(x);
-  return `<div class="cell ${cls}" ${style}><b>${esc(x)}</b>${r ? `<i>${esc(r)}</i>` : ""}</div>`;
+  /* Соус подчёркиваем и помечаем направлением: ↓ идёт внутрь, ↑ кладётся сверху. */
+  const sc = SAUCES.has(x) ? " sc" : "";
+  return `<div class="cell ${cls}${sc}" ${style}><b>${esc(x)}</b>${r ? `<i>${esc(r)}</i>` : ""}</div>`;
 }
 
 function cellsHTML(d, meta) {
@@ -123,11 +125,13 @@ function renderDishes() {
   $("#dishList").innerHTML = out;
   $("#dishEmpty").hidden = any;
 
+  const sauceKey = '<span><b class="scdemo">Sauce ↓</b> соус внутрь, <b class="scdemo">Sauce ↑</b> соус сверху</span>';
+  const topKey = '<span><i class="sw" style="background:var(--cell-top)"></i> без заливки — кладётся сверху</span>';
   $("#legend").innerHTML = paint === "fry"
     ? '<span><i class="sw" style="background:var(--green-band)"></i> ролл не жарится</span>'
       + '<span><i class="sw" style="background:var(--amber-band)"></i> ролл целиком во фритюре</span>'
-      + '<span><i class="sw" style="background:var(--surface)"></i> белая ячейка — кладётся сверху</span>'
-    : '<span><i class="sw" style="background:var(--surface)"></i> белая ячейка — кладётся сверху, не внутрь</span>'
+      + topKey + sauceKey
+    : topKey + sauceKey
       + '<span><span class="fry">ФРИ</span> ролл целиком во фритюре</span>';
 }
 
