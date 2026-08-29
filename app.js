@@ -68,7 +68,7 @@ function fillOf(d, meta) {
 
 function cell(x, cls, style) {
   const r = ru(x);
-  /* Соус подчёркиваем и помечаем направлением: ↓ идёт внутрь, ↑ кладётся сверху. */
+  /* Соус помечаем только когда он идёт внутрь — там его легко проглядеть. */
   const sc = SAUCES.has(x) ? " sc" : "";
   return `<div class="cell ${cls}${sc}" ${style}><b>${esc(x)}</b>${r ? `<i>${esc(r)}</i>` : ""}</div>`;
 }
@@ -78,7 +78,7 @@ function cellsHTML(d, meta) {
   const style = `style="--fill:var(${c.band});--fink:var(${c.ink})"`;
   const cells = [];
   d.f.forEach(x => cells.push(cell(x, "", style)));
-  /* Белая ячейка — то, что кладётся сверху. Ровно как в оригинале. */
+  /* Прозрачная ячейка — то, что кладётся сверху. Как в оригинале. */
   d.t.concat(d.s).forEach(x => cells.push(cell(x, "on", "")));
   if (!cells.length) cells.push(`<div class="cell" ${style}><b>только рис и нори</b></div>`);
   /* Добираем пустыми ячейками до конца строки — в папке полоса всегда во всю ширину. */
@@ -91,6 +91,7 @@ function renderDishes() {
   const q = $("#q").value.trim().toLowerCase();
   const f = document.querySelector('.tools .chip[data-f][aria-pressed="true"]').dataset.f;
   let out = "", any = false;
+  const sections = [];
 
   for (const key of Object.keys(CATS)) {
     const t = typeOf(key), meta = CATS[key];
@@ -100,12 +101,13 @@ function renderDishes() {
                           + d.f.concat(d.t, d.s).map(ru).join(" ")).toLowerCase().includes(q));
     if (!list.length) continue;
     any = true;
+    sections.push({ key, label: meta.short, n: list.length });
 
     const base = key === "bowl"
       ? `<p class="bowlbase"><b>База во всех боулах:</b> ${BOWL_BASE.join(" · ")}</p>` : "";
     const cut = t.pcs === 1 ? "порция" : `in <span class="mono">${t.pcs}</span> Stück geschnitten`;
 
-    out += `<div class="cat">
+    out += `<div class="cat" id="cat-${key}">
       <div class="cathead">
         <h3>${esc(meta.ru)}</h3>
         <span class="spec"><span class="mono">${t.rice} g</span> Reis</span>
@@ -124,6 +126,11 @@ function renderDishes() {
   }
   $("#dishList").innerHTML = out;
   $("#dishEmpty").hidden = any;
+
+  /* Закладки строим по тем разделам, что реально попали в выдачу. */
+  $("#jump").innerHTML = sections.map(c =>
+    `<button class="jchip" type="button" data-go="cat-${c.key}">${esc(c.label)}<span class="n">${c.n}</span></button>`
+  ).join("");
 
   const sauceKey = '<span><b class="scdemo">Sauce ↓</b> соус, который идёт внутрь</span>';
   const topKey = '<span><i class="sw" style="background:transparent"></i> прозрачная ячейка — кладётся сверху</span>';
@@ -342,3 +349,67 @@ P.onChange = () => { try { buildDeck(); } catch(e){} };
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
 }
+
+/* ============================================================
+   ЗАКЛАДКИ ПО РАЗДЕЛАМ
+   ============================================================ */
+(function () {
+  const bar = document.querySelector(".bar");
+  const tools = document.querySelector("#p-dish .tools");
+  const jump = document.querySelector("#jump");
+
+  /* Высоты шапки и строки закладок меняются на разных ширинах — держим их
+     в переменных, иначе закреплённые полосы наезжают друг на друга. */
+  function syncHeights() {
+    const root = document.documentElement.style;
+    root.setProperty("--barh", bar.offsetHeight + "px");
+    root.setProperty("--jumph", jump.offsetHeight + "px");
+  }
+  syncHeights();
+  addEventListener("resize", syncHeights);
+  if (window.ResizeObserver) {
+    const ro = new ResizeObserver(syncHeights);
+    ro.observe(bar); ro.observe(jump);
+  }
+
+  /* На узком экране поиск с фильтрами не закреплён — учитываем только то,
+     что реально висит сверху. */
+  function stickyBottom() {
+    let h = bar.offsetHeight;
+    if (getComputedStyle(jump).position === "sticky") h += jump.offsetHeight;
+    if (getComputedStyle(tools).position === "sticky") h += tools.offsetHeight;
+    return h;
+  }
+  const offset = () => stickyBottom() + 10;
+
+  jump.addEventListener("click", e => {
+    const b = e.target.closest(".jchip");
+    if (!b) return;
+    const el = document.getElementById(b.dataset.go);
+    if (!el) return;
+    const smooth = !matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const y = el.getBoundingClientRect().top + scrollY - offset();
+    scrollTo({ top: Math.max(0, y), behavior: smooth ? "smooth" : "auto" });
+  });
+
+  /* Подсветка раздела, на котором стоим. */
+  let ticking = false;
+  function spy() {
+    ticking = false;
+    const cats = [...document.querySelectorAll("#dishList .cat")];
+    if (!cats.length) return;
+    const line = offset() + 4;
+    let active = cats[0].id;
+    for (const c of cats) if (c.getBoundingClientRect().top <= line) active = c.id;
+    /* У самого низа страницы подсвечиваем последний — иначе он недостижим. */
+    if (innerHeight + scrollY >= document.body.scrollHeight - 4) active = cats[cats.length - 1].id;
+    document.querySelectorAll("#jump .jchip").forEach(b =>
+      b.setAttribute("aria-current", String(b.dataset.go === active)));
+  }
+  addEventListener("scroll", () => {
+    if (!ticking) { ticking = true; requestAnimationFrame(spy); }
+  }, { passive: true });
+  jump.addEventListener("click", () => setTimeout(spy, 400));
+  new MutationObserver(spy).observe(document.querySelector("#dishList"), { childList: true });
+  spy();
+})();

@@ -195,14 +195,14 @@ const D = [
 ];
 
 const CATS = {
- maki:{ru:"Makis",          sub:"Маки",              cols:3, band:"--green-band", ink:"--green-ink"},
- io:{ru:"Inside Outside Rolls", sub:"Рис снаружи",    cols:4, band:"--green-band", ink:"--green-ink"},
- premium:{ru:"Premium Rolls", sub:"С топпингом",      cols:3, band:"--green-band", ink:"--green-ink"},
- yoko:{ru:"Yoko Rolls",      sub:"Жареные",           cols:3, band:"--amber-band", ink:"--amber-ink"},
- mini:{ru:"Mini Yoko Rolls", sub:"Жареные, маленькие", cols:3, band:"--amber-band", ink:"--amber-ink"},
- nigiri:{ru:"Nigiris / Inaris", sub:"Парами",          cols:3, band:"--slate-band", ink:"--slate-ink"},
- sommer:{ru:"Sommerrollen",  sub:"Рисовая бумага",     cols:3, band:"--yellow-band", ink:"--yellow-ink"},
- bowl:{ru:"Yoko Poke Bowls", sub:"База одинаковая",    cols:3, band:"--amber-band", ink:"--amber-ink"}
+ maki:{short:"Makis", ru:"Makis",          sub:"Маки",              cols:3, band:"--green-band", ink:"--green-ink"},
+ io:{short:"Inside-Out", ru:"Inside Outside Rolls", sub:"Рис снаружи",    cols:4, band:"--green-band", ink:"--green-ink"},
+ premium:{short:"Premium", ru:"Premium Rolls", sub:"С топпингом",      cols:3, band:"--green-band", ink:"--green-ink"},
+ yoko:{short:"Yoko Rolls", ru:"Yoko Rolls",      sub:"Жареные",           cols:3, band:"--amber-band", ink:"--amber-ink"},
+ mini:{short:"Mini Yoko", ru:"Mini Yoko Rolls", sub:"Жареные, маленькие", cols:3, band:"--amber-band", ink:"--amber-ink"},
+ nigiri:{short:"Нигири", ru:"Nigiris / Inaris", sub:"Парами",          cols:3, band:"--slate-band", ink:"--slate-ink"},
+ sommer:{short:"Sommerrollen", ru:"Sommerrollen",  sub:"Рисовая бумага",     cols:3, band:"--yellow-band", ink:"--yellow-ink"},
+ bowl:{short:"Боулы", ru:"Yoko Poke Bowls", sub:"База одинаковая",    cols:3, band:"--amber-band", ink:"--amber-ink"}
 };
 
 const BOWL_BASE = ["Edamame","Gurke","Möhre","Frühlingszwiebeln","Algensalat","Salatmix","Avocado","Erdnüsse","Sesam"];

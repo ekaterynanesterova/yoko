@@ -89,16 +89,19 @@
 <!-- ============ БЛЮДА ============ -->
 <section class="panel" id="p-dish" hidden>
   <p class="lede">Как в распечатках из папки: ячейка с заливкой — <b>внутрь</b>, без заливки — <b>сверху</b>. Ингредиенты стоят в порядке выкладки. Соус, который идёт <b>внутрь</b>, подчёркнут и помечен стрелкой <b>↓</b> — его легко проглядеть среди продуктов. Значок <b>ФРИ</b> — ролл целиком уходит во фритюр, это важно при сборке меню.</p>
+  <nav class="jumprow" id="jump" aria-label="Разделы меню"></nav>
   <div class="tools">
-    <input type="search" id="q" placeholder="Поиск: Lachs, курица, Sweet Sauce…" aria-label="Поиск по блюдам">
-    <button class="chip" data-f="all" aria-pressed="true" type="button">Все</button>
-    <button class="chip" data-f="veg" aria-pressed="false" type="button">Веган</button>
-    <button class="chip" data-f="fish" aria-pressed="false" type="button">Рыба</button>
-    <button class="chip" data-f="meat" aria-pressed="false" type="button">Мясо</button>
-    <button class="chip" data-f="fried" aria-pressed="false" type="button">Есть жарка</button>
-    <span class="tsep" aria-hidden="true"></span>
-    <button class="chip" data-paint="book" aria-pressed="true" type="button">цвет как в папке</button>
-    <button class="chip" data-paint="fry" aria-pressed="false" type="button">цвет по жарке</button>
+    <div class="toolrow">
+      <input type="search" id="q" placeholder="Поиск: Lachs, курица, Sweet Sauce…" aria-label="Поиск по блюдам">
+      <button class="chip" data-f="all" aria-pressed="true" type="button">Все</button>
+      <button class="chip" data-f="veg" aria-pressed="false" type="button">Веган</button>
+      <button class="chip" data-f="fish" aria-pressed="false" type="button">Рыба</button>
+      <button class="chip" data-f="meat" aria-pressed="false" type="button">Мясо</button>
+      <button class="chip" data-f="fried" aria-pressed="false" type="button">Есть жарка</button>
+      <span class="tsep" aria-hidden="true"></span>
+      <button class="chip" data-paint="book" aria-pressed="true" type="button">цвет как в папке</button>
+      <button class="chip" data-paint="fry" aria-pressed="false" type="button">цвет по жарке</button>
+    </div>
   </div>
   <p class="legend" id="legend"></p>
   <div id="dishList"></div>
