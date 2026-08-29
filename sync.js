@@ -42,7 +42,13 @@ const Sync = (function () {
     let data = null;
     try { data = text ? JSON.parse(text) : null; } catch (e) { data = text; }
     if (!r.ok) {
-      const msg = (data && (data.error_description || data.msg || data.message || data.error)) || ("HTTP " + r.status);
+      let msg = (data && (data.error_description || data.msg || data.message || data.error)) || ("HTTP " + r.status);
+      /* Таблицы ещё нет — самая вероятная причина при первом запуске. */
+      if (data && data.code === "PGRST205") {
+        msg = "Таблица прогресса ещё не создана. Выполни supabase.sql в SQL Editor проекта — один раз.";
+      } else if (r.status === 400 && /Invalid login/i.test(String(msg))) {
+        msg = "Не подошли почта или пароль.";
+      }
       const err = new Error(msg); err.status = r.status; err.data = data; throw err;
     }
     return data;
