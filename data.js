@@ -8,7 +8,7 @@ const G = {
 "Lachswürfel":"лосось кубиком","Lachshaut":"жареная кожа лосося","Thunfisch":"тунец",
 "gebratener Thunfisch":"жареный тунец","Surimi":"сурими, крабовая имитация","Garnele":"креветка",
 "Black Tiger Garnele":"креветка блэк-тайгер","Tempura Garnele":"креветка в темпуре",
-"Chicken":"курица халяль","Hühnchen":"курица","paniertes Hühnchen":"курица в панировке",
+"Chicken":"курица халяль","Hühnchen":"курица","Hähnchen":"курица","paniertes Hühnchen":"курица в панировке",
 "Karaage":"курица в соевом маринаде, фри","Korean fried Chicken":"курица по-корейски",
 "Entenbrust":"утиная грудка","Tofu":"тофу","Räuchertofu":"копчёный тофу","frittierter Tofu":"жареный тофу",
 "Avocado":"авокадо","Avocado Sticks":"палочки авокадо, жареные","Avocadowürfel":"авокадо кубиком",
@@ -27,6 +27,20 @@ const G = {
 "Hoi Sin Sauce":"хойсин","Honig-Senf-Sauce":"медово-горчичный","Spicy Mango Sauce":"острый манговый",
 "Sauce Hollandaise":"голландез","Korean BBQ Sauce":"корейский барбекю","Limonendressing":"лаймовый дрессинг",
 "Sojasauce":"соевый соус","Wasabi":"васаби","Ingwer":"маринованный имбирь","Minz Dip":"мятный дип",
+"Hähnchenfüllung":"начинка из курицы","Hähnchenbrustspieße":"шпажки из куриной грудки",
+"Frühlingsrolle":"спринг-ролл","vegane Nuggets":"веганские наггетсы","gebackene Avocado":"жареное авокадо",
+"Bao Teigtasche":"паровая булочка бао","Apfelfüllung":"яблочная начинка","Banane":"банан",
+"Kokoscreme":"кокосовый крем","Mangocreme":"манговый крем","Matchacreme":"крем матча",
+"Käseküchlein":"творожный кекс","weiße Schokolade":"белый шоколад","Milchschokolade":"молочный шоколад",
+"Milka & Daim":"Milka и Daim","Miso-Fond":"мисо-фонд","Seetang":"морские водоросли",
+"Lachsfiletstücke":"кусочки филе лосося","Sojabohnen":"соевые бобы","Meersalz":"морская соль",
+"Knoblauchbutter":"чесночное масло","Sesamdressing":"кунжутная заправка",
+"Pak Choi mit Tomate":"пак-чой с томатом в соевом соусе","Tomate":"томат","Wan-Tan":"вонтоны",
+"veganer Backfisch":"веганская рыба в кляре","Gemüse":"овощи","Eiereis":"рис с яйцом",
+"Udon Nudeln":"лапша удон","Glasnudeln":"стеклянная лапша","Braune Sauce":"коричневый соус",
+"Mangosauce":"манговый соус","Rotes Thaicurry":"красное тайское карри","Gelbes Thaicurry":"жёлтое тайское карри",
+"Chicken Teriyaki Spieße":"куриные шпажки терияки","Gyoza Chicken":"гёдза с курицей",
+"Crispy Ebi Sticks":"креветки в темпуре","Avocado Sticks":"палочки авокадо",
 "scharfe Sauce":"острый соус","Vanille Sauce":"ванильный соус","Honig":"мёд"
 };
 const SAUCES = new Set(Object.keys(G).filter(k=>/Sauce|mayonnaise|Cocktailmayo|dressing|Dip|Honig$/i.test(k)));
@@ -50,6 +64,14 @@ const TYPES = [
   rule:"25 г — это <b>на один</b> нигири. Подаются всегда парой."},
  {id:"sommer", ru:"Летние роллы", de:"Sommerrollen", rice:35, pcs:2, c:"var(--yellow)",
   rule:"Рисовая бумага, <b>не жарятся</b>. 35 г риса на ролл, соус гость выбирает."},
+ {id:"snack", frame:false, ru:"Снеки и десерты", de:"Snacks / Dessert", rice:0, pcs:0, c:"var(--red)",
+  rule:"Количество и соус — у каждой позиции своё, смотри подпись. У большинства <b>дип на выбор гостя</b>."},
+ {id:"soup", frame:false, ru:"Супы и салаты", de:"Suppen / Salate", rice:0, pcs:0, c:"var(--slate)",
+  rule:"Супы заливаются <b>кипящим фондом</b> поверх начинки, уже разложенной в пиалу."},
+ {id:"don", frame:false, ru:"Don Yoko", de:"Donburi и Bao Bun", rice:0, pcs:0, c:"var(--amber)",
+  rule:"Донбури — рис с пак-чоем, глазуньей и топпингом. У <b>веганских</b> нет яйца и майонеза."},
+ {id:"special", frame:false, ru:"Вок и супы", de:"Specials", rice:0, pcs:0, c:"var(--slate)",
+  rule:"Техкарт на этот раздел в папке нет — только описания из карты. Граммовки уточняй у шефа."},
  {id:"bowl", ru:"Поке-боулы", de:"Yoko Poke Bowls", rice:250, pcs:1, c:"var(--amber)",
   rule:"250 г риса греется <b>1 мин в микроволновке</b>, потом выкладка. База у всех одинаковая."}
 ];
@@ -192,7 +214,74 @@ const D = [
 ["bowl","Yoko Poke Bowl Tofu","Боул с тофу",["frittierter Tofu"],[],[],["veg","fried"]],
 ["bowl","Yoko Poke Bowl Veggie","Боул вегетарианский",["Avocado"],[],[],["veg"],"двойная порция авокадо"],
 ["bowl","Yoko Poke Bowl Spargel Hähnchen","Боул спаржа-курица",["grüner Spargel","Hühnchen"],[],["Sauce Hollandaise"],["meat","fried"]],
-["bowl","Yoko Poke Bowl Peanut Chicken","Боул арахисовый",["Hühnchen"],[],["Erdnusssauce"],["meat","fried"]]
+["bowl","Yoko Poke Bowl Peanut Chicken","Боул арахисовый",["Hühnchen"],[],["Erdnusssauce"],["meat","fried"]],
+
+/* --- SNACKS / DESSERT --- */
+["snack","Crispy Ebi Sticks","Креветки в темпуре",["Tempura Garnele"],[],["Yoko Cocktailmayonnaise"],["fish","fried"],"6 шт · соус фиксированный"],
+["snack","Avocado Sticks","Палочки авокадо",["gebackene Avocado"],[],[],["veg","fried"],"4 шт · дип на выбор"],
+["snack","Chicken Nuggets (vegan)","Наггетсы веганские",["vegane Nuggets"],[],[],["veg","fried"],"4 шт · дип на выбор"],
+["snack","Mini Frühlingsrollen","Мини спринг-роллы",["Frühlingsrolle"],[],[],["veg","fried"],"5 шт · дип на выбор"],
+["snack","Mini Frühlingsrollen Vegetaria","Мини спринг-роллы вегетарианские",["Frühlingsrolle"],[],[],["veg","fried"],"5 шт · дип на выбор"],
+["snack","Gyoza Chicken","Гёдза с курицей",["Hähnchenfüllung"],[],["Sweet Sauce"],["meat","fried"],"5 шт · плюс дип на выбор"],
+["snack","Double Baked Gyoza Chicken","Гёдза двойной обжарки",["Hähnchenfüllung"],[],[],["meat","fried"],"5 шт · дип на выбор"],
+["snack","Chicken Teriyaki Spieße","Куриные шпажки терияки",["Hähnchenbrustspieße"],[],[],["meat"],"3 шт · маринованные · дип на выбор"],
+["snack","Japanese fried Chicken Box","Курица карааге",["Karaage"],[],["Sweet Chili Sauce"],["meat","fried"],"5 шт · соус фиксированный"],
+["snack","Korean fried Chicken - 5 Stück","Корейская курица, 5 шт",["Korean fried Chicken"],["Sesam"],["Korean BBQ Sauce"],["meat","fried"],"5 шт"],
+["snack","Korean fried Chicken - 10 Stück","Корейская курица, 10 шт",["Korean fried Chicken"],["Sesam"],["Korean BBQ Sauce"],["meat","fried"],"10 шт"],
+["snack","Bao Bun Chicken","Бао с курицей",["Bao Teigtasche","Hähnchen","Asian Coleslaw","Möhrenstreifen","Frühlingszwiebeln"],["Schnittlauch","Sesam"],["Sweet Sauce","Yoko Cocktailmayonnaise"],["meat","fried"],"1 шт"],
+["snack","Bao Bun Sake Avocado","Бао с лососем и авокадо",["Bao Teigtasche","Lachs","Avocado","Asian Coleslaw","Möhrenstreifen","Frühlingszwiebeln"],["Schnittlauch","Sesam"],["Sweet Sauce","Yoko Cocktailmayonnaise"],["fish"],"1 шт · лосось жареный"],
+["snack","Bao Bun Veggie","Бао вегетарианский",["Bao Teigtasche","Avocado","Asian Coleslaw","Möhrenstreifen","Frühlingszwiebeln"],["Schnittlauch","Sesam"],["Sweet Sauce","Yoko Cocktailmayonnaise"],["veg"],"1 шт"],
+["snack","Bao Bun Korean fried Chicken","Бао с корейской курицей",["Bao Teigtasche","Korean fried Chicken","Asian Coleslaw","Möhrenstreifen","Frühlingszwiebeln"],["Schnittlauch","Sesam"],["Korean BBQ Sauce","Yoko Cocktailmayonnaise"],["meat","fried"],"1 шт"],
+["snack","Snackbox","Снек-бокс",["Chicken Teriyaki Spieße","Gyoza Chicken","Crispy Ebi Sticks","Avocado Sticks"],[],[],["meat","fried"],"11 шт: 2 шпажки · 3 гёдза · 3 креветки · 3 авокадо · соус на выбор"],
+["snack","Snackbox Veggie","Снек-бокс вегетарианский",["Edamame","Frühlingsrolle","Avocado Sticks"],[],[],["veg","fried"],"9 шт: порция эдамаме · 5 спринг-роллов · 3 авокадо · соус на выбор"],
+["snack","Snackbox XL","Снек-бокс XL",["Chicken Teriyaki Spieße","Gyoza Chicken","Crispy Ebi Sticks","Avocado Sticks"],[],[],["meat","fried"],"20 шт: по 5 каждого · соус на выбор"],
+["snack","Gyoza Apfel","Гёдза с яблоком",["Apfelfüllung"],[],["Vanille Sauce"],["veg","fried"],"5 шт · десерт"],
+["snack","Gebackene Banane","Жареный банан",["Banane"],[],["Honig"],["veg","fried"],"десерт"],
+["snack","Mochi Kokos","Моти кокос",["Kokoscreme"],[],[],["veg"],"2 шт · рисовый десерт"],
+["snack","Mochi Mango","Моти манго",["Mangocreme"],[],[],["veg"],"2 шт · рисовый десерт, крем веганский"],
+["snack","Mochi Matcha Latte","Моти матча",["Matchacreme"],[],[],["veg"],"2 шт · рисовый десерт"],
+["snack","Cheesecake","Чизкейк",["Käseküchlein","weiße Schokolade"],[],[],["veg"],"десерт"],
+["snack","Muffin","Маффин",["Milchschokolade"],[],[],["veg"],"десерт"],
+["snack","Donut","Пончик",["Milka & Daim"],[],[],["veg"],"десерт"],
+
+/* --- SUPPEN / SALATE --- */
+["soup","Miso Suppe","Мисо-суп",["Miso-Fond","Tofu","Seetang","Frühlingszwiebeln"],[],[],["veg"],"2 половника фонда · заливается кипящим"],
+["soup","Lachs Suppe","Суп с лососем",["Miso-Fond","Lachsfiletstücke","Seetang","Frühlingszwiebeln"],[],[],["fish"],"2 половника фонда · заливается кипящим"],
+["soup","Algensalat","Салат вакамэ",["Algensalat","Möhre"],["Sesam"],["Sesamdressing"],["veg"],"120 г на салатном листе"],
+["soup","Edamame Salat","Эдамаме",["Sojabohnen","Meersalz"],[],[],["veg"],"стручки соевых бобов"],
+["soup","Edamame Salat mit Knoblauchbutter","Эдамаме с чесночным маслом",["Sojabohnen","Meersalz","Knoblauchbutter"],[],[],["veg"]],
+
+/* --- DON YOKO --- */
+["don","Donburi Sake","Донбури с лососем",["Reis","Lachs","Pak Choi mit Tomate","Spiegelei","Frühlingszwiebeln"],[],["Yoko Cocktailmayonnaise","Cranberry Teriyaki Sauce"],["fish"]],
+["don","Donburi Teriyaki Sake","Донбури лосось терияки",["Reis","Lachs","Pak Choi mit Tomate","Spiegelei","Frühlingszwiebeln"],[],["Teriyaki Sauce","Yoko Cocktailmayonnaise","Cranberry Teriyaki Sauce"],["fish","fried"]],
+["don","Donburi Chicken Schnitzel","Донбури с куриным шницелем",["Reis","Hähnchen","Pak Choi mit Tomate","Spiegelei","Frühlingszwiebeln"],[],["Yoko Cocktailmayonnaise","Cranberry Teriyaki Sauce"],["meat","fried"]],
+["don","Donburi Karaage","Донбури с карааге",["Reis","Karaage","Pak Choi mit Tomate","Spiegelei","Frühlingszwiebeln"],[],["Yoko Cocktailmayonnaise","Cranberry Teriyaki Sauce"],["meat","fried"]],
+["don","Donburi Teriyaki Sticks","Донбури с куриными шпажками",["Reis","Hähnchenbrustspieße","Pak Choi mit Tomate","Spiegelei","Frühlingszwiebeln"],[],["Yoko Cocktailmayonnaise","Cranberry Teriyaki Sauce"],["meat"]],
+["don","Donburi Wan-Tan","Донбури с вонтонами",["Reis","Wan-Tan","Pak Choi mit Tomate","Spiegelei","Frühlingszwiebeln"],[],["Yoko Cocktailmayonnaise","Cranberry Teriyaki Sauce"],["meat","fried"],"вонтоны с куриной начинкой"],
+["don","Donburi Crispy Ebi Garnelen","Донбури с креветками",["Reis","Garnele","Pak Choi mit Tomate","Spiegelei","Frühlingszwiebeln"],[],["Yoko Cocktailmayonnaise","Cranberry Teriyaki Sauce"],["fish","fried"]],
+["don","Donburi Duck","Донбури с уткой",["Reis","Entenbrust","Pak Choi mit Tomate","Spiegelei","Frühlingszwiebeln"],[],["Yoko Cocktailmayonnaise","Cranberry Teriyaki Sauce"],["meat","fried"]],
+["don","Donburi Spargel Chicken","Донбури со спаржей и курицей",["Reis","Hähnchen","grüner Spargel","Pak Choi mit Tomate","Spiegelei","Frühlingszwiebeln"],[],["Yoko Cocktailmayonnaise","Sauce Hollandaise"],["meat","fried"],"единственный донбури с голландезом"],
+["don","Donburi Tofu (vegan)","Донбури с тофу",["Reis","frittierter Tofu","Pak Choi mit Tomate","Frühlingszwiebeln"],[],["Cranberry Teriyaki Sauce"],["veg","fried"],"без яйца и майонеза"],
+["don","Donburi geb. veganem Fischfilet (vegan)","Донбури с веганской рыбой",["Reis","veganer Backfisch","Pak Choi mit Tomate","Frühlingszwiebeln"],[],["Cranberry Teriyaki Sauce"],["veg","fried"],"без яйца и майонеза; на фото с сайта яйцо есть — в описании его нет"],
+["don","Pak Choi mit Tomaten und Soja Sauce","Пак-чой с томатами",["Pak Choi","Tomate"],[],["Sojasauce"],["veg"],"гарнир"],
+
+/* --- SPECIALS (вок) --- */
+["special","Chop Suey","Чоп суи",["Reis","Gemüse"],[],["Braune Sauce"],["veg"]],
+["special","Erdnussgericht","Блюдо с арахисовым соусом",["Reis","Gemüse"],[],["Erdnusssauce"],["veg"]],
+["special","Mango Chutney","Манго чатни",["Reis","Gemüse"],[],["Mangosauce"],["veg"]],
+["special","Rotes Thaicurry","Красное тайское карри",["Gemüse"],[],["Rotes Thaicurry"],["veg"]],
+["special","Gelbes Thaicurry","Жёлтое тайское карри",["Gemüse"],[],["Gelbes Thaicurry"],["veg"]],
+["special","Gebratener Reis","Жареный рис",["Eiereis","Gemüse"],[],["Sojasauce"],["veg"]],
+["special","Gebratene Udon Nudeln","Жареная лапша удон",["Udon Nudeln","Gemüse"],[],["Sojasauce"],["veg"]],
+["special","Gebratene Nudeln","Жареная лапша",["Udon Nudeln","Gemüse"],[],["Sojasauce"],["veg"],"в карте описан так же, как Udon"],
+["special","Yoko Noodles","Yoko Noodles",["Udon Nudeln","Gemüse"],[],["Sojasauce"],["veg"],"в карте описан так же, как Udon"],
+["special","Glasnudelsalat Natur","Салат из стеклянной лапши",["Glasnudeln"],[],[],["veg"],"состав в карте не указан"],
+["special","Glasnudelsalat Chicken","Салат из стеклянной лапши с курицей",["Glasnudeln","Hähnchen"],[],[],["meat"],"состав в карте не указан"],
+["special","Glasnudelsalat Garnele","Салат из стеклянной лапши с креветкой",["Glasnudeln","Garnele"],[],[],["fish"],"состав в карте не указан"],
+["special","Kokos Cremesuppe","Кокосовый крем-суп",[],[],[],["veg"],"состав в карте не указан"],
+["special","Sauer-Scharf-Suppe","Кисло-острый суп",[],[],[],["veg"],"состав в карте не указан"],
+["special","Wan-Tan Suppe","Суп с вонтонами",["Wan-Tan"],[],[],["meat"],"состав в карте не указан"],
+["special","Pikante Gemüseuppe","Острый овощной суп",["Gemüse"],[],[],["veg"],"состав в карте не указан"]
 ];
 
 const CATS = {
@@ -203,6 +292,10 @@ const CATS = {
  mini:{short:"Mini Yoko", ru:"Mini Yoko Rolls", sub:"Жареные, маленькие", cols:3, band:"--amber-band", ink:"--amber-ink"},
  nigiri:{short:"Нигири", ru:"Nigiris / Inaris", sub:"Парами",          cols:3, band:"--slate-band", ink:"--slate-ink"},
  sommer:{short:"Sommerrollen", ru:"Sommerrollen",  sub:"Рисовая бумага",     cols:3, band:"--yellow-band", ink:"--yellow-ink"},
+ snack:{short:"Снеки", ru:"Snacks / Dessert", sub:"Штуки и дип — в подписи", cols:3, band:"--red-soft", ink:"--red"},
+ soup:{short:"Супы", ru:"Suppen / Salate", sub:"Порциями", cols:3, band:"--slate-band", ink:"--slate-ink"},
+ don:{short:"Don Yoko", ru:"Don Yoko", sub:"Донбури и бао", cols:3, band:"--amber-band", ink:"--amber-ink"},
+ special:{short:"Вок", ru:"Specials", sub:"Без техкарт", cols:3, band:"--slate-band", ink:"--slate-ink"},
  bowl:{short:"Боулы", ru:"Yoko Poke Bowls", sub:"База одинаковая",    cols:3, band:"--amber-band", ink:"--amber-ink"}
 };
 

@@ -178,12 +178,17 @@ function renderDishes() {
     const base = key === "bowl"
       ? `<p class="bowlbase"><b>База во всех боулах:</b> ${BOWL_BASE.join(" · ")}</p>` : "";
     const cut = t.pcs === 1 ? "порция" : `in <span class="mono">${t.pcs}</span> Stück geschnitten`;
+    /* У снеков, супов, донбури и вока нет ни граммовки риса, ни общего количества:
+       там всё индивидуально и стоит в подписи к позиции. */
+    const spec = t.rice
+      ? `<span class="spec"><span class="mono">${t.rice} g</span> Reis</span>
+         <span class="spec">${cut}</span>`
+      : `<span class="spec">${esc(meta.sub)}</span>`;
 
     out += `<div class="cat" id="cat-${key}">
       <div class="cathead">
         <h3>${esc(meta.ru)}</h3>
-        <span class="spec"><span class="mono">${t.rice} g</span> Reis</span>
-        <span class="spec">${cut}</span>
+        ${spec}
       </div>
       ${base}
       <div class="rows">${list.map(d => `
