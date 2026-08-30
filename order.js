@@ -111,7 +111,13 @@ const Order = (function () {
         const d = dishBy.get(it.name);
         const single = SINGLE_PACK[it.name];
         const ownKit = [];
-        const put = (label, cnt) => { ownKit.push({ label, cnt }); addKit(label, cnt * q); };
+        /* Один и тот же соус может прийти и из документированной упаковки,
+           и из данных блюда — второй раз не считаем. */
+        const put = (label, cnt) => {
+          if (ownKit.some(k => k.label === label)) return;
+          ownKit.push({ label, cnt });
+          addKit(label, cnt * q);
+        };
         if (single) single.kit.forEach(([label, cnt]) => put(label, cnt));
         /* Правило из брошюры: к любому суши-блюду васаби, имбирь, соевый. */
         else if (d && SUSHI_TYPES.includes(d[0])) SUSHI_FREEBIES.forEach(([label, cnt]) => put(label, cnt));
