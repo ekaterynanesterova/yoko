@@ -86,7 +86,11 @@ function setItemCell(it) {
   const known = !!(d || extra);
   const ruName = d ? d.ru : (extra ? extra.ru : "");
   const cls = !known ? "s-none" : (fried ? "s-fry" : "s-nofry");
-  return `<div class="scell ${cls}">
+  /* Если позиция есть в справочнике — по ней можно открыть рецепт,
+     чтобы не уходить из сборки меню в другую вкладку. */
+  const act = d ? ` data-recipe="${esc(name)}" tabindex="0" role="button"
+    aria-label="Рецепт: ${esc(name)}"` : "";
+  return `<div class="scell ${cls}"${act}>
     <span class="cnt">${n}</span>
     <span class="txt"><b>${esc(name)}</b>${ruName ? `<i>${esc(ruName)}</i>` : ""}${
       umh ? `<u>обсыпка: ${esc(umh)}</u>` : ""}</span>
@@ -541,4 +545,58 @@ if ("serviceWorker" in navigator) {
     try { localStorage.setItem(PHOTO_LS, photosOn ? "1" : "0"); } catch (e) {}
     renderDishes(); renderSets();
   });
+})();
+
+/* ============================================================
+   РЕЦЕПТ ПО НАЖАТИЮ НА ПОЗИЦИЮ В СЕТ-МЕНЮ
+   ============================================================ */
+(function () {
+  const rc = $("#rc"), body = $("#rcBody");
+  let lastFocus = null;
+
+  function open(name) {
+    const d = dishByDe.get(name);
+    if (!d) return;
+    const t = typeOf(d.cat), meta = CATS[d.cat];
+    const rec = PHOTO.dish[d.de];
+    const spec = t && t.rice
+      ? `${meta.ru} · <span class="mono">${t.rice} g</span> Reis · ${
+          t.pcs === 1 ? "порция" : `<span class="mono">${t.pcs}</span> Stück`}`
+      : (meta ? meta.ru : "");
+
+    body.innerHTML = `
+      <div class="rc-head">
+        ${rec ? `<img src="img/${rec[0]}" alt="${esc(d.de)}" loading="lazy">` : ""}
+        <div class="rc-t">
+          <h3 id="rcTitle">${esc(d.de)}</h3>
+          <span class="ru">${esc(d.ru)}</span>
+          <span class="spec">${spec}</span>
+          ${d.tags.includes("deepfried") ? '<span class="rc-fry">ФРИ · целиком во фритюре</span>' : ""}
+        </div>
+      </div>
+      <div class="hcells" style="--cols:${meta ? meta.cols : 3}">${cellsHTML(d, meta)}</div>
+      ${d.note ? `<p class="rc-note">${esc(d.note)}</p>` : ""}
+      <p class="rc-hint">Ячейка с заливкой — внутрь, прозрачная — сверху. Соус внутрь подчёркнут.</p>`;
+
+    lastFocus = document.activeElement;
+    rc.hidden = false;
+    $("#rcX").focus();
+  }
+  function close() {
+    rc.hidden = true;
+    body.innerHTML = "";
+    if (lastFocus && lastFocus.isConnected) lastFocus.focus();
+  }
+
+  document.addEventListener("click", e => {
+    const c = e.target.closest("[data-recipe]");
+    if (c) { open(c.dataset.recipe); return; }
+    if (e.target === rc) close();
+  });
+  document.addEventListener("keydown", e => {
+    const c = e.target.closest && e.target.closest("[data-recipe]");
+    if (c && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); open(c.dataset.recipe); return; }
+    if (e.key === "Escape" && !rc.hidden) close();
+  });
+  $("#rcX").addEventListener("click", close);
 })();

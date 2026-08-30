@@ -349,3 +349,34 @@ input[type=search]{flex:1 1 220px;min-width:0}
   font-size:34px;line-height:1;cursor:pointer;padding:4px 10px}
 .lb-x:hover{color:#fff}
 @media print{.lb{display:none!important}.thumb,.setthumb{display:none!important}}
+
+/* ---------- рецепт по нажатию на позицию меню ---------- */
+.scell[data-recipe]{cursor:pointer}
+.scell[data-recipe]:hover{border-color:var(--red)}
+.scell[data-recipe]:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+.scell .cnt{position:relative}
+.rc{position:fixed;inset:0;z-index:70;background:rgba(8,10,7,.6);display:flex;
+  align-items:center;justify-content:center;padding:16px}
+.rc[hidden]{display:none}
+.rc-in{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:14px;
+  box-shadow:0 18px 50px rgba(0,0,0,.35);padding:18px;max-width:640px;width:100%;
+  max-height:88vh;overflow-y:auto}
+.rc-x{position:absolute;top:6px;right:10px;background:none;border:0;color:var(--muted);
+  font-size:28px;line-height:1;cursor:pointer;padding:2px 8px}
+.rc-x:hover{color:var(--ink)}
+.rc-head{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px;padding-right:26px}
+.rc-head img{width:84px;height:84px;object-fit:cover;border:2px solid var(--cellline);
+  border-radius:6px;flex:0 0 auto;background:var(--sunk)}
+.rc-t{min-width:0;display:flex;flex-direction:column;gap:2px}
+.rc-t h3{font-size:25px;text-transform:uppercase;line-height:1.02}
+.rc-t .ru{font-size:13px;color:var(--muted)}
+.rc-t .spec{font-size:12.5px;color:var(--ink-2);font-weight:600}
+.rc-t .spec .mono{font-weight:700}
+.rc-fry{display:inline-block;background:var(--red);color:#fff;font-family:"JetBrains Mono",monospace;
+  font-size:9px;font-weight:700;padding:2px 5px;letter-spacing:.04em;align-self:flex-start;margin-top:2px}
+:root[data-theme="dark"] .rc-fry{color:#2A0E0E}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .rc-fry{color:#2A0E0E}}
+.rc-note{font-size:12.5px;color:var(--ink-2);border-left:2px solid var(--line);
+  padding-left:9px;margin:10px 0 0}
+.rc-hint{font-size:11.5px;color:var(--muted);margin:10px 0 0}
+@media print{.rc{display:none!important}}
