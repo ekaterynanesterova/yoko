@@ -12,10 +12,12 @@ try { photosOn = localStorage.getItem(PHOTO_LS) !== "0"; } catch (e) {}
 
 /* Миниатюра лежит у нас и работает офлайн; полный размер — на сервере Yoko,
    поэтому увеличение доступно только онлайн. */
-function thumbHTML(kind, name, ru) {
+function thumbHTML(kind, name, ru, preferBox) {
   if (!photosOn) return "";
-  const rec = PHOTO[kind] && PHOTO[kind][name];
+  let rec = PHOTO[kind] && PHOTO[kind][name];
   const box = kind === "menu" ? PHOTO.box[name] : null;
+  /* В блоке сборки полезнее сразу видеть раскладку коробки, а не витрину. */
+  if (preferBox && box) rec = null;
   const cls = kind === "menu" ? "setthumb" : "thumb";
   /* Фото нет — оставляем пустую рамку, иначе названия разъезжаются по левому краю. */
   if (!rec && !box) return `<span class="${cls} none" aria-hidden="true"></span>`;
@@ -611,15 +613,26 @@ if ("serviceWorker" in navigator) {
 
   const say = (t, kind) => { state.textContent = t || ""; state.dataset.t = kind || ""; };
 
+  /* 1 ролл, 2 ролла, 5 роллов — иначе на пяти получается «5 ролла». */
+  const plural = (n, one, few, many) => {
+    const a = Math.abs(n) % 100, b = a % 10;
+    if (a > 10 && a < 20) return many;
+    if (b > 1 && b < 5) return few;
+    if (b === 1) return one;
+    return many;
+  };
+
   function chip(w) {
     const known = !!PHOTO.dish[w.name];
     const act = w.cat ? ` data-recipe="${esc(w.name)}" tabindex="0" role="button"` : "";
     const th = known && photosOn
       ? `<img src="img/${PHOTO.dish[w.name][0]}" alt="" loading="lazy">` : "";
     return `<div class="wcell"${act}>
-      <span class="wn"><span class="mono">${w.pcs || w.portions}</span><i>${w.pcs ? "шт" : "порц"}</i></span>
+      <span class="wn"><span class="mono">${w.rolls || w.pcs || w.portions}</span><i>${
+        w.rolls ? plural(w.rolls, "ролл", "ролла", "роллов") : (w.pcs ? "шт" : "порц")}</i></span>
       ${th}
       <span class="wt"><b>${esc(w.name)}</b>${w.ru ? `<i>${esc(w.ru)}</i>` : ""}${
+        w.rolls ? `<u class="cutinfo">режем по ${w.per} кусков · всего ${w.pcs}</u>` : ""}${
         w.from && w.from.size ? `<u>из ${esc([...w.from].join(", "))}</u>` : ""}</span>
     </div>`;
   }
@@ -629,7 +642,7 @@ if ("serviceWorker" in navigator) {
     if (!o) { view.innerHTML = ""; return; }
     const e = Order.expand(o);
     const block = (title, arr, cls) => arr.length
-      ? `<div class="wblock ${cls}"><h3>${title} <span class="cnt">${arr.reduce((a, w) => a + (w.pcs || w.portions), 0)}</span></h3>
+      ? `<div class="wblock ${cls}"><h3>${title} <span class="cnt">${arr.reduce((a, w) => a + (w.rolls || w.pcs || w.portions), 0)}</span></h3>
          <div class="wcells">${arr.map(chip).join("")}</div></div>` : "";
 
     view.innerHTML = `
@@ -643,8 +656,24 @@ if ("serviceWorker" in navigator) {
       ${block("Во фритюр", e.fry, "w-fry")}
       ${block("Крутить", e.roll, "w-roll")}
       ${block("Остальное", e.other, "w-other")}
-      ${e.boxes.length ? `<div class="wblock w-box"><h3>Коробки</h3><p class="wline">${
-        e.boxes.map(([b, n]) => `<span class="tag"><span class="mono">${n}×</span> ${esc(b)}</span>`).join("")}</p></div>` : ""}
+      ${e.packs.length ? `<div class="wblock w-pack"><h3>Как складывать</h3>
+        ${e.packs.map(p => `<div class="pack">
+          <div class="packhead">
+            ${thumbHTML("menu", p.name, "", true)}
+            <div class="pt">
+              <b>${p.qty > 1 ? `<span class="mono">${p.qty}×</span> ` : ""}${esc(p.name)}</b>
+              ${p.box ? `<span class="boxtag">коробка ${esc(p.box)}</span>` : ""}
+            </div>
+          </div>
+          ${p.kit.length ? `<p class="packkit"><span class="lbl">в каждую коробку:</span> ${
+            p.kit.map(k => `<span class="tag"><span class="mono">${k.cnt}×</span> ${esc(k.label)}</span>`).join("")}</p>` : ""}
+          ${p.items.length ? `<p class="packitems">${
+            p.items.map(([n, nm]) => `<span class="pi"><span class="mono">${n}</span> ${esc(nm)}</span>`).join("")}</p>` : ""}
+          ${p.note ? `<p class="packnote">${esc(p.note)}</p>` : ""}
+        </div>`).join("")}
+        ${e.boxes.length ? `<p class="wline boxsum"><span class="lbl">всего коробок:</span> ${
+          e.boxes.map(([b, n]) => `<span class="tag"><span class="mono">${n}×</span> ${esc(b)}</span>`).join("")}</p>` : ""}
+        </div>` : ""}
       ${e.kit.length ? `<div class="wblock w-kit"><h3>Комплект</h3><p class="wline">${
         e.kit.map(([k, n]) => `<span class="tag"><span class="mono">${n}×</span> ${esc(k)}</span>`).join("")}</p></div>` : ""}
       ${o.extras && o.extras.length ? `<div class="wblock w-extra"><h3>Допы с чека</h3><p class="wline">${

@@ -50,15 +50,15 @@ const ru = t => G[t] || "";
    ТИПЫ (каркас)
    ============================================================ */
 const TYPES = [
- {id:"maki", ru:"Маки", de:"Makis", rice:70, pcs:8, c:"var(--green)",
+ {id:"maki", cut:true, ru:"Маки", de:"Makis", rice:70, pcs:8, c:"var(--green)",
   rule:"Нори <b>снаружи</b>, рис внутри. Начинка 1–3 продукта, соуса по умолчанию нет."},
- {id:"io", ru:"Inside-Out роллы", de:"Inside Outside Rolls", rice:130, pcs:8, c:"var(--green)",
+ {id:"io", cut:true, ru:"Inside-Out роллы", de:"Inside Outside Rolls", rice:130, pcs:8, c:"var(--green)",
   rule:"Рис <b>снаружи</b>, обваливается в Umhüllung: кунжут, масаго или шнитт-лук."},
- {id:"premium", ru:"Премиум-роллы", de:"Premium Rolls", rice:130, pcs:8, c:"var(--green)",
+ {id:"premium", cut:true, ru:"Премиум-роллы", de:"Premium Rolls", rice:130, pcs:8, c:"var(--green)",
   rule:"Тот же Inside-Out, но с <b>топпингом сверху</b>: филе, соусы, лук."},
- {id:"yoko", ru:"Yoko Rolls", de:"Yoko Rolls", rice:120, pcs:5, c:"var(--amber)",
+ {id:"yoko", cut:true, ru:"Yoko Rolls", de:"Yoko Rolls", rice:120, pcs:5, c:"var(--amber)",
   rule:"<b>Жарятся в темпуре.</b> Сверху всегда Sweet Sauce + кунжут. В техкарте режут на 4, продаются по 5."},
- {id:"mini", ru:"Mini Yoko Rolls", de:"Mini Yoko Rolls", rice:70, pcs:8, c:"var(--amber)",
+ {id:"mini", cut:true, ru:"Mini Yoko Rolls", de:"Mini Yoko Rolls", rice:70, pcs:8, c:"var(--amber)",
   rule:"Жареные, но <b>маленькие</b>. Начинка одна, к ним отдельный дип — обычно Cocktailmayo."},
  {id:"nigiri", ru:"Нигири и инари", de:"Nigiris / Inaris", rice:25, pcs:2, c:"var(--slate)",
   rule:"25 г — это <b>на один</b> нигири. Подаются всегда парой."},

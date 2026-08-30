@@ -59,6 +59,7 @@ const Order = (function () {
     const work = new Map();   // немецкое имя -> {name, pcs, fromMenus:Set}
     const boxes = new Map();  // размер -> количество
     const kit = new Map();    // текст комплекта -> количество
+    const packs = [];         // как складывать: коробка + комплект на каждое меню
     const plain = [];         // позиции без разбора (снеки, супы)
 
     /* Внутри меню количество указано в штуках, а отдельная позиция
@@ -91,12 +92,18 @@ const Order = (function () {
         if (!m) continue;
         for (const [n, dishName] of (m.items || [])) addWork(dishName, n * q, m.name);
         if (m.box) boxes.set(m.box, (boxes.get(m.box) || 0) + q);
-        /* Комплект в карточке записан строкой вида «васаби · имбирь · 2× Cocktail Mayo». */
-        String(m.kit || "").split("·").map(s => s.trim()).filter(Boolean).forEach(part => {
+        /* Комплект в карточке записан строкой вида «васаби · имбирь · 2× Cocktail Mayo».
+           В packs держим комплект НА ОДНУ коробку — так его и кладут. */
+        const perBox = [];
+        String(m.kit || "").split("·").map(x => x.trim()).filter(Boolean).forEach(part => {
           const mm = part.match(/^(\d+)\s*[×x]\s*(.+)$/);
-          if (mm) addKit(mm[2].trim(), (+mm[1]) * q);
-          else addKit(part, q);
+          const cnt = mm ? +mm[1] : 1;
+          const label = mm ? mm[2].trim() : part;
+          perBox.push({ label, cnt });
+          addKit(label, cnt * q);
         });
+        packs.push({ name: m.name, qty: q, box: m.box || "", kit: perBox,
+                     items: (m.items || []).slice(), note: m.note || "" });
       } else {
         addPortions(it.name, q);
       }
@@ -107,8 +114,13 @@ const Order = (function () {
       const d = dishBy.get(w.name);
       if (!d) { other.push(w); continue; }
       const cat = d[0], tags = d[6] || [];
+      const t = TYPES.find(x => x.id === cat);
       w.cat = cat;
       w.ru = d[2];
+      /* per — на сколько кусков режется один ролл; cut — режется ли вообще. */
+      w.per = t && t.pcs > 1 ? t.pcs : 0;
+      w.cut = !!(t && t.cut);
+      w.rolls = w.cut && w.per ? Math.round(w.pcs / w.per) : 0;
       if (tags.includes("deepfried")) fry.push(w);
       else if (["maki", "io", "premium", "mini", "nigiri", "sommer"].includes(cat)) roll.push(w);
       else other.push(w);
@@ -116,6 +128,7 @@ const Order = (function () {
     const byName = (a, b) => a.name.localeCompare(b.name);
     return {
       fry: fry.sort(byName), roll: roll.sort(byName), other: other.sort(byName),
+      packs,
       boxes: [...boxes.entries()].sort(),
       kit: [...kit.entries()].sort((a, b) => b[1] - a[1]),
       plain
