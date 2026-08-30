@@ -198,14 +198,14 @@ const D = [
 ["sommer","Sommerrolle Natur","Летний ролл натур",["Reispapier","Salatmix","Reis","Thai-Pesto","Rucola","Cocktailtomaten"],[],[],["veg"],"50 г салата · 35 г риса · 5 г песто · 10 г рукколы · 2 половинки черри"],
 ["sommer","Sommerrolle Chicken","Летний ролл с курицей",["Reispapier","Salatmix","Reis","Thai-Pesto","Hühnchen"],[],[],["meat"],"70 г салата · 35 г риса · 5 г песто · 2 полоски курицы"],
 ["sommer","Sommerrolle Black Tiger Garnele","Летний ролл с креветкой",["Reispapier","Salatmix","Reis","Thai-Pesto","Garnele"],[],[],["fish"],"50 г салата · 35 г риса · 5 г песто · 2 половинки креветки"],
-["sommer","Sommerrolle Peanut Chicken","Летний ролл арахисовый",["Reispapier","Salatmix","Reis","Thai-Pesto","Hühnchen"],[],["Erdnusssauce"],["meat","fried"]],
+["sommer","Sommerrolle Peanut Chicken","Летний ролл арахисовый",["Reispapier","Salatmix","Reis","Thai-Pesto","Hühnchen","Erdnusssauce"],[],[],["meat","fried"]],
 
 /* --- POKE BOWLS, 250 г риса --- */
 ["bowl","Yoko Poke Bowl Lachs","Боул с лососем",["Lachs"],[],[],["fish"]],
-["bowl","Yoko Poke Bowl Sake Teriyaki","Боул лосось терияки",["Lachs"],[],["Teriyaki Sauce"],["fish","fried"]],
+["bowl","Yoko Poke Bowl Sake Teriyaki","Боул лосось терияки",["Lachs","Teriyaki Sauce"],[],[],["fish","fried"]],
 ["bowl","Yoko Poke Bowl Guacamole Lachs","Боул лосось-гуакамоле",["Lachs","Guacamole"],[],[],["fish"]],
 ["bowl","Yoko Poke Bowl Chicken","Боул с курицей",["Hühnchen"],[],[],["meat","fried"]],
-["bowl","Yoko Poke Bowl Chicken Teriyaki","Боул курица терияки",["Hühnchen"],[],["Teriyaki Sauce"],["meat","fried"]],
+["bowl","Yoko Poke Bowl Chicken Teriyaki","Боул курица терияки",["Hühnchen","Teriyaki Sauce"],[],[],["meat","fried"]],
 ["bowl","Yoko Poke Bowl Chicken Balls","Боул с куриными шариками",["Hühnchen"],[],[],["meat","fried"],"6 шариков"],
 ["bowl","Yoko Poke Bowl Japanese fried Chicken","Боул с карааге",["Karaage"],[],[],["meat","fried"],"4–5 штук"],
 ["bowl","Yoko Poke Bowl Gyoza Chicken","Боул с гёдза",["Hühnchen"],[],[],["meat","fried"],"4 гёдза"],
@@ -361,7 +361,13 @@ const SINGLE_PACK = {
   "Sommerrolle Natur":               { box: "M", kit: [["дип на выбор", 1]] },
   "Sommerrolle Chicken":             { box: "M", kit: [["дип на выбор", 1]] },
   "Sommerrolle Black Tiger Garnele": { box: "M", kit: [["дип на выбор", 1]] },
-  "Sommerrolle Peanut Chicken":      { box: "M", kit: [["Erdnuss Sauce", 1]] }
+  "Sommerrolle Peanut Chicken":      { box: "M", kit: [["дип на выбор", 1]] }
+};
+
+/* Комплект по типу блюда, когда он одинаков для всего раздела.
+   У поке-боулов соус всегда выбирает гость («Sauce Deiner Wahl»). */
+const CAT_PACK = {
+  bowl: [["соус на выбор", 1]]
 };
 
 /* Кладётся к любому суши-блюду бесплатно — правило из брошюры. */

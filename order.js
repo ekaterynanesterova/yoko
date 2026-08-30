@@ -115,6 +115,7 @@ const Order = (function () {
         if (single) single.kit.forEach(([label, cnt]) => put(label, cnt));
         /* Правило из брошюры: к любому суши-блюду васаби, имбирь, соевый. */
         else if (d && SUSHI_TYPES.includes(d[0])) SUSHI_FREEBIES.forEach(([label, cnt]) => put(label, cnt));
+        else if (d && CAT_PACK[d[0]]) CAT_PACK[d[0]].forEach(([label, cnt]) => put(label, cnt));
         /* Собственный соус позиции — он идёт стаканчиком рядом. */
         if (d) (d[5] || []).forEach(sauce => put(sauce, 1));
 
