@@ -1,5 +1,5 @@
 /* Офлайн-режим: на кухне вайфай может пропасть, страница должна открываться всё равно. */
-const CACHE = "yoko-v3";
+const CACHE = "yoko-v4";
 const SHELL = [
   "./", "./index.html", "./styles.css",
   "./data.js", "./progress.js", "./sync.js", "./app.js",
@@ -41,9 +41,15 @@ self.addEventListener("fetch", e => {
 
   if (url.origin !== self.location.origin) return;
 
-  /* Картинки не меняются — их можно отдавать из кэша сразу. */
-  if (/\.(png|svg|ico)$/i.test(url.pathname)) {
-    e.respondWith(caches.match(req).then(hit => hit || fetch(req)));
+  /* Картинки не меняются — из кэша сразу, а чего нет, докладываем при первом показе. */
+  if (/\.(png|svg|ico|jpe?g|webp)$/i.test(url.pathname)) {
+    e.respondWith(caches.match(req).then(hit => hit || fetch(req).then(res => {
+      if (res && res.ok) {
+        const copy = res.clone();
+        caches.open(CACHE).then(c => c.put(req, copy)).catch(() => {});
+      }
+      return res;
+    })));
     return;
   }
 

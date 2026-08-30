@@ -6,6 +6,25 @@
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
 
+const PHOTO_LS = "yoko.photos";
+let photosOn = true;
+try { photosOn = localStorage.getItem(PHOTO_LS) !== "0"; } catch (e) {}
+
+/* Миниатюра лежит у нас и работает офлайн; полный размер — на сервере Yoko,
+   поэтому увеличение доступно только онлайн. */
+function thumbHTML(kind, name, ru) {
+  if (!photosOn) return "";
+  const rec = PHOTO[kind] && PHOTO[kind][name];
+  const box = kind === "menu" ? PHOTO.box[name] : null;
+  const cls = kind === "menu" ? "setthumb" : "thumb";
+  /* Фото нет — оставляем пустую рамку, иначе названия разъезжаются по левому краю. */
+  if (!rec && !box) return `<span class="${cls} none" aria-hidden="true"></span>`;
+  const src = rec ? "img/" + rec[0] : "img/box/" + box;
+  const alt = esc(name + (ru ? " — " + ru : ""));
+  return `<button class="${cls}" type="button" data-photo="${kind}" data-name="${esc(name)}"
+    aria-label="Показать фото: ${alt}"><img src="${src}" alt="${alt}" loading="lazy" decoding="async"></button>`;
+}
+
 /* -- каркас -- */
 $("#frameCards").innerHTML = TYPES.map(t=>`
   <div class="fcard" style="--c:${t.c}">
@@ -86,8 +105,11 @@ function renderSets() {
 
     return `<article class="setcard">
       <header class="sethead">
-        <h3>${esc(m.name)}</h3>
-        <div class="setmeta">${meta.join('<span class="dot">·</span>')}</div>
+        ${thumbHTML("menu", m.name, "")}
+        <div class="htxt">
+          <h3>${esc(m.name)}</h3>
+          <div class="setmeta">${meta.join('<span class="dot">·</span>')}</div>
+        </div>
       </header>
       ${m.note ? `<p class="setnote">${esc(m.note)}</p>` : ""}
       ${mismatch ? `<p class="setwarn">Заявлено ${m.pcs} шт, а по списку выходит ${sum}. Сверь у шефа.</p>` : ""}
@@ -168,7 +190,8 @@ function renderDishes() {
         <div class="hrow">
           <div class="hname">
             ${d.tags.includes("deepfried") ? '<span class="fry">ФРИ</span>' : ""}
-            <b>${esc(d.de)}</b><i>${esc(d.ru)}${d.note ? " · " + esc(d.note) : ""}</i>
+            ${thumbHTML("dish", d.de, d.ru)}
+            <div class="txt"><b>${esc(d.de)}</b><i>${esc(d.ru)}${d.note ? " · " + esc(d.note) : ""}</i></div>
           </div>
           <div class="hcells" style="--cols:${meta.cols}">${cellsHTML(d, meta)}</div>
         </div>`).join("")}</div>
@@ -462,4 +485,51 @@ if ("serviceWorker" in navigator) {
   jump.addEventListener("click", () => setTimeout(spy, 400));
   new MutationObserver(spy).observe(document.querySelector("#dishList"), { childList: true });
   spy();
+})();
+
+/* ============================================================
+   ФОТО: миниатюры и просмотр
+   ============================================================ */
+(function () {
+  const lb = $("#lb"), img = $("#lbImg"), cap = $("#lbCap");
+  let lastFocus = null;
+
+  function open(kind, name) {
+    const rec = PHOTO[kind] && PHOTO[kind][name];
+    const box = kind === "menu" ? PHOTO.box[name] : null;
+    /* У меню полезнее показать собранную коробку; если её нет — фото блюда. */
+    const src = box ? "img/box/" + box : (navigator.onLine && rec ? rec[1] : (rec ? "img/" + rec[0] : ""));
+    if (!src) return;
+    let note = "";
+    if (box) note = "Раскладка коробки из Handbuch, Anhang 2";
+    else if (!navigator.onLine) note = "Офлайн — показан уменьшенный снимок";
+    img.src = src;
+    img.alt = name;
+    cap.innerHTML = `<b>${esc(name)}</b>${note ? esc(note) : ""}`;
+    lastFocus = document.activeElement;
+    lb.hidden = false;
+    $("#lbX").focus();
+  }
+  function close() {
+    lb.hidden = true;
+    img.src = "";
+    if (lastFocus && lastFocus.isConnected) lastFocus.focus();
+  }
+
+  document.addEventListener("click", e => {
+    const b = e.target.closest("[data-photo]");
+    if (b) { open(b.dataset.photo, b.dataset.name); return; }
+    if (e.target === lb) close();
+  });
+  $("#lbX").addEventListener("click", close);
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && !lb.hidden) close(); });
+
+  const t = $("#photoToggle");
+  t.setAttribute("aria-pressed", String(photosOn));
+  t.addEventListener("click", () => {
+    photosOn = !photosOn;
+    t.setAttribute("aria-pressed", String(photosOn));
+    try { localStorage.setItem(PHOTO_LS, photosOn ? "1" : "0"); } catch (e) {}
+    renderDishes(); renderSets();
+  });
 })();

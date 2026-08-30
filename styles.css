@@ -97,7 +97,7 @@ h2.sec .num{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:70
 .cathead .spec .mono{font-weight:700}
 
 .rows{display:flex;flex-direction:column;gap:5px}
-.hrow{display:grid;grid-template-columns:minmax(132px,206px) 1fr;gap:5px;align-items:stretch}
+.hrow{display:grid;grid-template-columns:minmax(150px,244px) 1fr;gap:5px;align-items:stretch}
 .hname{border:2px solid var(--cellline);background:var(--surface);padding:3px 8px;
   display:flex;flex-direction:column;justify-content:center;min-height:32px;position:relative}
 .hname b{font-weight:700;font-size:13.5px;line-height:1.15;letter-spacing:-.01em}
@@ -316,3 +316,36 @@ input[type=search]{flex:1 1 220px;min-width:0}
 }
 .legend .cntdemo{font-family:"JetBrains Mono",monospace;font-weight:700;font-size:11px;
   border:2px solid var(--cellline);border-radius:3px;padding:0 4px;color:var(--ink)}
+
+/* ---------- фото ---------- */
+.thumb{flex:0 0 auto;width:38px;height:38px;border:2px solid var(--cellline);border-radius:4px;
+  overflow:hidden;background:var(--sunk);padding:0;cursor:zoom-in;display:block;line-height:0}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb:hover{border-color:var(--red)}
+/* держим место, чтобы названия выравнивались и без фото */
+.thumb.none{border-style:dashed;opacity:.45;cursor:default}
+/* в строке блюда: миниатюра слева, текст справа — высота строки не растёт */
+.hname{flex-direction:row;align-items:center;justify-content:flex-start;gap:8px}
+.hname .txt{display:flex;flex-direction:column;justify-content:center;min-width:0}
+.hname .fry{top:-2px;right:-2px}
+/* в карточке меню */
+.setthumb{flex:0 0 auto;width:74px;height:42px;border:2px solid var(--cellline);border-radius:4px;
+  overflow:hidden;background:var(--sunk);padding:0;cursor:zoom-in;line-height:0}
+.setthumb img{width:100%;height:100%;object-fit:cover;display:block}
+.setthumb:hover{border-color:var(--red)}
+.sethead{align-items:center}
+.sethead .htxt{display:flex;flex-direction:column;gap:2px;min-width:0}
+
+/* окно просмотра */
+.lb{position:fixed;inset:0;z-index:80;background:rgba(8,10,7,.92);display:flex;
+  align-items:center;justify-content:center;padding:18px}
+.lb[hidden]{display:none}
+.lb-in{margin:0;max-width:min(96vw,900px);display:flex;flex-direction:column;gap:9px;align-items:center}
+.lb-in img{max-width:100%;max-height:78vh;object-fit:contain;border-radius:6px;background:#fff}
+.lb-in figcaption{color:#EDEFE8;font-size:13.5px;text-align:center;max-width:60ch}
+.lb-in figcaption b{display:block;font-family:"Big Shoulders Display",sans-serif;
+  font-size:22px;text-transform:uppercase;letter-spacing:.02em;margin-bottom:2px}
+.lb-x{position:absolute;top:10px;right:14px;background:none;border:0;color:#EDEFE8;
+  font-size:34px;line-height:1;cursor:pointer;padding:4px 10px}
+.lb-x:hover{color:#fff}
+@media print{.lb{display:none!important}.thumb,.setthumb{display:none!important}}

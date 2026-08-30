@@ -395,7 +395,7 @@ const MENUCARDS = [
   items:[[5,"Yoko Roll Vegetaria"],[2,"Sommerrolle Natur"],[8,"Fitness Roll","кунжут"]]},
 
  {name:"Peanut Pokal Menü", pcs:15, box:"", kit:"Erdnuss Sauce",
-  items:[[2,"Sommerrolle Peanut Chicken"],[5,"Yoko Roll Peanut Chicken"],[5,"Peanut Chicken Deluxe"]]},
+  items:[[2,"Sommerrolle Peanut Chicken"],[5,"Yoko Roll Peanut Chicken"],[8,"Peanut Chicken Deluxe"]]},
 
  {name:"Mittagsmenü 1", pcs:null, box:"", kit:"", note:"Не участвует в акциях",
   items:[[1,"Miso Suppe"],[8,"Maki Sake"],[8,"California Roll","масаго"]]},

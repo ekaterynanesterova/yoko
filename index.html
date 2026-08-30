@@ -81,6 +81,8 @@
       <span class="tsep" aria-hidden="true"></span>
       <button class="chip" data-paint="book" aria-pressed="true" type="button">цвет как в папке</button>
       <button class="chip" data-paint="fry" aria-pressed="false" type="button">цвет по жарке</button>
+      <span class="tsep" aria-hidden="true"></span>
+      <button class="chip" id="photoToggle" aria-pressed="true" type="button">фото</button>
     </div>
   </div>
   <p class="legend" id="legend"></p>
@@ -171,7 +173,16 @@
   </div>
 </div>
 
+<div class="lb" id="lb" hidden>
+  <figure class="lb-in" role="dialog" aria-modal="true" aria-label="Фото блюда">
+    <img id="lbImg" alt="">
+    <figcaption id="lbCap"></figcaption>
+  </figure>
+  <button class="lb-x" id="lbX" type="button" aria-label="Закрыть">×</button>
+</div>
+
 <script src="data.js"></script>
+<script src="photos.js"></script>
 <script src="progress.js"></script>
 <script src="sync.js"></script>
 <script src="app.js"></script>
