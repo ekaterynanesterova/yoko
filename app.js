@@ -94,7 +94,7 @@ function setItemCell(it) {
 }
 
 function renderSets() {
-  $("#setList").innerHTML = MENUCARDS.map(m => {
+  $("#setList").innerHTML = MENUCARDS.filter(m => !HIDDEN_MENUS.has(m.name)).map(m => {
     const items = m.items || [];
     const sum = items.reduce((a, i) => a + i[0], 0);
     /* Сумма по списку должна сходиться с заявленным количеством —

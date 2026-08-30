@@ -285,21 +285,57 @@ const D = [
 ];
 
 /* ============================================================
-   СКРЫТО С САЙТА — но НЕ удалено из базы.
-   В филиале этих позиций сейчас нет. Чтобы вернуть блюдо,
-   убери его из HIDDEN; чтобы вернуть целый раздел — сними
-   off:true у нужного типа в TYPES.
+   ЧТО НЕ ПОКАЗЫВАЕТСЯ НА САЙТЕ.
+   Из данных ничего не удалено — это только фильтр витрины.
+
+   Основание: филиал Yoko Castrop-Rauxel (store id 188 в каталоге Yoko),
+   сверено с печатной брошюрой филиала. Два источника совпали почти
+   полностью; расхождения перечислены в README.
+
+   Вернуть блюдо  — убрать имя из HIDDEN.
+   Вернуть меню   — убрать имя из HIDDEN_MENUS.
+   Вернуть раздел — снять off:true у типа в TYPES (сейчас: don, special).
    ============================================================ */
 const HIDDEN = new Set([
-  /* из десертов остался только жареный банан */
-  "Gyoza Apfel",
-  "Mochi Kokos",
-  "Mochi Mango",
-  "Mochi Matcha Latte",
-  "Cheesecake",
-  "Muffin",
-  "Donut"
-]);
+    "Cheesecake",
+    "Chicken Nuggets (vegan)",
+    "Crunchy Spargel Roll",
+    "Donut",
+    "Edamame Salat mit Knoblauchbutter",
+    "Guacamole Roll",
+    "Gyoza Apfel",
+    "Lachs Sashimi",
+    "Maki Tekka",
+    "Maki Tempura Spargel",
+    "Maki Tuna",
+    "Mini Frühlingsrollen Vegetaria",
+    "Mochi Kokos",
+    "Mochi Mango",
+    "Mochi Matcha Latte",
+    "Muffin",
+    "Nigiri Ebi",
+    "Nigiri Maguro",
+    "Sushi Burger Chicken",
+    "Sushi Burger Sake",
+    "Sushi Burger Veggie",
+    "Tekka Roll",
+    "Veggie Spring Roll",
+    "Yoko Poke Bowl Chicken Balls",
+    "Yoko Poke Bowl Guacamole Lachs",
+    "Yoko Poke Bowl Spargel Hähnchen",
+    "Yoko Roll Chicken Guacamole",
+    "Yoko Roll Ente",
+    "Yoko Roll Tuna"
+  ]);
+
+const HIDDEN_MENUS = new Set([
+    "Big Yoko Menü",
+    "Crunchy Spargel Menü",
+    "Happy Sushi Menü",
+    "Peanut Pokal Menü",
+    "Premium Lunch",
+    "Veggie Lunch"
+  ]);
 
 const CATS = {
  maki:{short:"Makis", ru:"Makis",          sub:"Маки",              cols:3, band:"--green-band", ink:"--green-ink"},
