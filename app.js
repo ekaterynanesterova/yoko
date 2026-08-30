@@ -27,6 +27,86 @@ function thumbHTML(kind, name, ru, preferBox) {
     aria-label="Показать фото: ${alt}"><img src="${src}" alt="${alt}" loading="lazy" decoding="async"></button>`;
 }
 
+/* ============================================================
+   ГОЛОСОВОЙ ВВОД
+   Встроенное в браузер распознавание речи: ни ключа, ни трафика
+   на наши сервисы. Одна реализация на два поля — поиск по блюдам
+   и ручная сборка заказа.
+   ============================================================ */
+const Voice = (function () {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const LS = "yoko.miclang";
+  const supported = !!SR;
+
+  let lang = "de-DE";
+  try { lang = localStorage.getItem(LS) || "de-DE"; } catch (e) {}
+  const label = () => (lang === "de-DE" ? "DE" : "RU");
+
+  const langBtns = [];
+  function paintAll() { langBtns.forEach(b => { b.textContent = label(); }); }
+  function toggleLang() {
+    lang = lang === "de-DE" ? "ru-RU" : "de-DE";
+    try { localStorage.setItem(LS, lang); } catch (e) {}
+    paintAll();
+    return lang;
+  }
+
+  const ERRORS = {
+    "not-allowed": "Микрофон запрещён. Разреши доступ в настройках браузера.",
+    "service-not-allowed": "Микрофон запрещён. Разреши доступ в настройках браузера.",
+    "no-speech": "Ничего не услышала — попробуй ещё раз.",
+    "audio-capture": "Микрофон не найден.",
+    "network": "Распознаванию нужен интернет."
+  };
+
+  /* input — поле, куда пишем; btn — кнопка микрофона; langBtn — переключатель;
+     hint(text, kind) — куда сообщать; onFinal — что делать по окончании фразы. */
+  function attach(input, btn, langBtn, hint, onFinal) {
+    if (!supported) { btn && btn.remove(); langBtn && langBtn.remove(); return; }
+    langBtns.push(langBtn);
+    paintAll();
+
+    langBtn.onclick = () => {
+      const l = toggleLang();
+      hint(l === "de-DE" ? "Слушаю немецкий" : "Слушаю русский");
+    };
+
+    let rec = null, active = false;
+    const stop = () => { active = false; btn.dataset.on = "0"; if (rec) { try { rec.stop(); } catch (e) {} } };
+
+    btn.onclick = () => {
+      if (active) { stop(); hint(""); return; }
+      rec = new SR();
+      rec.lang = lang;
+      rec.interimResults = true;
+      rec.continuous = false;
+      rec.maxAlternatives = 1;
+
+      rec.onstart = () => { active = true; btn.dataset.on = "1"; hint("Говори…", "live"); };
+
+      rec.onresult = e => {
+        let txt = "", final = false;
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          txt += e.results[i][0].transcript;
+          if (e.results[i].isFinal) final = true;
+        }
+        /* Распознавание любит ставить точку в конце — в поиске она мешает. */
+        txt = txt.replace(/[.!?;:]+s*$/, "").trim();
+        input.value = txt;
+        input.dispatchEvent(new Event("input"));
+        if (onFinal) onFinal(txt, final);
+      };
+
+      rec.onerror = ev => { stop(); hint(ERRORS[ev.error] || "Не получилось распознать.", "err"); };
+      rec.onend = () => { active = false; btn.dataset.on = "0"; };
+
+      try { rec.start(); } catch (e) { stop(); hint("Не удалось включить микрофон.", "err"); }
+    };
+  }
+
+  return { attach, get supported() { return supported; } };
+})();
+
 /* -- каркас -- */
 $("#frameCards").innerHTML = TYPES.filter(t => t.frame !== false && !t.off).map(t=>`
   <div class="fcard" style="--c:${t.c}">
@@ -651,8 +731,8 @@ if ("serviceWorker" in navigator) {
         <span class="when">${new Date(o.at).toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}</span>
         <button class="btn" id="ordDel" type="button">Убрать</button>
       </div>
-      ${o.items.length ? `<p class="ordline">${o.items.map(i =>
-        `<span class="oi"><span class="mono">${i.qty}×</span> ${esc(i.name)}${i.note ? ` <i>${esc(i.note)}</i>` : ""}</span>`).join("")}</p>` : ""}
+      ${o.items.length ? `<p class="ordline">${o.items.map((i, ix) =>
+        `<span class="oi"><span class="mono">${i.qty}×</span> ${esc(i.name)}${i.note ? ` <i>${esc(i.note)}</i>` : ""}<button class="oix" type="button" data-drop="${ix}" aria-label="Убрать ${esc(i.name)}">×</button></span>`).join("")}</p>` : ""}
       ${block("Во фритюр", e.fry, "w-fry")}
       ${block("Крутить", e.roll, "w-roll")}
       ${block("Остальное", e.other, "w-other")}
@@ -683,6 +763,13 @@ if ("serviceWorker" in navigator) {
         <p class="wnote">Эти строки чека не совпали ни с одной позицией карты. Проверь их глазами.</p></div>` : ""}`;
 
     $("#ordDel").onclick = () => { Order.remove(o.id); current = null; view.innerHTML = ""; renderHistory(); };
+    /* Позицию можно убрать поштучно — заказ теперь набирается по ходу. */
+    view.querySelectorAll("[data-drop]").forEach(b => b.onclick = () => {
+      o.items.splice(+b.dataset.drop, 1);
+      o.mt = Date.now();
+      Order.put(o);
+      renderOrder(o);
+    });
   }
 
   function renderHistory() {
@@ -734,69 +821,101 @@ if ("serviceWorker" in navigator) {
   $("#scanBig").addEventListener("click", () => file.click());
   $("#scanKey").addEventListener("click", askKey);
 
-  /* Ручная сборка — работает без интернета и без ключа. */
-  $("#manualAdd").addEventListener("click", () => {
-    const q = window.prompt("Что в заказе? Пиши через запятую, можно с количеством:\n\n2 Maki Menü, Yoko Roll Lachs, 3 Gyoza Chicken");
-    if (!q) return;
-    const dishL = new Map(D.map(d => [d[1].toLowerCase(), d[1]]));
-    const menuL = new Map(MENUCARDS.map(m => [m.name.toLowerCase(), m.name]));
+  /* ---------- ручная сборка ----------
+     Работает без интернета и без ключа. Позиции ДОБАВЛЯЮТСЯ в текущий
+     заказ, а не заменяют его: за смену чек дополняется по ходу. */
+  const mHint = (t, kind) => { $("#manualHint").textContent = t || ""; $("#manualHint").dataset.t = kind || ""; };
+  let forceNew = false;
+
+  const dishL = new Map(D.map(d => [d[1].toLowerCase(), d[1]]));
+  const menuL = new Map(MENUCARDS.map(m => [m.name.toLowerCase(), m.name]));
+
+  function lookup(raw) {
+    const low = raw.toLowerCase().trim();
+    if (!low) return null;
+    if (menuL.has(low)) return { name: menuL.get(low), kind: "menu" };
+    if (dishL.has(low)) return { name: dishL.get(low), kind: "dish" };
+    /* Неточное совпадение: «филадельфия» найдёт Philadelphia Roll. */
+    const mk = [...menuL.keys()].find(k => k.includes(low) || low.includes(k));
+    if (mk) return { name: menuL.get(mk), kind: "menu" };
+    const dk = [...dishL.keys()].find(k => k.includes(low) || low.includes(k));
+    if (dk) return { name: dishL.get(dk), kind: "dish" };
+    return null;
+  }
+
+  /* «2 Maki Menü, Yoko Roll Lachs и 3 гёдза» → позиции с количеством. */
+  function parseLine(text) {
     const items = [], unknown = [];
-    for (const part of q.split(",").map(s => s.trim()).filter(Boolean)) {
-      const m = part.match(/^(\d+)\s*[x×]?\s*(.+)$/);
-      const qty = m ? +m[1] : 1;
-      const raw = (m ? m[2] : part).trim();
-      const low = raw.toLowerCase();
-      let hit = menuL.get(low), kind = "menu";
-      if (!hit) { hit = dishL.get(low); kind = "dish"; }
-      if (!hit) {
-        const cand = [...menuL.keys()].find(k => k.includes(low)) ;
-        if (cand) { hit = menuL.get(cand); kind = "menu"; }
-        else {
-          const cd = [...dishL.keys()].find(k => k.includes(low));
-          if (cd) { hit = dishL.get(cd); kind = "dish"; }
-        }
-      }
-      if (hit) items.push({ name: hit, kind, qty, note: "" }); else unknown.push(raw);
+    const parts = String(text).split(/\s*[,;]\s*|\s+и\s+|\s+und\s+/i)
+      .map(x => x.trim()).filter(Boolean);
+    for (const part of parts) {
+      const m = part.match(/^(\d+)\s*(?:шт\.?|штук[иа]?|порци[йия]?|[x×])?\s*(.+)$/i);
+      const qty = m ? Math.max(1, +m[1]) : 1;
+      const raw = (m ? m[2] : part).replace(/^[x×]\s*/i, "").trim();
+      const hit = lookup(raw);
+      if (hit) items.push({ ...hit, qty, note: "" }); else unknown.push(raw);
     }
+    return { items, unknown };
+  }
+
+  function addToOrder(items, unknown) {
+    let o = forceNew ? null : current;
+    if (o && o.deleted) o = null;
+    if (!o) {
+      o = { id: "o" + Date.now().toString(36), at: Date.now(), ref: "", items: [], extras: [], unknown: [] };
+      forceNew = false;
+    }
+    for (const it of items) {
+      /* Одну и ту же позицию не плодим — складываем количество. */
+      const same = o.items.find(x => x.name === it.name && x.kind === it.kind && !x.note);
+      if (same) same.qty += it.qty; else o.items.push(it);
+    }
+    if (unknown.length) o.unknown = (o.unknown || []).concat(unknown);
+    o.mt = Date.now();
+    Order.put(o);
+    renderOrder(o);
+    renderHistory();
+    return o;
+  }
+
+  function submitManual() {
+    const q = $("#manualQ").value.trim();
+    if (!q) { mHint("Впиши или продиктуй, что в заказе.", "err"); return; }
+    const { items, unknown } = parseLine(q);
     if (!items.length && !unknown.length) return;
-    Order.put({ id: "o" + Date.now().toString(36), at: Date.now(), ref: "", items, extras: [], unknown, mt: Date.now() });
-    showLatest();
-    say(`Собрано позиций: ${items.length}` + (unknown.length ? `, не найдено: ${unknown.length}` : ""), items.length ? "ok" : "err");
+    addToOrder(items, unknown);
+    $("#manualQ").value = "";
+    const added = items.map(i => `${i.qty}× ${i.name}`).join(", ");
+    mHint(items.length
+      ? `Добавлено: ${added}` + (unknown.length ? `. Не нашла: ${unknown.join(", ")}` : "")
+      : `Не нашла: ${unknown.join(", ")}`, items.length ? "ok" : "err");
+  }
+
+  $("#manualGo").addEventListener("click", submitManual);
+  $("#manualQ").addEventListener("keydown", e => { if (e.key === "Enter") submitManual(); });
+  $("#manualNew").addEventListener("click", () => {
+    forceNew = true;
+    current = null;
+    view.innerHTML = "";
+    $("#manualQ").value = "";
+    mHint("Начат новый заказ — добавляй позиции.", "ok");
+    renderHistory();
+  });
+
+  /* Голосом: надиктовала — позиции сразу уходят в заказ. */
+  Voice.attach($("#manualQ"), $("#manualMic"), $("#manualLang"), mHint, (txt, final) => {
+    if (final && txt) submitManual();
   });
 
   Order.onChange = showLatest;
   showLatest();
 })();
 
-/* ============================================================
-   ГОЛОСОВОЙ ПОИСК
-   Встроенное в браузер распознавание речи: ни ключа, ни трафика
-   на наши сервисы. Названия блюд немецкие, поэтому по умолчанию
-   слушаем немецкий, но язык переключается — поиск всё равно
-   ищет и по немецкому, и по русскому.
-   ============================================================ */
+/* -- голос в поиске по блюдам -- */
 (function () {
-  const btn = $("#mic"), langBtn = $("#micLang"), input = $("#q");
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  const LS = "yoko.miclang";
-
-  /* Браузер не умеет — прячем кнопки, поиск руками работает как раньше. */
-  if (!SR) { btn.remove(); langBtn.remove(); return; }
-
-  let lang = "de-DE";
-  try { lang = localStorage.getItem(LS) || "de-DE"; } catch (e) {}
-  const paint = () => { langBtn.textContent = lang === "de-DE" ? "DE" : "RU"; };
-  paint();
-
-  langBtn.onclick = () => {
-    lang = lang === "de-DE" ? "ru-RU" : "de-DE";
-    try { localStorage.setItem(LS, lang); } catch (e) {}
-    paint();
-    hint(lang === "de-DE" ? "Слушаю немецкий" : "Слушаю русский");
-  };
-
+  if (!Voice.supported) { const m = $("#mic"), l = $("#micLang"); m && m.remove(); l && l.remove(); return; }
   let hintEl = null;
-  function hint(text, kind) {
+  const hint = (text, kind) => {
     if (!hintEl) {
       hintEl = document.createElement("p");
       hintEl.className = "michint";
@@ -804,51 +923,9 @@ if ("serviceWorker" in navigator) {
     }
     hintEl.textContent = text || "";
     hintEl.dataset.t = kind || "";
-  }
-
-  let rec = null, active = false;
-  function stop() {
-    active = false;
-    btn.dataset.on = "0";
-    if (rec) { try { rec.stop(); } catch (e) {} }
-  }
-
-  btn.onclick = () => {
-    if (active) { stop(); hint(""); return; }
-    rec = new SR();
-    rec.lang = lang;
-    rec.interimResults = true;
-    rec.continuous = false;
-    rec.maxAlternatives = 1;
-
-    rec.onstart = () => { active = true; btn.dataset.on = "1"; hint("Говори…", "live"); };
-
-    rec.onresult = e => {
-      let txt = "";
-      for (let i = e.resultIndex; i < e.results.length; i++) txt += e.results[i][0].transcript;
-      /* Распознавание любит ставить точку в конце — в поиске она мешает. */
-      txt = txt.replace(/[.,!?;:]+\s*$/, "").trim();
-      input.value = txt;
-      input.dispatchEvent(new Event("input"));
-      const found = document.querySelectorAll("#dishList .hrow").length;
-      hint(txt ? `«${txt}» — найдено: ${found}` : "", found ? "live" : "err");
-    };
-
-    rec.onerror = ev => {
-      stop();
-      const map = {
-        "not-allowed": "Микрофон запрещён. Разреши доступ в настройках браузера.",
-        "service-not-allowed": "Микрофон запрещён. Разреши доступ в настройках браузера.",
-        "no-speech": "Ничего не услышала — попробуй ещё раз.",
-        "audio-capture": "Микрофон не найден.",
-        "network": "Распознаванию нужен интернет."
-      };
-      hint(map[ev.error] || "Не получилось распознать.", "err");
-    };
-
-    rec.onend = () => { active = false; btn.dataset.on = "0"; };
-
-    try { rec.start(); }
-    catch (e) { stop(); hint("Не удалось включить микрофон.", "err"); }
   };
+  Voice.attach($("#q"), $("#mic"), $("#micLang"), hint, txt => {
+    const found = document.querySelectorAll("#dishList .hrow").length;
+    hint(txt ? `«${txt}» — найдено: ${found}` : "", found ? "live" : "err");
+  });
 })();

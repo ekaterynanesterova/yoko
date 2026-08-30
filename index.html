@@ -171,10 +171,22 @@
       <span class="ic" aria-hidden="true">▣</span>
       <span class="tx"><b>Сканировать чек</b><i>камера или файл</i></span>
     </button>
-    <button class="btn" id="manualAdd" type="button">Собрать вручную</button>
     <button class="btn" id="scanKey" type="button">Ключ Gemini</button>
   </div>
   <input type="file" id="scanFile" accept="image/*" capture="environment" hidden>
+
+  <div class="manual">
+    <div class="qwrap">
+      <input type="text" id="manualQ" autocomplete="off"
+        placeholder="Продиктуй или впиши: 2 Maki Menü, Yoko Roll Lachs, 3 Gyoza Chicken"
+        aria-label="Добавить позиции в заказ">
+      <button class="miclang" id="manualLang" type="button" title="Язык распознавания">DE</button>
+      <button class="mic" id="manualMic" type="button" aria-label="Продиктовать позиции"><span class="ic" aria-hidden="true">🎙</span></button>
+    </div>
+    <button class="btn primary" id="manualGo" type="button">Добавить в заказ</button>
+    <button class="btn" id="manualNew" type="button">Новый заказ</button>
+  </div>
+  <p class="manualhint" id="manualHint"></p>
 
   <p class="scanstate" id="scanState"></p>
   <div id="orderView"></div>
