@@ -738,3 +738,88 @@ if ("serviceWorker" in navigator) {
   Order.onChange = showLatest;
   showLatest();
 })();
+
+/* ============================================================
+   ГОЛОСОВОЙ ПОИСК
+   Встроенное в браузер распознавание речи: ни ключа, ни трафика
+   на наши сервисы. Названия блюд немецкие, поэтому по умолчанию
+   слушаем немецкий, но язык переключается — поиск всё равно
+   ищет и по немецкому, и по русскому.
+   ============================================================ */
+(function () {
+  const btn = $("#mic"), langBtn = $("#micLang"), input = $("#q");
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const LS = "yoko.miclang";
+
+  /* Браузер не умеет — прячем кнопки, поиск руками работает как раньше. */
+  if (!SR) { btn.remove(); langBtn.remove(); return; }
+
+  let lang = "de-DE";
+  try { lang = localStorage.getItem(LS) || "de-DE"; } catch (e) {}
+  const paint = () => { langBtn.textContent = lang === "de-DE" ? "DE" : "RU"; };
+  paint();
+
+  langBtn.onclick = () => {
+    lang = lang === "de-DE" ? "ru-RU" : "de-DE";
+    try { localStorage.setItem(LS, lang); } catch (e) {}
+    paint();
+    hint(lang === "de-DE" ? "Слушаю немецкий" : "Слушаю русский");
+  };
+
+  let hintEl = null;
+  function hint(text, kind) {
+    if (!hintEl) {
+      hintEl = document.createElement("p");
+      hintEl.className = "michint";
+      $("#legend").before(hintEl);
+    }
+    hintEl.textContent = text || "";
+    hintEl.dataset.t = kind || "";
+  }
+
+  let rec = null, active = false;
+  function stop() {
+    active = false;
+    btn.dataset.on = "0";
+    if (rec) { try { rec.stop(); } catch (e) {} }
+  }
+
+  btn.onclick = () => {
+    if (active) { stop(); hint(""); return; }
+    rec = new SR();
+    rec.lang = lang;
+    rec.interimResults = true;
+    rec.continuous = false;
+    rec.maxAlternatives = 1;
+
+    rec.onstart = () => { active = true; btn.dataset.on = "1"; hint("Говори…", "live"); };
+
+    rec.onresult = e => {
+      let txt = "";
+      for (let i = e.resultIndex; i < e.results.length; i++) txt += e.results[i][0].transcript;
+      /* Распознавание любит ставить точку в конце — в поиске она мешает. */
+      txt = txt.replace(/[.,!?;:]+\s*$/, "").trim();
+      input.value = txt;
+      input.dispatchEvent(new Event("input"));
+      const found = document.querySelectorAll("#dishList .hrow").length;
+      hint(txt ? `«${txt}» — найдено: ${found}` : "", found ? "live" : "err");
+    };
+
+    rec.onerror = ev => {
+      stop();
+      const map = {
+        "not-allowed": "Микрофон запрещён. Разреши доступ в настройках браузера.",
+        "service-not-allowed": "Микрофон запрещён. Разреши доступ в настройках браузера.",
+        "no-speech": "Ничего не услышала — попробуй ещё раз.",
+        "audio-capture": "Микрофон не найден.",
+        "network": "Распознаванию нужен интернет."
+      };
+      hint(map[ev.error] || "Не получилось распознать.", "err");
+    };
+
+    rec.onend = () => { active = false; btn.dataset.on = "0"; };
+
+    try { rec.start(); }
+    catch (e) { stop(); hint("Не удалось включить микрофон.", "err"); }
+  };
+})();

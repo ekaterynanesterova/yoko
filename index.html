@@ -76,7 +76,13 @@
   <nav class="jumprow" id="jump" aria-label="Разделы меню"></nav>
   <div class="tools">
     <div class="toolrow">
-      <input type="search" id="q" placeholder="Поиск: Lachs, курица, Sweet Sauce…" aria-label="Поиск по блюдам">
+      <div class="qwrap">
+        <input type="search" id="q" placeholder="Поиск или скажи голосом…" aria-label="Поиск по блюдам">
+        <button class="miclang" id="micLang" type="button" title="Язык распознавания">DE</button>
+        <button class="mic" id="mic" type="button" aria-label="Найти голосом">
+          <span class="ic" aria-hidden="true">🎙</span>
+        </button>
+      </div>
       <button class="chip" data-f="all" aria-pressed="true" type="button">Все</button>
       <button class="chip" data-f="veg" aria-pressed="false" type="button">Веган</button>
       <button class="chip" data-f="fish" aria-pressed="false" type="button">Рыба</button>
