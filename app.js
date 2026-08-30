@@ -400,8 +400,8 @@ P.onChange = () => { try { buildDeck(); } catch(e){} };
                         : (navigator.onLine ? "синхронизация" : "офлайн");
     form.hidden = !!s; out.hidden = !s;
     note.textContent = s
-      ? "Прогресс синхронизируется с " + s.email + ". Он подтягивается при открытии вкладки и раз в минуту."
-      : "Войди тем же аккаунтом, что в KALORIYA — прогресс тренажёра будет общим на телефоне и ноутбуке. Без входа всё работает, просто остаётся на этом устройстве.";
+      ? "Синхронизируется с " + s.email + ": прогресс тренажёра и отсканированные чеки. Подтягивается при открытии вкладки и раз в минуту."
+      : "Войди тем же аккаунтом, что в KALORIYA — прогресс тренажёра и снятые чеки будут общими на телефоне и планшете. Без входа всё работает, просто остаётся на этом устройстве.";
   }
   function say(t, kind) { msg.textContent = t || ""; msg.dataset.t = kind || ""; }
 
@@ -599,4 +599,142 @@ if ("serviceWorker" in navigator) {
     if (e.key === "Escape" && !rc.hidden) close();
   });
   $("#rcX").addEventListener("click", close);
+})();
+
+/* ============================================================
+   ВКЛАДКА «ЗАКАЗ»: сканирование чека и сборочный лист
+   ============================================================ */
+(function () {
+  const file = $("#scanFile"), state = $("#scanState");
+  const view = $("#orderView"), hist = $("#orderHistory");
+  let current = null;
+
+  const say = (t, kind) => { state.textContent = t || ""; state.dataset.t = kind || ""; };
+
+  function chip(w) {
+    const known = !!PHOTO.dish[w.name];
+    const act = w.cat ? ` data-recipe="${esc(w.name)}" tabindex="0" role="button"` : "";
+    const th = known && photosOn
+      ? `<img src="img/${PHOTO.dish[w.name][0]}" alt="" loading="lazy">` : "";
+    return `<div class="wcell"${act}>
+      <span class="wn"><span class="mono">${w.pcs || w.portions}</span><i>${w.pcs ? "шт" : "порц"}</i></span>
+      ${th}
+      <span class="wt"><b>${esc(w.name)}</b>${w.ru ? `<i>${esc(w.ru)}</i>` : ""}${
+        w.from && w.from.size ? `<u>из ${esc([...w.from].join(", "))}</u>` : ""}</span>
+    </div>`;
+  }
+
+  function renderOrder(o) {
+    current = o;
+    if (!o) { view.innerHTML = ""; return; }
+    const e = Order.expand(o);
+    const block = (title, arr, cls) => arr.length
+      ? `<div class="wblock ${cls}"><h3>${title} <span class="cnt">${arr.reduce((a, w) => a + (w.pcs || w.portions), 0)}</span></h3>
+         <div class="wcells">${arr.map(chip).join("")}</div></div>` : "";
+
+    view.innerHTML = `
+      <div class="ordhead">
+        <h3>Заказ${o.ref ? " " + esc(o.ref) : ""}</h3>
+        <span class="when">${new Date(o.at).toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}</span>
+        <button class="btn" id="ordDel" type="button">Убрать</button>
+      </div>
+      ${o.items.length ? `<p class="ordline">${o.items.map(i =>
+        `<span class="oi"><span class="mono">${i.qty}×</span> ${esc(i.name)}${i.note ? ` <i>${esc(i.note)}</i>` : ""}</span>`).join("")}</p>` : ""}
+      ${block("Во фритюр", e.fry, "w-fry")}
+      ${block("Крутить", e.roll, "w-roll")}
+      ${block("Остальное", e.other, "w-other")}
+      ${e.boxes.length ? `<div class="wblock w-box"><h3>Коробки</h3><p class="wline">${
+        e.boxes.map(([b, n]) => `<span class="tag"><span class="mono">${n}×</span> ${esc(b)}</span>`).join("")}</p></div>` : ""}
+      ${e.kit.length ? `<div class="wblock w-kit"><h3>Комплект</h3><p class="wline">${
+        e.kit.map(([k, n]) => `<span class="tag"><span class="mono">${n}×</span> ${esc(k)}</span>`).join("")}</p></div>` : ""}
+      ${o.extras && o.extras.length ? `<div class="wblock w-extra"><h3>Допы с чека</h3><p class="wline">${
+        o.extras.map(x => `<span class="tag"><span class="mono">${x.qty}×</span> ${esc(x.name)}</span>`).join("")}</p></div>` : ""}
+      ${o.unknown && o.unknown.length ? `<div class="wblock w-unk"><h3>Не распознано</h3><p class="wline">${
+        o.unknown.map(u => `<span class="tag">${esc(u)}</span>`).join("")}</p>
+        <p class="wnote">Эти строки чека не совпали ни с одной позицией карты. Проверь их глазами.</p></div>` : ""}`;
+
+    $("#ordDel").onclick = () => { Order.remove(o.id); current = null; view.innerHTML = ""; renderHistory(); };
+  }
+
+  function renderHistory() {
+    const rows = Order.all().filter(o => !o.deleted);
+    hist.innerHTML = rows.length > 1
+      ? `<div class="ordhist"><h3>Прежние чеки</h3>${rows.slice(1).map(o =>
+          `<button class="ordrow" type="button" data-ord="${esc(o.id)}">
+             <span class="mono">${new Date(o.at).toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}</span>
+             ${o.ref ? `<b>${esc(o.ref)}</b>` : ""}
+             <i>${o.items.length} поз.</i></button>`).join("")}</div>` : "";
+    hist.querySelectorAll("[data-ord]").forEach(b =>
+      b.onclick = () => { renderOrder(Order.get(b.dataset.ord)); scrollTo({ top: 0, behavior: "smooth" }); });
+  }
+
+  function showLatest() {
+    const rows = Order.all().filter(o => !o.deleted);
+    renderOrder(rows[0] || null);
+    renderHistory();
+  }
+
+  async function handle(f) {
+    if (!f) return;
+    if (!Scan.hasKey()) { askKey(); return; }
+    say("Читаю чек…");
+    try {
+      const o = await Scan.recognize(f);
+      Order.put(o);
+      showLatest();
+      say(o.items.length ? `Разобрано позиций: ${o.items.length}` : "Позиции не распознались — попробуй переснять ровнее.",
+          o.items.length ? "ok" : "err");
+    } catch (err) {
+      say(err.message || "Не получилось прочитать чек.", "err");
+    } finally { file.value = ""; }
+  }
+
+  function askKey() {
+    const k = window.prompt("Ключ Gemini (хранится только в этом браузере):", "");
+    if (k === null) return;
+    Scan.setKey(k);
+    say(Scan.hasKey() ? "Ключ сохранён. Можно сканировать." : "Ключ убран.", "ok");
+  }
+
+  file.addEventListener("change", () => handle(file.files && file.files[0]));
+  const openPicker = () => {
+    document.querySelector('.tab[data-p="p-order"]').click();
+    file.click();
+  };
+  $("#scanBtn").addEventListener("click", openPicker);
+  $("#scanBig").addEventListener("click", () => file.click());
+  $("#scanKey").addEventListener("click", askKey);
+
+  /* Ручная сборка — работает без интернета и без ключа. */
+  $("#manualAdd").addEventListener("click", () => {
+    const q = window.prompt("Что в заказе? Пиши через запятую, можно с количеством:\n\n2 Maki Menü, Yoko Roll Lachs, 3 Gyoza Chicken");
+    if (!q) return;
+    const dishL = new Map(D.map(d => [d[1].toLowerCase(), d[1]]));
+    const menuL = new Map(MENUCARDS.map(m => [m.name.toLowerCase(), m.name]));
+    const items = [], unknown = [];
+    for (const part of q.split(",").map(s => s.trim()).filter(Boolean)) {
+      const m = part.match(/^(\d+)\s*[x×]?\s*(.+)$/);
+      const qty = m ? +m[1] : 1;
+      const raw = (m ? m[2] : part).trim();
+      const low = raw.toLowerCase();
+      let hit = menuL.get(low), kind = "menu";
+      if (!hit) { hit = dishL.get(low); kind = "dish"; }
+      if (!hit) {
+        const cand = [...menuL.keys()].find(k => k.includes(low)) ;
+        if (cand) { hit = menuL.get(cand); kind = "menu"; }
+        else {
+          const cd = [...dishL.keys()].find(k => k.includes(low));
+          if (cd) { hit = dishL.get(cd); kind = "dish"; }
+        }
+      }
+      if (hit) items.push({ name: hit, kind, qty, note: "" }); else unknown.push(raw);
+    }
+    if (!items.length && !unknown.length) return;
+    Order.put({ id: "o" + Date.now().toString(36), at: Date.now(), ref: "", items, extras: [], unknown, mt: Date.now() });
+    showLatest();
+    say(`Собрано позиций: ${items.length}` + (unknown.length ? `, не найдено: ${unknown.length}` : ""), items.length ? "ok" : "err");
+  });
+
+  Order.onChange = showLatest;
+  showLatest();
 })();

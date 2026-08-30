@@ -23,11 +23,15 @@
     <div class="brandrow">
       <div class="brand disp"><em>Yoko</em> — кухня</div>
       <div class="brandsub">Handbuch 06/24 + актуальная карта</div>
+      <button class="scanbtn" id="scanBtn" type="button">
+        <span class="ic" aria-hidden="true">▣</span> Сканировать чек
+      </button>
       <button class="themebtn" id="sync" type="button" aria-haspopup="dialog">синхронизация</button>
       <button class="themebtn" id="theme" type="button">тема</button>
     </div>
     <div class="tabs" role="tablist">
-      <button class="tab" role="tab" aria-selected="true" data-p="p-frame">Каркас</button>
+      <button class="tab" role="tab" aria-selected="true" data-p="p-order">Заказ</button>
+      <button class="tab" role="tab" aria-selected="false" data-p="p-frame">Каркас</button>
       <button class="tab" role="tab" aria-selected="false" data-p="p-dish">Блюда</button>
       <button class="tab" role="tab" aria-selected="false" data-p="p-box">Меню и коробки</button>
       <button class="tab" role="tab" aria-selected="false" data-p="p-sauce">Соусы</button>
@@ -40,7 +44,25 @@
 <main>
 
 <!-- ============ КАРКАС ============ -->
-<section class="panel" id="p-frame">
+<section class="panel" id="p-order">
+  <p class="lede">Сфотографируй кухонный чек — сайт разберёт его и покажет, <b>что жарить, что крутить, в какие коробки и какие соусы класть</b>. По любой позиции откроется рецепт.</p>
+
+  <div class="scanrow">
+    <button class="bigscan" id="scanBig" type="button">
+      <span class="ic" aria-hidden="true">▣</span>
+      <span class="tx"><b>Сканировать чек</b><i>камера или файл</i></span>
+    </button>
+    <button class="btn" id="manualAdd" type="button">Собрать вручную</button>
+    <button class="btn" id="scanKey" type="button">Ключ Gemini</button>
+  </div>
+  <input type="file" id="scanFile" accept="image/*" capture="environment" hidden>
+
+  <p class="scanstate" id="scanState"></p>
+  <div id="orderView"></div>
+  <div id="orderHistory"></div>
+</section>
+
+<section class="panel" id="p-frame" hidden>
   <p class="lede">Блюд в карте больше двухсот, но <b>заучивать их по одному не надо</b>: почти всё собрано из одного каркаса. Сначала выучи эту страницу — она объясняет 80% меню. Всё остальное потом ляжет само.</p>
 
   <h2 class="sec"><span class="num">01</span>Типы и граммовки</h2>
@@ -158,7 +180,7 @@
 <div class="sheet" id="authSheet" hidden>
   <div class="sheet-in" role="dialog" aria-modal="true" aria-labelledby="authTitle">
     <h3 id="authTitle">Синхронизация прогресса</h3>
-    <p class="sheet-note" id="authNote">Войди тем же аккаунтом, что в KALORIYA — прогресс тренажёра будет общим на телефоне и ноутбуке. Без входа всё работает, просто остаётся на этом устройстве.</p>
+    <p class="sheet-note" id="authNote">Войди тем же аккаунтом, что в KALORIYA — прогресс тренажёра и снятые чеки будут общими на телефоне и планшете. Без входа всё работает, просто остаётся на этом устройстве.</p>
     <div class="sheet-form" id="authForm">
       <input type="email" id="authEmail" placeholder="почта" autocomplete="username" aria-label="Почта">
       <input type="password" id="authPw" placeholder="пароль" autocomplete="current-password" aria-label="Пароль">
@@ -190,6 +212,8 @@
 
 <script src="data.js"></script>
 <script src="photos.js"></script>
+<script src="scan.js"></script>
+<script src="order.js"></script>
 <script src="progress.js"></script>
 <script src="sync.js"></script>
 <script src="app.js"></script>

@@ -91,6 +91,7 @@ const Sync = (function () {
     adopt(d);
     await pull();
     await push();
+    if (typeof OrderSync !== "undefined") { await OrderSync.pull(); await OrderSync.push(); }
     setStatus("ok", session.email);
     return session;
   }
@@ -165,11 +166,70 @@ const Sync = (function () {
   });
 
   const api = {
-    signIn, signUp, signOut, pull, push, queuePush,
+    signIn, signUp, signOut, pull, push, queuePush, req,
     get session() { return session; },
     get status() { return status; },
     get statusText() { return statusText; },
     onStatus: null
   };
   return api;
+})();
+
+/* ============================================================
+   СИНХРОНИЗАЦИЯ ЗАКАЗОВ
+   Чек, снятый на телефоне, должен открываться на планшете.
+   Фото не отправляется — только разобранный состав.
+   ============================================================ */
+const OrderSync = (function () {
+  const TABLE = "yoko_orders";
+  let timer = null, pulling = false;
+
+  async function pull() {
+    const s = Sync.session;
+    if (!s || pulling || !navigator.onLine) return false;
+    pulling = true;
+    try {
+      const rows = await Sync.req("/rest/v1/" + TABLE +
+        "?select=id,payload,mt,deleted&user_id=eq." + s.user_id + "&order=mt.desc&limit=40");
+      if (Array.isArray(rows) && rows.length) {
+        const mapped = rows.map(r => Object.assign({}, r.payload, { id: r.id, mt: r.mt, deleted: !!r.deleted }));
+        if (Order.merge(mapped) && Order.onChange) Order.onChange();
+      }
+      return true;
+    } catch (e) { return false; }
+    finally { pulling = false; }
+  }
+
+  async function push() {
+    const s = Sync.session;
+    if (!s || !navigator.onLine) return false;
+    const rows = Order.snapshot().map(o => ({
+      user_id: s.user_id, id: o.id, mt: o.mt || o.at || Date.now(),
+      deleted: !!o.deleted, updated_at: new Date().toISOString(),
+      payload: { at: o.at, ref: o.ref, items: o.items, extras: o.extras, unknown: o.unknown }
+    }));
+    if (!rows.length) return true;
+    try {
+      await Sync.req("/rest/v1/" + TABLE, {
+        method: "POST",
+        headers: { "Prefer": "resolution=merge-duplicates,return=minimal" },
+        body: JSON.stringify(rows)
+      });
+      return true;
+    } catch (e) { return false; }
+  }
+
+  function queuePush() {
+    if (!Sync.session) return;
+    clearTimeout(timer);
+    timer = setTimeout(push, 1500);
+  }
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") pull();
+  });
+  window.addEventListener("online", () => pull().then(push));
+  setInterval(() => { if (document.visibilityState === "visible") pull(); }, 60000);
+
+  return { pull, push, queuePush };
 })();
