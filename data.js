@@ -303,7 +303,6 @@ const HIDDEN = new Set([
     "Donut",
     "Edamame Salat mit Knoblauchbutter",
     "Guacamole Roll",
-    "Gyoza Apfel",
     "Lachs Sashimi",
     "Maki Tekka",
     "Maki Tempura Spargel",
