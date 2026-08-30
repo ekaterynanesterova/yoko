@@ -336,6 +336,40 @@ const HIDDEN_MENUS = new Set([
     "Veggie Lunch"
   ]);
 
+/* ============================================================
+   УПАКОВКА ОТДЕЛЬНОЙ ПОЗИЦИИ (заказанной не в составе меню)
+
+   Источники:
+   • Handbuch, Anhang 2 «Verpackungsrichtlinien Specials» — коробка
+     и дип для снеков.
+   • Брошюра филиала: «Zu allen Sushigerichten liefern wir Ihnen
+     Ingwer, Sojasauce, Wasabi und Stäbchen gratis» — к любому
+     суши-блюду идут имбирь, соевый и васаби.
+
+   Размер коробки для одиночных роллов в техкартах НЕ УКАЗАН, поэтому
+   box у них пустой — интерфейс это честно показывает, а не выдумывает.
+   Как узнаешь размер у шефа, впиши его сюда.
+   ============================================================ */
+const SINGLE_PACK = {
+  "Crispy Ebi Sticks":               { box: "M", kit: [["Yoko Cocktailmayonnaise", 1]] },
+  "Avocado Sticks":                  { box: "M", kit: [["дип на выбор", 1]] },
+  "Mini Frühlingsrollen":            { box: "S", kit: [["дип на выбор", 1]] },
+  "Gyoza Chicken":                   { box: "M", kit: [["дип на выбор", 1]] },
+  "Double Baked Gyoza Chicken":      { box: "M", kit: [["дип на выбор", 1]] },
+  "Chicken Teriyaki Spieße":         { box: "M", kit: [["дип на выбор", 1]] },
+  "Japanese fried Chicken Box":      { box: "S", kit: [["Sweet Chili Sauce", 1]] },
+  "Sommerrolle Natur":               { box: "M", kit: [["дип на выбор", 1]] },
+  "Sommerrolle Chicken":             { box: "M", kit: [["дип на выбор", 1]] },
+  "Sommerrolle Black Tiger Garnele": { box: "M", kit: [["дип на выбор", 1]] },
+  "Sommerrolle Peanut Chicken":      { box: "M", kit: [["Erdnuss Sauce", 1]] }
+};
+
+/* Кладётся к любому суши-блюду бесплатно — правило из брошюры. */
+const SUSHI_FREEBIES = [["васаби", 1], ["имбирь", 1], ["соевый", 1]];
+
+/* Типы, для которых действует правило выше. */
+const SUSHI_TYPES = ["maki", "io", "premium", "yoko", "mini", "nigiri", "sommer"];
+
 const CATS = {
  maki:{short:"Makis", ru:"Makis",          sub:"Маки",              cols:3, band:"--green-band", ink:"--green-ink"},
  io:{short:"Inside-Out", ru:"Inside Outside Rolls", sub:"Рис снаружи",    cols:4, band:"--green-band", ink:"--green-ink"},

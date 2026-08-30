@@ -106,6 +106,22 @@ const Order = (function () {
                      items: (m.items || []).slice(), note: m.note || "" });
       } else {
         addPortions(it.name, q);
+        /* Отдельно заказанная позиция едет в СВОЕЙ коробке со своим
+           комплектом — раньше она попадала в работу, но не в сборку. */
+        const d = dishBy.get(it.name);
+        const single = SINGLE_PACK[it.name];
+        const ownKit = [];
+        const put = (label, cnt) => { ownKit.push({ label, cnt }); addKit(label, cnt * q); };
+        if (single) single.kit.forEach(([label, cnt]) => put(label, cnt));
+        /* Правило из брошюры: к любому суши-блюду васаби, имбирь, соевый. */
+        else if (d && SUSHI_TYPES.includes(d[0])) SUSHI_FREEBIES.forEach(([label, cnt]) => put(label, cnt));
+        /* Собственный соус позиции — он идёт стаканчиком рядом. */
+        if (d) (d[5] || []).forEach(sauce => put(sauce, 1));
+
+        const box = single ? single.box : "";
+        if (box) boxes.set(box, (boxes.get(box) || 0) + q);
+        packs.push({ name: it.name, qty: q, box, kit: ownKit, items: [], single: true,
+                     note: d && d[7] ? d[7] : "" });
       }
     }
 

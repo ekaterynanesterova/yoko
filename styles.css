@@ -508,3 +508,4 @@ input[type=search]{flex:1 1 220px;min-width:0}
   line-height:1;cursor:pointer;padding:0 2px}
 .ordline .oix:hover{color:var(--red)}
 @media print{.manual,.manualhint,.ordline .oix{display:none!important}}
+.boxtag.unk{background:var(--sunk);color:var(--muted);border:1px dashed var(--line)}

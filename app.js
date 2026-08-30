@@ -91,7 +91,7 @@ const Voice = (function () {
           if (e.results[i].isFinal) final = true;
         }
         /* Распознавание любит ставить точку в конце — в поиске она мешает. */
-        txt = txt.replace(/[.!?;:]+s*$/, "").trim();
+        txt = txt.replace(/[.!?;:]+\s*$/, "").trim();
         input.value = txt;
         input.dispatchEvent(new Event("input"));
         if (onFinal) onFinal(txt, final);
@@ -742,11 +742,13 @@ if ("serviceWorker" in navigator) {
             ${thumbHTML("menu", p.name, "", true)}
             <div class="pt">
               <b>${p.qty > 1 ? `<span class="mono">${p.qty}×</span> ` : ""}${esc(p.name)}</b>
-              ${p.box ? `<span class="boxtag">коробка ${esc(p.box)}</span>` : ""}
+              ${p.box ? `<span class="boxtag">коробка ${esc(p.box)}</span>`
+                : (p.single ? `<span class="boxtag unk">коробка отдельная</span>` : "")}
             </div>
           </div>
           ${p.kit.length ? `<p class="packkit"><span class="lbl">в каждую коробку:</span> ${
             p.kit.map(k => `<span class="tag"><span class="mono">${k.cnt}×</span> ${esc(k.label)}</span>`).join("")}</p>` : ""}
+          ${p.single && !p.box ? `<p class="packnote">Размер коробки в техкартах не указан — уточни у шефа, впишу.</p>` : ""}
           ${p.items.length ? `<p class="packitems">${
             p.items.map(([n, nm]) => `<span class="pi"><span class="mono">${n}</span> ${esc(nm)}</span>`).join("")}</p>` : ""}
           ${p.note ? `<p class="packnote">${esc(p.note)}</p>` : ""}
