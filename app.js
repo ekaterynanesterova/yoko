@@ -26,7 +26,7 @@ function thumbHTML(kind, name, ru) {
 }
 
 /* -- каркас -- */
-$("#frameCards").innerHTML = TYPES.map(t=>`
+$("#frameCards").innerHTML = TYPES.filter(t => t.frame !== false && !t.off).map(t=>`
   <div class="fcard" style="--c:${t.c}">
     <h3>${esc(t.ru)}</h3>
     <div class="de">${esc(t.de)}</div>
@@ -63,16 +63,20 @@ $("#snackBody").innerHTML = SNACKS.map(s=>
   `<tr><td><b>${esc(s[0])}</b></td><td class="n">${esc(s[1])}</td><td class="n">${esc(s[2])}</td><td>${esc(s[3])}</td></tr>`).join("");
 
 /* -- блюда -- */
-const dishes = D.map((d,i)=>({
+const allDishes = D.map((d,i)=>({
   i, cat:d[0], de:d[1], ru:d[2], f:d[3], t:d[4], s:d[5], tags:d[6], note:d[7]||""
 }));
 function typeOf(cat){ return TYPES.find(t=>t.id===cat); }
+
+/* Скрытое не удалено из данных — просто не показывается. Состав сет-меню
+   по-прежнему ищет блюда во всём списке, чтобы ссылки не рвались. */
+const dishes = allDishes.filter(d => !HIDDEN.has(d.de) && !(typeOf(d.cat) || {}).off);
 
 /* ============================================================
    СЕТ-МЕНЮ
    Каждая позиция — своя ячейка, цвет по тому, жарится она или нет.
    ============================================================ */
-const dishByDe = new Map(dishes.map(d => [d.de, d]));
+const dishByDe = new Map(allDishes.map(d => [d.de, d]));
 
 function setItemCell(it) {
   const [n, name, umh] = it;
@@ -246,7 +250,7 @@ let mode = "fill", deck = [], cur = null, shown = false, streak = 0;
 
 function buildDeck(){
   if (mode === "gram") {
-    deck = TYPES.map(t => ({k:"g:"+t.id, t}));
+    deck = TYPES.filter(t => t.frame !== false && !t.off).map(t => ({k:"g:"+t.id, t}));
   } else if (mode === "sauce") {
     deck = dishes.filter(d => d.s.length || d.t.length).map(d => ({k:"s:"+d.i, d}));
   } else if (mode === "quiz") {
@@ -259,7 +263,7 @@ function buildDeck(){
   next();
 }
 function stats(){
-  const total = mode==="gram" ? TYPES.length
+  const total = mode==="gram" ? TYPES.filter(t => t.frame !== false && !t.off).length
     : (mode==="sauce"||mode==="quiz") ? dishes.filter(d=>d.s.length||d.t.length).length
     : dishes.filter(d=>d.f.length).length;
   const pre = mode==="gram"?"g:":mode==="sauce"?"s:":mode==="quiz"?"q:":"f:";

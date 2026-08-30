@@ -68,9 +68,9 @@ const TYPES = [
   rule:"Количество и соус — у каждой позиции своё, смотри подпись. У большинства <b>дип на выбор гостя</b>."},
  {id:"soup", frame:false, ru:"Супы и салаты", de:"Suppen / Salate", rice:0, pcs:0, c:"var(--slate)",
   rule:"Супы заливаются <b>кипящим фондом</b> поверх начинки, уже разложенной в пиалу."},
- {id:"don", frame:false, ru:"Don Yoko", de:"Donburi и Bao Bun", rice:0, pcs:0, c:"var(--amber)",
+ {id:"don", off:true, frame:false, ru:"Don Yoko", de:"Donburi и Bao Bun", rice:0, pcs:0, c:"var(--amber)",
   rule:"Донбури — рис с пак-чоем, глазуньей и топпингом. У <b>веганских</b> нет яйца и майонеза."},
- {id:"special", frame:false, ru:"Вок и супы", de:"Specials", rice:0, pcs:0, c:"var(--slate)",
+ {id:"special", off:true, frame:false, ru:"Вок и супы", de:"Specials", rice:0, pcs:0, c:"var(--slate)",
   rule:"Техкарт на этот раздел в папке нет — только описания из карты. Граммовки уточняй у шефа."},
  {id:"bowl", ru:"Поке-боулы", de:"Yoko Poke Bowls", rice:250, pcs:1, c:"var(--amber)",
   rule:"250 г риса греется <b>1 мин в микроволновке</b>, потом выкладка. База у всех одинаковая."}
@@ -283,6 +283,23 @@ const D = [
 ["special","Wan-Tan Suppe","Суп с вонтонами",["Wan-Tan"],[],[],["meat"],"состав в карте не указан"],
 ["special","Pikante Gemüseuppe","Острый овощной суп",["Gemüse"],[],[],["veg"],"состав в карте не указан"]
 ];
+
+/* ============================================================
+   СКРЫТО С САЙТА — но НЕ удалено из базы.
+   В филиале этих позиций сейчас нет. Чтобы вернуть блюдо,
+   убери его из HIDDEN; чтобы вернуть целый раздел — сними
+   off:true у нужного типа в TYPES.
+   ============================================================ */
+const HIDDEN = new Set([
+  /* из десертов остался только жареный банан */
+  "Gyoza Apfel",
+  "Mochi Kokos",
+  "Mochi Mango",
+  "Mochi Matcha Latte",
+  "Cheesecake",
+  "Muffin",
+  "Donut"
+]);
 
 const CATS = {
  maki:{short:"Makis", ru:"Makis",          sub:"Маки",              cols:3, band:"--green-band", ink:"--green-ink"},
