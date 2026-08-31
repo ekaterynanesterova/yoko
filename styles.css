@@ -544,3 +544,20 @@ input[type=search]{flex:1 1 220px;min-width:0}
 .ordhist h3 .cnt{font-family:"JetBrains Mono",monospace;font-size:12px;
   background:var(--sunk);color:var(--ink-2);border-radius:5px;padding:2px 7px;margin-left:6px}
 @media print{.wdone,.ordrow .now{display:none!important}.wcell.done{opacity:1}}
+
+/* ---------- состояние синхронизации заказов ---------- */
+.syncbar{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--muted);
+  border:1px solid var(--line);border-radius:8px;padding:7px 11px;margin-bottom:14px;background:var(--surface)}
+.syncbar .dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex:0 0 auto}
+.syncbar .txt{flex:1 1 auto;min-width:0}
+.syncbar .btn{padding:3px 11px;font-size:12px}
+.syncbar[data-s="ok"]{border-color:var(--ok)}
+.syncbar[data-s="ok"] .dot{background:var(--ok)}
+.syncbar[data-s="ok"] .txt{color:var(--ok)}
+.syncbar[data-s="nosql"],.syncbar[data-s="err"]{border-color:var(--red);background:var(--red-soft)}
+.syncbar[data-s="nosql"] .dot,.syncbar[data-s="err"] .dot{background:var(--red)}
+.syncbar[data-s="nosql"] .txt,.syncbar[data-s="err"] .txt{color:var(--red);font-weight:600}
+.syncbar[data-s="offline"] .dot{background:var(--warn)}
+.syncbar[data-s="offline"] .txt{color:var(--warn)}
+.syncbar a{color:inherit}
+@media print{.syncbar{display:none!important}}

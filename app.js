@@ -1006,3 +1006,33 @@ if ("serviceWorker" in navigator) {
     hint(txt ? `«${txt}» — найдено: ${found}` : "", found ? "live" : "err");
   });
 })();
+
+/* ============================================================
+   ПОЛОСА СОСТОЯНИЯ СИНХРОНИЗАЦИИ ЗАКАЗОВ
+   Раньше при ненастроенной базе всё молчало, и было непонятно,
+   почему на планшете пусто. Теперь причина написана прямо тут.
+   ============================================================ */
+(function () {
+  const bar = $("#syncBar"), txt = $("#syncTxt"), btn = $("#syncNow");
+  if (!bar) return;
+
+  const hhmm = t => new Date(t).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+
+  function paint(st) {
+    const s = st || OrderSync.state;
+    bar.dataset.s = s.kind;
+    if (s.kind === "ok") {
+      const n = Order.all().filter(o => !o.deleted).length;
+      txt.textContent = `чеки синхронизированы · ${n} на всех устройствах · обновлено ${hhmm(s.at || Date.now())}`;
+    } else {
+      txt.textContent = s.text;
+    }
+  }
+
+  OrderSync.onState = paint;
+  btn.onclick = () => { txt.textContent = "проверяю…"; OrderSync.pull().then(() => paint()); };
+
+  /* Не вошли — говорим об этом сразу, не дожидаясь первой попытки. */
+  if (!Sync.session) paint({ kind: "off", text: "синхронизация выключена — нажми «синхронизация» в шапке и войди" });
+  else paint();
+})();

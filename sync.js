@@ -184,9 +184,20 @@ const OrderSync = (function () {
   const TABLE = "yoko_orders";
   let timer = null, pulling = false;
 
+  /* Состояние синхронизации показывается на вкладке «Заказ».
+     Раньше ошибки молча проглатывались, и было не понять, почему на
+     планшете пусто: не вошли, нет таблицы или просто нет сети. */
+  let state = { kind: "off", text: "синхронизация выключена", at: 0 };
+  const setState = (kind, text) => {
+    state = { kind, text, at: kind === "ok" ? Date.now() : state.at };
+    if (api.onState) api.onState(state);
+  };
+
   async function pull() {
     const s = Sync.session;
-    if (!s || pulling || !navigator.onLine) return false;
+    if (!s) { setState("off", "войди, чтобы чеки были на всех устройствах"); return false; }
+    if (!navigator.onLine) { setState("offline", "нет сети — работаем локально"); return false; }
+    if (pulling) return false;
     pulling = true;
     try {
       const rows = await Sync.req("/rest/v1/" + TABLE +
@@ -195,9 +206,15 @@ const OrderSync = (function () {
         const mapped = rows.map(r => Object.assign({}, r.payload, { id: r.id, mt: r.mt, deleted: !!r.deleted }));
         if (Order.merge(mapped) && Order.onChange) Order.onChange();
       }
+      setState("ok", "обновлено");
       return true;
-    } catch (e) { return false; }
-    finally { pulling = false; }
+    } catch (e) {
+      /* Таблицы нет — самая частая причина при первом запуске. */
+      if (e && e.data && e.data.code === "PGRST205")
+        setState("nosql", "таблица заказов не создана — выполни supabase.sql");
+      else setState("err", e && e.message ? e.message : "не получилось синхронизировать");
+      return false;
+    } finally { pulling = false; }
   }
 
   async function push() {
@@ -216,7 +233,12 @@ const OrderSync = (function () {
         body: JSON.stringify(rows)
       });
       return true;
-    } catch (e) { return false; }
+    } catch (e) {
+      if (e && e.data && e.data.code === "PGRST205")
+        setState("nosql", "таблица заказов не создана — выполни supabase.sql");
+      else setState("err", e && e.message ? e.message : "не получилось отправить");
+      return false;
+    }
   }
 
   function queuePush() {
@@ -237,5 +259,10 @@ const OrderSync = (function () {
     if (document.visibilityState === "visible") pull();
   }, 15000);
 
-  return { pull, push, queuePush };
+  const api = {
+    pull, push, queuePush,
+    get state() { return state; },
+    onState: null
+  };
+  return api;
 })();
