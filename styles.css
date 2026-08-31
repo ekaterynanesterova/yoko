@@ -509,3 +509,38 @@ input[type=search]{flex:1 1 220px;min-width:0}
 .ordline .oix:hover{color:var(--red)}
 @media print{.manual,.manualhint,.ordline .oix{display:none!important}}
 .boxtag.unk{background:var(--sunk);color:var(--muted);border:1px dashed var(--line)}
+.unkall{margin-left:auto;background:none;border:1px solid var(--line);color:var(--muted);
+  border-radius:99px;padding:2px 10px;font:inherit;font-size:11.5px;font-weight:500;cursor:pointer;
+  text-transform:none;letter-spacing:0}
+.unkall:hover{color:var(--ink);border-color:var(--muted)}
+.w-unk .tag{display:inline-flex;align-items:center;gap:6px}
+.unkx{background:none;border:0;color:var(--warn);font:inherit;font-size:15px;line-height:1;
+  cursor:pointer;padding:0 1px}
+.unkx:hover{color:var(--red)}
+@media print{.unkall,.unkx{display:none!important}}
+
+/* ---------- отметка «собрано» ---------- */
+.wdone{flex:0 0 auto;width:28px;height:28px;border-radius:6px;border:2px solid var(--cellline);
+  background:var(--surface);color:transparent;font-size:15px;line-height:1;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;padding:0;transition:none}
+.wdone:hover{border-color:var(--ok);color:var(--muted)}
+.wdone[aria-pressed="true"]{background:var(--ok);border-color:var(--ok);color:#fff}
+.wcell.done{opacity:.45}
+.wcell.done .wt b{text-decoration:line-through;text-decoration-thickness:1px}
+.wcell .wt[data-recipe]{cursor:pointer}
+.wblock h3 .donecnt{font-family:"Instrument Sans",sans-serif;font-size:11.5px;font-weight:600;
+  text-transform:none;letter-spacing:0;color:var(--ok);margin-left:auto}
+
+/* ---------- список чеков ---------- */
+.ordrow{flex-direction:column;align-items:stretch;gap:3px}
+.ordrow .rowtop{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
+.ordrow .rowsum{font-size:12px;color:var(--muted);line-height:1.3;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ordrow .prog{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--ok);
+  background:var(--sunk);border-radius:5px;padding:1px 7px}
+.ordrow .now{font-size:11px;color:var(--red);font-weight:600;margin-left:auto}
+.ordrow.open{border-color:var(--red);border-width:2px}
+.ordrow.ready .prog{background:var(--ok);color:#fff}
+.ordhist h3 .cnt{font-family:"JetBrains Mono",monospace;font-size:12px;
+  background:var(--sunk);color:var(--ink-2);border-radius:5px;padding:2px 7px;margin-left:6px}
+@media print{.wdone,.ordrow .now{display:none!important}.wcell.done{opacity:1}}

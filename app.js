@@ -704,33 +704,70 @@ if ("serviceWorker" in navigator) {
     return many;
   };
 
-  function chip(w) {
-    const known = !!PHOTO.dish[w.name];
-    const act = w.cat ? ` data-recipe="${esc(w.name)}" tabindex="0" role="button"` : "";
-    const th = known && photosOn
+  /* Отметка «собрано» живёт в самом заказе, поэтому переживает перезагрузку
+     и уезжает на другое устройство вместе с ним. */
+  const isDone = (o, name) => !!(o.done && o.done[name]);
+
+  function toggleDone(o, name) {
+    o.done = o.done || {};
+    if (o.done[name]) delete o.done[name]; else o.done[name] = Date.now();
+    o.mt = Date.now();
+    Order.put(o);
+    renderOrder(o);
+    renderHistory();
+  }
+
+  /* Сколько позиций работы отмечено — показываем и в заголовке блока,
+     и в списке чеков, чтобы видеть, какой заказ ближе к готовности. */
+  function progress(o) {
+    const e = Order.expand(o);
+    const all = [].concat(e.fry, e.roll, e.other);
+    return { done: all.filter(w => isDone(o, w.name)).length, total: all.length };
+  }
+
+  function chip(w, o) {
+    const hasPhoto = !!PHOTO.dish[w.name];
+    const done = isDone(o, w.name);
+    const th = hasPhoto && photosOn
       ? `<img src="img/${PHOTO.dish[w.name][0]}" alt="" loading="lazy">` : "";
-    return `<div class="wcell"${act}>
-      <span class="wn"><span class="mono">${w.rolls || w.pcs || w.portions}</span><i>${
-        w.rolls ? plural(w.rolls, "ролл", "ролла", "роллов") : (w.pcs ? "шт" : "порц")}</i></span>
+    const cnt = w.rolls || w.pcs || w.portions;
+    const unit = w.rolls ? plural(w.rolls, "ролл", "ролла", "роллов") : (w.pcs ? "шт" : "порц");
+    const rec = w.cat ? ` data-recipe="${esc(w.name)}" tabindex="0" role="button"` : "";
+    return `<div class="wcell${done ? " done" : ""}">
+      <button class="wdone" type="button" data-done="${esc(w.name)}" aria-pressed="${done}"
+        aria-label="${done ? "Снять отметку" : "Отметить собранным"}: ${esc(w.name)}">✓</button>
+      <span class="wn"><span class="mono">${cnt}</span><i>${unit}</i></span>
       ${th}
-      <span class="wt"><b>${esc(w.name)}</b>${w.ru ? `<i>${esc(w.ru)}</i>` : ""}${
+      <span class="wt"${rec}><b>${esc(w.name)}</b>${w.ru ? `<i>${esc(w.ru)}</i>` : ""}${
         w.rolls ? `<u class="cutinfo">режем по ${w.per} кусков · всего ${w.pcs}</u>` : ""}${
         w.from && w.from.size ? `<u>из ${esc([...w.from].join(", "))}</u>` : ""}</span>
     </div>`;
   }
 
+  const timeOf = at => new Date(at).toLocaleString("ru-RU",
+    { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+
   function renderOrder(o) {
     current = o;
     if (!o) { view.innerHTML = ""; return; }
     const e = Order.expand(o);
-    const block = (title, arr, cls) => arr.length
-      ? `<div class="wblock ${cls}"><h3>${title} <span class="cnt">${arr.reduce((a, w) => a + (w.rolls || w.pcs || w.portions), 0)}</span></h3>
-         <div class="wcells">${arr.map(chip).join("")}</div></div>` : "";
+
+    const block = (title, arr, cls) => {
+      if (!arr.length) return "";
+      const left = arr.filter(w => !isDone(o, w.name));
+      const total = arr.reduce((a, w) => a + (w.rolls || w.pcs || w.portions), 0);
+      const doneN = arr.length - left.length;
+      /* Собранное уезжает вниз блока, чтобы не цеплялось глазами. */
+      const sorted = left.concat(arr.filter(w => isDone(o, w.name)));
+      return `<div class="wblock ${cls}"><h3>${title} <span class="cnt">${total}</span>${
+        doneN ? `<span class="donecnt">собрано ${doneN} из ${arr.length}</span>` : ""}</h3>
+        <div class="wcells">${sorted.map(w => chip(w, o)).join("")}</div></div>`;
+    };
 
     view.innerHTML = `
       <div class="ordhead">
         <h3>Заказ${o.ref ? " " + esc(o.ref) : ""}</h3>
-        <span class="when">${new Date(o.at).toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}</span>
+        <span class="when">${timeOf(o.at)}</span>
         <button class="btn" id="ordDel" type="button">Убрать</button>
       </div>
       ${o.items.length ? `<p class="ordline">${o.items.map((i, ix) =>
@@ -762,30 +799,63 @@ if ("serviceWorker" in navigator) {
         e.kit.map(([k, n]) => `<span class="tag"><span class="mono">${n}×</span> ${esc(k)}</span>`).join("")}</p></div>` : ""}
       ${o.extras && o.extras.length ? `<div class="wblock w-extra"><h3>Допы с чека</h3><p class="wline">${
         o.extras.map(x => `<span class="tag"><span class="mono">${x.qty}×</span> ${esc(x.name)}</span>`).join("")}</p></div>` : ""}
-      ${o.unknown && o.unknown.length ? `<div class="wblock w-unk"><h3>Не распознано</h3><p class="wline">${
-        o.unknown.map(u => `<span class="tag">${esc(u)}</span>`).join("")}</p>
-        <p class="wnote">Эти строки чека не совпали ни с одной позицией карты. Проверь их глазами.</p></div>` : ""}`;
+      ${o.unknown && o.unknown.length ? `<div class="wblock w-unk">
+        <h3>Не распознано <button class="unkall" id="unkAll" type="button">убрать все</button></h3>
+        <p class="wline">${o.unknown.map((u, ix) =>
+          `<span class="tag">${esc(u)}<button class="unkx" type="button" data-unk="${ix}" aria-label="Убрать ${esc(u)}">×</button></span>`).join("")}</p>
+        <p class="wnote">Эти строки не совпали ни с одной позицией карты. Проверь глазами и убери крестиком.</p></div>` : ""}`;
 
     $("#ordDel").onclick = () => { Order.remove(o.id); current = null; view.innerHTML = ""; renderHistory(); };
-    /* Позицию можно убрать поштучно — заказ теперь набирается по ходу. */
+
+    view.querySelectorAll("[data-done]").forEach(b =>
+      b.onclick = () => toggleDone(o, b.dataset.done));
+
+    /* Позицию можно убрать поштучно — заказ набирается по ходу. */
     view.querySelectorAll("[data-drop]").forEach(b => b.onclick = () => {
       o.items.splice(+b.dataset.drop, 1);
       o.mt = Date.now();
       Order.put(o);
       renderOrder(o);
+      renderHistory();
     });
+    view.querySelectorAll("[data-unk]").forEach(b => b.onclick = () => {
+      o.unknown.splice(+b.dataset.unk, 1);
+      o.mt = Date.now();
+      Order.put(o);
+      renderOrder(o);
+    });
+    const unkAll = view.querySelector("#unkAll");
+    if (unkAll) unkAll.onclick = () => {
+      o.unknown = [];
+      o.mt = Date.now();
+      Order.put(o);
+      renderOrder(o);
+    };
   }
 
+  /* Список всех чеков, а не только прежних: в смену их бывает три-четыре
+     одновременно, и нужно с одного взгляда понять, какой открыт и что в нём. */
   function renderHistory() {
     const rows = Order.all().filter(o => !o.deleted);
-    hist.innerHTML = rows.length > 1
-      ? `<div class="ordhist"><h3>Прежние чеки</h3>${rows.slice(1).map(o =>
-          `<button class="ordrow" type="button" data-ord="${esc(o.id)}">
-             <span class="mono">${new Date(o.at).toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}</span>
-             ${o.ref ? `<b>${esc(o.ref)}</b>` : ""}
-             <i>${o.items.length} поз.</i></button>`).join("")}</div>` : "";
+    if (rows.length < 2) { hist.innerHTML = ""; return; }
+    hist.innerHTML = `<div class="ordhist"><h3>Все чеки <span class="cnt">${rows.length}</span></h3>${
+      rows.map(o => {
+        const open = current && o.id === current.id;
+        const pr = progress(o);
+        const sum = o.items.map(i => (i.qty > 1 ? i.qty + "× " : "") + i.name).join(" · ") || "пусто";
+        const ready = pr.total && pr.done === pr.total;
+        return `<button class="ordrow${open ? " open" : ""}${ready ? " ready" : ""}" type="button" data-ord="${esc(o.id)}">
+          <span class="rowtop">
+            <span class="mono">${timeOf(o.at)}</span>
+            ${o.ref ? `<b>${esc(o.ref)}</b>` : ""}
+            ${pr.total ? `<span class="prog">${pr.done} из ${pr.total}</span>` : ""}
+            ${open ? `<span class="now">открыт</span>` : ""}
+          </span>
+          <span class="rowsum">${esc(sum)}</span>
+        </button>`;
+      }).join("")}</div>`;
     hist.querySelectorAll("[data-ord]").forEach(b =>
-      b.onclick = () => { renderOrder(Order.get(b.dataset.ord)); scrollTo({ top: 0, behavior: "smooth" }); });
+      b.onclick = () => { renderOrder(Order.get(b.dataset.ord)); renderHistory(); scrollTo({ top: 0, behavior: "smooth" }); });
   }
 
   function showLatest() {
@@ -874,7 +944,10 @@ if ("serviceWorker" in navigator) {
       const same = o.items.find(x => x.name === it.name && x.kind === it.kind && !x.note);
       if (same) same.qty += it.qty; else o.items.push(it);
     }
-    if (unknown.length) o.unknown = (o.unknown || []).concat(unknown);
+    if (unknown.length) {
+      const seen = new Set(o.unknown || []);
+      o.unknown = (o.unknown || []).concat(unknown.filter(u => !seen.has(u)));
+    }
     o.mt = Date.now();
     Order.put(o);
     renderOrder(o);
