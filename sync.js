@@ -229,7 +229,13 @@ const OrderSync = (function () {
     if (document.visibilityState === "visible") pull();
   });
   window.addEventListener("online", () => pull().then(push));
-  setInterval(() => { if (document.visibilityState === "visible") pull(); }, 60000);
+
+  /* Сценарий: чек сняли на телефоне, планшет лежит открытым рядом.
+     Раз в минуту тут слишком долго, поэтому опрашиваем каждые 15 секунд,
+     пока страница на экране. Плюс подтяг при открытии вкладки «Заказ». */
+  setInterval(() => {
+    if (document.visibilityState === "visible") pull();
+  }, 15000);
 
   return { pull, push, queuePush };
 })();

@@ -456,6 +456,8 @@ document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () =>
   t.setAttribute("aria-selected","true");
   document.querySelectorAll(".panel").forEach(p => p.hidden = (p.id !== t.dataset.p));
   window.scrollTo({top:0, behavior:"instant"});
+  /* Открыли заказы — сразу проверяем, не сняли ли чек на другом устройстве. */
+  if (t.dataset.p === "p-order" && typeof OrderSync !== "undefined") OrderSync.pull();
 }));
 
 $("#theme").addEventListener("click", () => {
