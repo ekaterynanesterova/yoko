@@ -212,7 +212,7 @@ const D = [
 ["bowl","Yoko Poke Bowl Crispy Ebi Sticks","Боул с креветкой в темпуре",["Tempura Garnele"],[],[],["fish","fried"],"4 палочки"],
 ["bowl","Yoko Poke Bowl Ente","Боул с уткой",["Entenbrust"],[],[],["meat","fried"]],
 ["bowl","Yoko Poke Bowl Tofu","Боул с тофу",["frittierter Tofu"],[],[],["veg","fried"]],
-["bowl","Build your Bowl!","Собери свой боул",["Reis"],[],[],["veg"],"конструктор: основа, протеин, миксины, топпинг, соус — рецептура в «Заготовках»"],
+["bowl","Build your Bowl!","Собери свой боул",["Reis"],[],[],["veg"],"конструктор — собирается на вкладке «Боул»"],
 ["bowl","Yoko Poke Bowl Veggie","Боул вегетарианский",["Avocado"],[],[],["veg"],"двойная порция авокадо"],
 ["bowl","Yoko Poke Bowl Spargel Hähnchen","Боул спаржа-курица",["grüner Spargel","Hühnchen"],[],["Sauce Hollandaise"],["meat","fried"]],
 ["bowl","Yoko Poke Bowl Peanut Chicken","Боул арахисовый",["Hühnchen"],["Erdnusssauce"],[],["meat","fried"]],
@@ -375,6 +375,78 @@ const SUSHI_FREEBIES = [["васаби", 1], ["имбирь", 1], ["соевый
 /* Типы, для которых действует правило выше. */
 const SUSHI_TYPES = ["maki", "io", "premium", "yoko", "mini", "nigiri", "sommer"];
 
+/* ============================================================
+   BUILD YOUR BOWL — конструктор
+   Техкарта от руководителя. Этапы идут в том порядке, в каком
+   собирают: основа снизу, дальше протеин, миксины, топпинг, соус.
+   ============================================================ */
+const BOWL = {
+  de: "Build your Bowl",
+  ru: "Собери свой боул",
+  lead: "Гость набирает боул сам. У каждого этапа свой предел — больше выбрать нельзя.",
+  steps: [
+    { key: "base", ru: "Основа", de: "Basis nach Wahl", max: 2, pay: "",
+      items: [
+        { g: "125 г", de: "Sushi-Reis", ru: "рис суши", how: "1 мин в микроволновке" },
+        { g: "125 г", de: "Süßkartoffelwürfel", ru: "кубики батата", how: "из заморозки во фритюр, до золотистого и хрустящего" },
+        { g: "40 г",  de: "Baby Spinat", ru: "бэби-шпинат", how: "мытый, свежий" },
+        { g: "125 г", de: "Quinoa", ru: "киноа", how: "1 мин в микроволновке" }
+      ] },
+    { key: "protein", ru: "Протеин", de: "Protein nach Wahl", max: 2, pay: "платно",
+      items: [
+        { g: "75 г", de: "Lachs", ru: "лосось", how: "" },
+        { g: "75 г", de: "Korean fried Chicken", ru: "курица по-корейски", how: "" },
+        { g: "75 г", de: "Crispy Chicken", ru: "хрустящая курица", how: "жареная" },
+        { g: "75 г", de: "Garnelen", ru: "креветки", how: "" },
+        { g: "3 шт", de: "Tempura Garnelen", ru: "креветки в темпуре", how: "" },
+        { g: "75 г", de: "flambierter Lachs", ru: "фламбированный лосось", how: "" }
+      ] },
+    { key: "mix", ru: "Миксины", de: "Mix ins nach Wahl", max: 3, pay: "платно",
+      items: [
+        { g: "30 г", de: "Edamame", ru: "эдамаме", how: "только бобы" },
+        { g: "3 г",  de: "Chili rot frisch", ru: "красный чили", how: "мелко нарезать" },
+        { g: "30 г", de: "Avocado", ru: "авокадо", how: "" },
+        { g: "30 г", de: "Rote Beete", ru: "свёкла", how: "" },
+        { g: "30 г", de: "Algensalat", ru: "салат вакамэ", how: "" },
+        { g: "30 г", de: "Gurke", ru: "огурец", how: "" },
+        { g: "3 г",  de: "Koriander", ru: "кинза", how: "" },
+        { g: "30 г", de: "Tomaten", ru: "томаты", how: "" },
+        { g: "15 г", de: "Möhrchenstreifen", ru: "морковная соломка", how: "" }
+      ] },
+    { key: "top", ru: "Топпинг", de: "Topping nach Wahl", max: 3, pay: "платно",
+      items: [
+        { g: "10 г", de: "Masago", ru: "икра масаго", how: "" },
+        { g: "30 г", de: "Granatapfelkerne", ru: "зёрна граната", how: "" },
+        { g: "1 шт", de: "Ei gekocht", ru: "варёное яйцо", how: "половинками" },
+        { g: "15 г", de: "Röstzwiebeln", ru: "жареный лук", how: "" },
+        { g: "10 г", de: "Kokoschips", ru: "кокосовые чипсы", how: "" },
+        { g: "15 г", de: "Wasabinüsse", ru: "васаби-орешки", how: "" },
+        { g: "30 г", de: "Ingwer eingelegt", ru: "маринованный имбирь", how: "" },
+        { g: "15 г", de: "Erdnüsse", ru: "арахис", how: "" },
+        { g: "15 г", de: "Frühlingszwiebeln", ru: "зелёный лук", how: "" }
+      ] },
+    { key: "sauce", ru: "Соус", de: "Sauce nach Wahl", max: 2, pay: "бесплатно",
+      items: [
+        { g: "25 г", de: "Cranberry Teriyaki Sauce", ru: "клюквенный терияки", how: "" },
+        { g: "25 г", de: "Erdnuss Sauce", ru: "арахисовый", how: "" },
+        { g: "25 г", de: "Honig Senf Sauce", ru: "медово-горчичный", how: "" },
+        { g: "25 г", de: "Sweet Sauce", ru: "сладкий унаги", how: "" },
+        { g: "25 г", de: "Spicy Mango Sauce", ru: "острый манговый", how: "" },
+        { g: "25 г", de: "Sweet Chili Sauce", ru: "сладкий чили", how: "" },
+        { g: "25 г", de: "Yoko Wasabi Dip", ru: "васаби-дип", how: "" },
+        { g: "25 г", de: "Soja Sauce", ru: "соевый", how: "" },
+        { g: "25 г", de: "Yoko Cocktailmayonnaise", ru: "фирменный майонез", how: "" },
+        { g: "25 г", de: "Hoi Sin Sauce", ru: "хойсин", how: "" },
+        { g: "—",    de: "ohne Sauce", ru: "без соуса", how: "" }
+      ] },
+    { key: "drink", ru: "Напиток", de: "Gratis Getränk 0,5 l", max: 1, pay: "бесплатно",
+      items: [
+        { g: "0,5 л", de: "Pepsi Cola Zero", ru: "пепси без сахара", how: "" },
+        { g: "0,5 л", de: "Lipton Pfirsich Ice Tea", ru: "холодный чай с персиком", how: "" }
+      ] }
+  ]
+};
+
 const CATS = {
  maki:{short:"Makis", ru:"Makis",          sub:"Маки",              cols:3, band:"--green-band", ink:"--green-ink"},
  io:{short:"Inside-Out", ru:"Inside Outside Rolls", sub:"Рис снаружи",    cols:4, band:"--green-band", ink:"--green-ink"},
@@ -446,19 +518,6 @@ const PREPS_BASE = [
 ];
 
 const PREPS_SAUCE = [
- {ru:"Собери свой боул",de:"Build your Bowl",
-  items:[["125 г","рис суши — 1 мин в микроволновке"],
-         ["125 г","кубики батата — из заморозки во фритюр до золотистого и хрустящего"],
-         ["40 г","бэби-шпинат, мытый, свежий"],
-         ["125 г","киноа — 1 мин в микроволновке"]],
-  steps:["<b>Основа</b> — из четырёх выше, максимум 2 на выбор.",
-    "<b>Протеин</b>, максимум 2, платно: 75 г лосося · 75 г Korean fried Chicken · 75 г Crispy Chicken (жареная) · 75 г креветок · 3 креветки в темпуре · 75 г фламбированного лосося.",
-    "<b>Миксины</b>, максимум 3, платно: 30 г эдамаме · 3 г свежего красного чили мелко · 30 г авокадо · 30 г свёклы · 30 г вакамэ · 30 г огурца · 3 г кинзы · 30 г томатов · 15 г морковной соломки.",
-    "<b>Топпинг</b>, максимум 3, платно: 10 г масаго · 30 г зёрен граната · 1 варёное яйцо половинками · 15 г жареного лука · 10 г кокосовых чипсов · 15 г васаби-орешков · 30 г маринованного имбиря · 15 г арахиса · 15 г зелёного лука.",
-    "<b>Соус</b>, максимум 2, <b>бесплатно</b>, по 25 г: Cranberry Teriyaki · Erdnuss · Honig Senf · Sweet · Spicy Mango · Sweet Chili · Yoko Wasabi Dip · Soja · Yoko Cocktailmayonnaise · Hoi Sin · или без соуса.",
-    "<b>Напиток 0,5 л бесплатно</b>, один на выбор: Pepsi Cola Zero или Lipton Pfirsich Ice Tea."],
-  warn:"Считается по граммам — это не обычный боул с фиксированной базой."},
-
 
 
  {ru:"Фирменный майонез Yoko",de:"Yoko Cocktailmayonnaise",items:[["1 кг","майонез"],["45 г","чили-соус"],["25 г","Sweet Sauce"],["25 г","мёд"],["1 ч. л.","чесночный порошок"]],

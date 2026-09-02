@@ -32,6 +32,7 @@
       <button class="tab" role="tab" aria-selected="true" data-p="p-frame">Каркас</button>
       <button class="tab" role="tab" aria-selected="false" data-p="p-dish">Блюда</button>
       <button class="tab" role="tab" aria-selected="false" data-p="p-box">Меню и коробки</button>
+      <button class="tab" role="tab" aria-selected="false" data-p="p-bowl">Боул</button>
       <button class="tab" role="tab" aria-selected="false" data-p="p-sauce">Соусы</button>
       <button class="tab" role="tab" aria-selected="false" data-p="p-prep">Заготовки</button>
       <button class="tab" role="tab" aria-selected="false" data-p="p-train">Тренировка</button>
@@ -110,6 +111,15 @@
     <thead><tr><th style="width:32%">Позиция</th><th class="n" style="width:12%">Штук</th><th class="n" style="width:14%">Коробка</th><th>Соус</th></tr></thead>
     <tbody id="snackBody"></tbody>
   </table></div>
+</section>
+
+<section class="panel" id="p-bowl" hidden>
+  <div class="bowlhead">
+    <h2 class="disp" id="bowlTitle"></h2>
+    <p class="lede" id="bowlLead"></p>
+  </div>
+  <div class="bowlpick" id="bowlSteps"></div>
+  <div class="bowlsum" id="bowlSum"></div>
 </section>
 
 <section class="panel" id="p-sauce" hidden>

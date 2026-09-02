@@ -1036,3 +1036,78 @@ if ("serviceWorker" in navigator) {
   if (!Sync.session) paint({ kind: "off", text: "синхронизация выключена — нажми «синхронизация» в шапке и войди" });
   else paint();
 })();
+
+/* ============================================================
+   BUILD YOUR BOWL — сборщик
+   Не список, а рабочий инструмент: тыкаешь варианты, видишь
+   предел по каждому этапу и что в итоге получилось.
+   ============================================================ */
+(function () {
+  const stepsEl = $("#bowlSteps"), sumEl = $("#bowlSum");
+  if (!stepsEl) return;
+
+  $("#bowlTitle").textContent = BOWL.ru;
+  $("#bowlLead").innerHTML = esc(BOWL.lead) +
+    ` <b>${esc(BOWL.de)}</b> — так это называется в карте.`;
+
+  /* Выбор держим в памяти вкладки: это рабочий черновик под один заказ. */
+  const picked = {};
+  BOWL.steps.forEach(s => { picked[s.key] = new Set(); });
+
+  function toggle(stepKey, idx) {
+    const step = BOWL.steps.find(s => s.key === stepKey);
+    const set = picked[stepKey];
+    if (set.has(idx)) set.delete(idx);
+    else {
+      /* Дошли до предела — самый старый выбор уступает место новому. */
+      if (set.size >= step.max) set.delete(set.values().next().value);
+      set.add(idx);
+    }
+    render();
+  }
+
+  function render() {
+    stepsEl.innerHTML = BOWL.steps.map(step => {
+      const set = picked[step.key];
+      const full = set.size >= step.max;
+      return `<section class="bstep${full ? " full" : ""}">
+        <header class="bhead">
+          <h3>${esc(step.ru)}</h3>
+          <span class="bde">${esc(step.de)}</span>
+          <span class="bmax">максимум ${step.max}</span>
+          ${step.pay ? `<span class="bpay ${step.pay === "платно" ? "paid" : "free"}">${esc(step.pay)}</span>` : ""}
+          <span class="bcount">${set.size} из ${step.max}</span>
+        </header>
+        <div class="bopts">${step.items.map((it, i) => {
+          const on = set.has(i);
+          return `<button class="bopt${on ? " on" : ""}" type="button"
+            data-step="${esc(step.key)}" data-i="${i}" aria-pressed="${on}">
+            <span class="bg">${esc(it.g)}</span>
+            <span class="bt"><b>${esc(it.de)}</b><i>${esc(it.ru)}</i>${
+              it.how ? `<u>${esc(it.how)}</u>` : ""}</span>
+          </button>`;
+        }).join("")}</div>
+      </section>`;
+    }).join("");
+
+    stepsEl.querySelectorAll("[data-step]").forEach(b =>
+      b.onclick = () => toggle(b.dataset.step, +b.dataset.i));
+
+    const chosen = BOWL.steps
+      .map(s => ({ s, list: [...picked[s.key]].map(i => s.items[i]) }))
+      .filter(x => x.list.length);
+
+    sumEl.innerHTML = chosen.length
+      ? `<div class="bsum">
+          <h3>Собрано <button class="btn" id="bowlReset" type="button">сбросить</button></h3>
+          ${chosen.map(x => `<p class="bline"><span class="lbl">${esc(x.s.ru)}</span>${
+            x.list.map(it => `<span class="tag"><span class="mono">${esc(it.g)}</span> ${esc(it.de)}</span>`).join("")}</p>`).join("")}
+        </div>`
+      : `<p class="bempty">Ничего не выбрано. Нажимай варианты — соберётся боул.</p>`;
+
+    const rst = $("#bowlReset");
+    if (rst) rst.onclick = () => { BOWL.steps.forEach(s => picked[s.key].clear()); render(); };
+  }
+
+  render();
+})();
