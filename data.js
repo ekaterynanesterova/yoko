@@ -5,7 +5,7 @@
    ============================================================ */
 const G = {
 "Lachs":"лосось сырой","Lachsfilet":"филе лосося","flambierter Lachs":"фламбированный лосось",
-"Lachswürfel":"лосось кубиком","Lachshaut":"жареная кожа лосося","Thunfisch":"тунец",
+"Lachswürfel":"лосось кубиком","Lachshaut":"жареная кожа лосося","Lachsbauch":"жареное брюшко лосося","Thunfisch":"тунец",
 "gebratener Thunfisch":"жареный тунец","Surimi":"сурими, крабовая имитация","Garnele":"креветка",
 "Black Tiger Garnele":"креветка блэк-тайгер","Tempura Garnele":"креветка в темпуре",
 "Chicken":"курица халяль","Hühnchen":"курица","Hähnchen":"курица","paniertes Hühnchen":"курица в панировке",
@@ -88,7 +88,7 @@ const RULES = [
  ["<b>Crispy / gebacken / Tempura</b> = идёт во фритюр",
   "Признак, что позиция требует жарки: планируй время, это не «собрал и отдал»."],
  ["<b>Salmon</b> ≠ <b>Sake</b>",
-  "Sake — сырой лосось. Salmon — жареная кожа лосося (Lachshaut). Их путают чаще всего."],
+  "Sake — сырой лосось. Salmon — жареное <b>брюшко</b> лосося (Lachsbauch). Раньше была кожа, Yoko поменяла рецептуру."],
  ["<b>Frischkäse</b> в карте Yoko — веганский",
   "Поэтому Fitness Roll и Maki Kappa считаются веганскими, хотя «сливочный сыр» звучит иначе."],
  ["<b>Поке-боул</b>: база всегда одна",
@@ -125,8 +125,8 @@ const D = [
 ["maki","Maki Sake","Маки с лососем",["Lachs"],[],[],["fish"]],
 ["maki","Maki Sake Avocado","Маки лосось-авокадо",["Avocado","Lachs"],[],[],["fish"]],
 ["maki","Maki Sake Kappa","Маки лосось-огурец",["Gurke","Lachs"],[],[],["fish"]],
-["maki","Maki Salmon","Маки с кожей лосося",["Lachshaut"],["Sesam","Sweet Sauce"],[],["fish","fried"]],
-["maki","Maki Salmon Avocado","Маки кожа лосося-авокадо",["Lachshaut","Avocado"],[],[],["fish","fried"]],
+["maki","Maki Salmon","Маки с кожей лосося",["Lachsbauch"],["Sesam","Sweet Sauce"],[],["fish","fried"]],
+["maki","Maki Salmon Avocado","Маки кожа лосося-авокадо",["Lachsbauch","Avocado"],[],[],["fish","fried"]],
 ["maki","Maki Tofu","Маки с тофу",["Frühlingszwiebeln","Cocktailmayo","frittierter Tofu"],[],[],["veg","fried"]],
 ["maki","Maki Wakame","Маки с вакамэ",["Algensalat","Möhrenstreifen"],["Sesam"],[],["veg"]],
 ["maki","Maki Tekka","Маки с тунцом",["Thunfisch"],[],[],["fish"]],
@@ -143,7 +143,7 @@ const D = [
 ["io","Garden Roll","Гарден",["Thai-Spargel Tempura","Avocado Sticks","Rucola"],["Frühlingszwiebeln","Yoko Cocktailmayonnaise","Sweet Sauce"],[],["veg","fried"]],
 ["io","Philadelphia Roll","Филадельфия",["Frischkäse","Gurke","Lachs"],[],[],["fish"]],
 ["io","Rucola Roll","Руккола",["Frischkäse","Rucola","Lachs"],[],[],["fish"]],
-["io","Salmon Roll","Салмон",["Cocktailmayo","Gurke","Frühlingszwiebeln","Lachshaut"],[],[],["fish","fried"]],
+["io","Salmon Roll","Салмон",["Cocktailmayo","Gurke","Frühlingszwiebeln","Lachsbauch"],[],[],["fish","fried"]],
 ["io","Tofu Roll","Тофу",["Cocktailmayo","Rucola","Gurke","Räuchertofu"],[],[],["veg","fried"]],
 ["io","Tekka Roll","Текка",["Thunfisch","Gurke","Frischkäse"],[],[],["fish"]],
 ["io","Veggie Spring Roll","Вегги спринг",["grüner Spargel","Hummus","Frühlingszwiebeln","Möhrenstreifen"],[],[],["veg","fried"]],
@@ -151,18 +151,18 @@ const D = [
 /* --- PREMIUM, 130 г, 8 шт --- */
 ["premium","Chicken Teriyaki Roll","Курица терияки",["Frühlingszwiebeln","Chicken","Avocado"],["Sesam","Teriyaki Sauce"],[],["meat"]],
 ["premium","Japanese fried Chicken Roll","Японская жареная курица",["Karaage","Eisbergsalat","Möhre"],["Schnittlauch","Yoko Cocktailmayonnaise"],[],["meat","fried"]],
-["premium","Magic Garden Roll","Мэджик гарден",["Avocado Sticks","Thai-Spargel Tempura","Lachshaut"],["Lachsfilet","Frühlingszwiebeln","Yoko Cocktailmayonnaise","Sweet Sauce"],[],["fish","fried"]],
+["premium","Magic Garden Roll","Мэджик гарден",["Avocado Sticks","Thai-Spargel Tempura","Lachsbauch"],["Lachsfilet","Frühlingszwiebeln","Yoko Cocktailmayonnaise","Sweet Sauce"],[],["fish","fried"]],
 ["premium","VIP Roll","VIP",["Tempuraspargel","Yoko Cocktailmayonnaise","Avocado"],["flambierter Lachs","Frühlingszwiebeln","Honig-Senf-Sauce","Sweet Sauce"],[],["fish","fried"]],
 ["premium","Guacamole Roll","Гуакамоле",["Lachs","Gurke","Frischkäse","Sesam"],["Guacamole"],["Yoko Cocktailmayonnaise"],["fish"]],
 ["premium","Magic Shrimp Deluxe","Мэджик шримп делюкс",["Tempura Garnele","Avocado"],["Granatapfelkerne","Schnittlauch","Yoko Cocktailmayonnaise"],[],["fish","fried"]],
 ["premium","Peanut Chicken Deluxe","Арахисовая курица делюкс",["Hühnchen","Avocado"],["Granatapfelkerne","Erdnüsse","Erdnusssauce"],[],["meat","fried"]],
 
 /* --- YOKO ROLLS, 120 г --- */
-["yoko","Yoko Roll Chicken","Yoko ролл с курицей",["Frischkäse","Gurke","Frühlingszwiebeln","Hühnchen"],["Sesam","Sweet Sauce"],[],["meat","fried","deepfried"]],
-["yoko","Yoko Roll Garnele","Yoko ролл с креветкой",["Cocktailmayo","Gurke","Frühlingszwiebeln","Garnele"],["Sesam","Sweet Sauce"],[],["fish","fried","deepfried"]],
-["yoko","Yoko Roll Lachs","Yoko ролл с лососем",["Cocktailmayo","Gurke","Avocado","Lachs"],["Sesam","Sweet Sauce"],[],["fish","fried","deepfried"]],
-["yoko","Yoko Roll Salmon","Yoko ролл с кожей лосося",["Cocktailmayo","Gurke","Frühlingszwiebeln","Lachshaut"],["Sesam","Sweet Sauce"],[],["fish","fried","deepfried"]],
-["yoko","Yoko Roll Vegetaria","Yoko ролл вегетарианский",["Frischkäse","Sesam","Gurke","Avocado","Möhre","Frühlingszwiebeln"],["Sesam","Sweet Sauce"],[],["veg","fried","deepfried"]],
+["yoko","Yoko Roll Chicken","Yoko ролл с курицей",["Frischkäse","Gurke","Frühlingszwiebeln","Hühnchen"],["Sesam","Sweet Sauce"],[],["meat","fried","deepfried"],"по желанию со Sweet Chili вместо Sweet Sauce, +0,20 €"],
+["yoko","Yoko Roll Garnele","Yoko ролл с креветкой",["Cocktailmayo","Gurke","Frühlingszwiebeln","Garnele"],["Sesam","Sweet Sauce"],[],["fish","fried","deepfried"],"по желанию со Sweet Chili вместо Sweet Sauce, +0,20 €"],
+["yoko","Yoko Roll Lachs","Yoko ролл с лососем",["Cocktailmayo","Gurke","Avocado","Lachs"],["Sesam","Sweet Sauce"],[],["fish","fried","deepfried"],"по желанию со Sweet Chili вместо Sweet Sauce, +0,20 €"],
+["yoko","Yoko Roll Salmon","Yoko ролл с кожей лосося",["Cocktailmayo","Gurke","Frühlingszwiebeln","Lachsbauch"],["Sesam","Sweet Sauce"],[],["fish","fried","deepfried"],"по желанию со Sweet Chili вместо Sweet Sauce, +0,20 €"],
+["yoko","Yoko Roll Vegetaria","Yoko ролл вегетарианский",["Frischkäse","Sesam","Gurke","Avocado","Möhre","Frühlingszwiebeln"],["Sesam","Sweet Sauce"],[],["veg","fried","deepfried"],"по желанию со Sweet Chili вместо Sweet Sauce, +0,20 €"],
 ["yoko","Yoko Roll Ente","Yoko ролл с уткой",["Entenbrust","Gurke","Rotkohl","Frühlingszwiebeln","Frischkäse"],["Sesam"],["Sweet Sauce"],["meat","fried","deepfried"]],
 ["yoko","Yoko Roll Tuna","Yoko ролл с тунцом",["gebratener Thunfisch","Frühlingszwiebeln"],["Sesam"],["Yoko Cocktailmayonnaise"],["fish","fried","deepfried"]],
 ["yoko","Yoko Roll Peanut Chicken","Yoko ролл арахисовый",["Chicken","Gurke","Frühlingszwiebeln","Frischkäse"],["Erdnusssauce"],[],["meat","fried","deepfried"]],
@@ -178,11 +178,11 @@ const D = [
 ["yoko","Sushi Burger Veggie","Суши-бургер вегетарианский",["Avocado","Rucola","Möhrenstreifen","Cocktailmayo"],["Frühlingszwiebeln"],["Sweet Sauce"],["veg"]],
 
 /* --- MINI YOKO, 8 шт --- */
-["mini","Mini Yoko Roll Avocado","Мини с авокадо",["Avocado"],[],["Yoko Cocktailmayonnaise"],["veg","fried","deepfried"]],
-["mini","Mini Yoko Roll Sake","Мини с лососем",["Lachs"],[],["Yoko Cocktailmayonnaise"],["fish","fried","deepfried"]],
-["mini","Mini Yoko Roll Salmon","Мини с кожей лосося",["Lachshaut"],[],["Yoko Cocktailmayonnaise"],["fish","fried","deepfried"]],
-["mini","Mini Yoko Roll Ebi","Мини с креветкой",["Garnele"],[],["Yoko Cocktailmayonnaise"],["fish","fried","deepfried"]],
-["mini","Mini Yoko Roll Chicken","Мини с курицей",["Hühnchen","Frühlingszwiebeln","Frischkäse"],[],["Yoko Cocktailmayonnaise"],["meat","fried","deepfried"]],
+["mini","Mini Yoko Roll Avocado","Мини с авокадо",["Avocado"],[],["Yoko Cocktailmayonnaise"],["veg","fried","deepfried"],"по желанию со Sweet Chili вместо Cocktailmayo, +0,20 €"],
+["mini","Mini Yoko Roll Sake","Мини с лососем",["Lachs"],[],["Yoko Cocktailmayonnaise"],["fish","fried","deepfried"],"по желанию со Sweet Chili вместо Cocktailmayo, +0,20 €"],
+["mini","Mini Yoko Roll Salmon","Мини с кожей лосося",["Lachsbauch"],[],["Yoko Cocktailmayonnaise"],["fish","fried","deepfried"],"по желанию со Sweet Chili вместо Cocktailmayo, +0,20 €"],
+["mini","Mini Yoko Roll Ebi","Мини с креветкой",["Garnele"],[],["Yoko Cocktailmayonnaise"],["fish","fried","deepfried"],"по желанию со Sweet Chili вместо Cocktailmayo, +0,20 €"],
+["mini","Mini Yoko Roll Chicken","Мини с курицей",["Hühnchen","Frühlingszwiebeln","Frischkäse"],[],["Yoko Cocktailmayonnaise"],["meat","fried","deepfried"],"по желанию со Sweet Chili вместо Cocktailmayo, +0,20 €"],
 
 /* --- NIGIRI / INARI, 25 г, 2 шт --- */
 ["nigiri","Nigiri Sake","Нигири с лососем",["Lachs"],[],[],["fish"]],
@@ -212,6 +212,7 @@ const D = [
 ["bowl","Yoko Poke Bowl Crispy Ebi Sticks","Боул с креветкой в темпуре",["Tempura Garnele"],[],[],["fish","fried"],"4 палочки"],
 ["bowl","Yoko Poke Bowl Ente","Боул с уткой",["Entenbrust"],[],[],["meat","fried"]],
 ["bowl","Yoko Poke Bowl Tofu","Боул с тофу",["frittierter Tofu"],[],[],["veg","fried"]],
+["bowl","Build your Bowl!","Собери свой боул",["Reis"],[],[],["veg"],"конструктор: основа, протеин, миксины, топпинг, соус — рецептура в «Заготовках»"],
 ["bowl","Yoko Poke Bowl Veggie","Боул вегетарианский",["Avocado"],[],[],["veg"],"двойная порция авокадо"],
 ["bowl","Yoko Poke Bowl Spargel Hähnchen","Боул спаржа-курица",["grüner Spargel","Hühnchen"],[],["Sauce Hollandaise"],["meat","fried"]],
 ["bowl","Yoko Poke Bowl Peanut Chicken","Боул арахисовый",["Hühnchen"],["Erdnusssauce"],[],["meat","fried"]],
@@ -331,9 +332,7 @@ const HIDDEN_MENUS = new Set([
     "Big Yoko Menü",
     "Crunchy Spargel Menü",
     "Happy Sushi Menü",
-    "Peanut Pokal Menü",
-    "Premium Lunch",
-    "Veggie Lunch"
+    "Peanut Pokal Menü"
   ]);
 
 /* ============================================================
@@ -447,6 +446,21 @@ const PREPS_BASE = [
 ];
 
 const PREPS_SAUCE = [
+ {ru:"Собери свой боул",de:"Build your Bowl",
+  items:[["125 г","рис суши — 1 мин в микроволновке"],
+         ["125 г","кубики батата — из заморозки во фритюр до золотистого и хрустящего"],
+         ["40 г","бэби-шпинат, мытый, свежий"],
+         ["125 г","киноа — 1 мин в микроволновке"]],
+  steps:["<b>Основа</b> — из четырёх выше, максимум 2 на выбор.",
+    "<b>Протеин</b>, максимум 2, платно: 75 г лосося · 75 г Korean fried Chicken · 75 г Crispy Chicken (жареная) · 75 г креветок · 3 креветки в темпуре · 75 г фламбированного лосося.",
+    "<b>Миксины</b>, максимум 3, платно: 30 г эдамаме · 3 г свежего красного чили мелко · 30 г авокадо · 30 г свёклы · 30 г вакамэ · 30 г огурца · 3 г кинзы · 30 г томатов · 15 г морковной соломки.",
+    "<b>Топпинг</b>, максимум 3, платно: 10 г масаго · 30 г зёрен граната · 1 варёное яйцо половинками · 15 г жареного лука · 10 г кокосовых чипсов · 15 г васаби-орешков · 30 г маринованного имбиря · 15 г арахиса · 15 г зелёного лука.",
+    "<b>Соус</b>, максимум 2, <b>бесплатно</b>, по 25 г: Cranberry Teriyaki · Erdnuss · Honig Senf · Sweet · Spicy Mango · Sweet Chili · Yoko Wasabi Dip · Soja · Yoko Cocktailmayonnaise · Hoi Sin · или без соуса.",
+    "<b>Напиток 0,5 л бесплатно</b>, один на выбор: Pepsi Cola Zero или Lipton Pfirsich Ice Tea."],
+  warn:"Считается по граммам — это не обычный боул с фиксированной базой."},
+
+
+
  {ru:"Фирменный майонез Yoko",de:"Yoko Cocktailmayonnaise",items:[["1 кг","майонез"],["45 г","чили-соус"],["25 г","Sweet Sauce"],["25 г","мёд"],["1 ч. л.","чесночный порошок"]],
   steps:["Взбить венчиком в большой ёмкости, переложить в сквиз-бутылки."]},
  {ru:"Тайское песто",de:"Thai-Basilikum-Pesto",items:[["70 г","тайский базилик, листья и мягкие стебли"],["3","зубчика чеснока"],["100 мл","растительное масло"],["щепотка","соль и перец"]],
@@ -459,6 +473,7 @@ const PREPS_SAUCE = [
 
 const PREPS_FOOD = [
  {ru:"Кожа лосося",de:"Lachshaut",items:[["2 кг","кожи — примерно с 3 лососей"],["40 г","приправа: бонито и белый перец 1:1"]],
+  warn:"Каталог Yoko теперь пишет во всех позициях Salmon <b>брюшко</b> (Lachsbauch), а не кожу. Заготовка ниже — из папки 06/24, она может быть устаревшей. <b>Уточни у шефа, что жарим сейчас.</b>",
   steps:["Очищенную от чешуи кожу нарезать полосами <b>~10 см</b>.","Приправить, разложить порционно и заморозить.","После разморозки жарить во фритюре <b>до хрустящей корочки</b>."]},
  {ru:"Курица — маринад",de:"Chicken Marinade",items:[["5 кг","куриное филе"],["400 г","Sweet Chili Sauce"],["300 г","масло"],["100 г","чили-соус"]],
   steps:["Разморозить, промыть, обсушить бумагой, уложить <b>целиком</b> в контейнер с крышкой.","Замариновать и оставить в холодильнике <b>на ночь</b>."]},
@@ -573,10 +588,14 @@ const MENUCARDS = [
  {name:"Crunchy Spargel Menü", pcs:16, box:"", kit:"",
   items:[[8,"Crunchy Spargel Roll"],[8,"Maki Tempura Spargel"]]},
 
- {name:"Premium Lunch", pcs:15, box:"", kit:"",
+ {name:"Single Lunch", pcs:10, box:"", kit:"соус на выбор · имбирь · васаби",
+  note:"Не участвует в акциях. Обсыпка филадельфии на выбор",
+  items:[[2,"Sommerrolle Chicken"],[8,"Philadelphia Roll","кунжут"]]},
+
+ {name:"Premium Lunch", pcs:15, box:"", kit:"соус на выбор · имбирь · васаби",
   items:[[5,"Yoko Roll Chicken"],[2,"Sommerrolle Black Tiger Garnele"],[8,"Philadelphia Roll","кунжут"]]},
 
- {name:"Veggie Lunch", pcs:15, box:"", kit:"",
+ {name:"Veggie Lunch", pcs:15, box:"", kit:"соус на выбор · имбирь · васаби",
   items:[[5,"Yoko Roll Vegetaria"],[2,"Sommerrolle Natur"],[8,"Fitness Roll","кунжут"]]},
 
  {name:"Peanut Pokal Menü", pcs:15, box:"", kit:"Erdnuss Sauce",
