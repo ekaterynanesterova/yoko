@@ -458,6 +458,8 @@ document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () =>
   window.scrollTo({top:0, behavior:"instant"});
   /* Открыли заказы — сразу проверяем, не сняли ли чек на другом устройстве. */
   if (t.dataset.p === "p-order" && typeof OrderSync !== "undefined") OrderSync.pull();
+  /* То же для смен: график мог приехать с телефона, пока планшет лежал. */
+  if (t.dataset.p === "p-cal" && typeof ShiftSync !== "undefined") ShiftSync.pull();
 }));
 
 $("#theme").addEventListener("click", () => {
@@ -1109,5 +1111,262 @@ if ("serviceWorker" in navigator) {
     if (rst) rst.onclick = () => { BOWL.steps.forEach(s => picked[s.key].clear()); render(); };
   }
 
+  render();
+})();
+
+/* ============================================================
+   СМЕНЫ
+
+   Месяц целиком, днями сверху вниз: на телефоне это читается
+   быстрее, чем сетка 7×5, и в каждый день влезают все имена.
+   Свои смены подсвечены, чужие видно рядом — на кухне важно, кто
+   ещё сегодня выходит.
+   ============================================================ */
+(function () {
+  const daysBox = $("#calDays"), meSel = $("#calMe"), title = $("#calMonth"),
+        count = $("#calCount"), nextBox = $("#calNext"), state = $("#calState"),
+        file = $("#calFile");
+  if (!daysBox) return;
+
+  const WD = ["вс", "пн", "вт", "ср", "чт", "пт", "сб"];
+  const MON = ["январь", "февраль", "март", "апрель", "май", "июнь",
+               "июль", "август", "сентябрь", "октябрь", "ноябрь", "декабрь"];
+  const MON_OF = ["января", "февраля", "марта", "апреля", "мая", "июня",
+                  "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+
+  const today = Shifts.iso(new Date());
+  let cur = new Date();
+  cur = new Date(cur.getFullYear(), cur.getMonth(), 1);
+  let onlyMine = false;
+  let editing = "";
+
+  function say(msg, kind) {
+    state.textContent = msg || "";
+    state.className = "scanstate" + (kind ? " " + kind : "");
+  }
+
+  /* ---------- кто я ---------- */
+  function fillMe() {
+    const list = Shifts.roster();
+    const me = Shifts.me();
+    meSel.innerHTML = '<option value="">— не выбрано —</option>' +
+      list.map(n => `<option value="${esc(n)}"${Shifts.same(n, me) ? " selected" : ""}>${esc(n)}</option>`).join("");
+  }
+  meSel.addEventListener("change", () => { Shifts.setMe(meSel.value); render(); });
+
+  /* ---------- ближайшие смены ---------- */
+  function renderNext() {
+    const me = Shifts.me();
+    if (!me) {
+      nextBox.innerHTML = `<p class="calhint">Выбери своё имя выше — тогда сайт подсветит твои смены и покажет ближайшую.</p>`;
+      return;
+    }
+    const up = Shifts.upcoming(me, 3);
+    if (!up.length) {
+      nextBox.innerHTML = `<p class="calhint">Твоих смен впереди в графике нет. Как придёт новое фото — сфотографируй его здесь.</p>`;
+      return;
+    }
+    const one = up[0], d = Shifts.dateOf(one.date);
+    const days = Math.round((d - Shifts.dateOf(today)) / 86400000);
+    const when = days === 0 ? "сегодня" : days === 1 ? "завтра" : "через " + days + " дн.";
+    const withMe = (Shifts.get(one.date).who || [])
+      .filter(p => !p.off && !Shifts.same(p.n, me)).map(p => p.n);
+    nextBox.innerHTML =
+      `<div class="calnextcard">
+        <span class="lbl">ближайшая смена</span>
+        <b>${WD[d.getDay()]}, ${d.getDate()} ${MON_OF[d.getMonth()]}</b>
+        <i>${when}${one.t ? " · " + esc(one.t) : ""}</i>
+        ${withMe.length ? `<span class="calwith">вместе с: ${esc(withMe.join(", "))}</span>` : ""}
+      </div>` +
+      (up.length > 1
+        ? `<p class="calhint">дальше: ${up.slice(1).map(u => {
+            const x = Shifts.dateOf(u.date);
+            return WD[x.getDay()] + " " + x.getDate() + " " + MON_OF[x.getMonth()] + (u.t ? " (" + esc(u.t) + ")" : "");
+          }).join(" · ")}</p>`
+        : "");
+  }
+
+  /* ---------- месяц ---------- */
+  function person(p, me) {
+    const mine = me && Shifts.same(p.n, me);
+    return `<span class="calp${mine ? " me" : ""}${p.off ? " off" : ""}">${esc(p.n)}${
+      p.t ? `<i>${esc(p.t)}</i>` : ""}</span>`;
+  }
+
+  function dayRow(date, rec, me) {
+    const d = Shifts.dateOf(date);
+    const who = (rec && rec.who) || [];
+    const mine = me ? who.some(p => Shifts.same(p.n, me) && !p.off) : false;
+    const cls = ["calday"];
+    if (mine) cls.push("mine");
+    if (date === today) cls.push("today");
+    if (d.getDay() === 0 || d.getDay() === 6) cls.push("we");
+    if (!who.length) cls.push("empty");
+    if (d.getDay() === 1) cls.push("wk");
+    return `<div class="${cls.join(" ")}" data-date="${date}">
+      <button class="calopen" type="button" data-open="${date}" aria-expanded="${editing === date}">
+        <span class="caldate"><b>${d.getDate()}</b><i>${WD[d.getDay()]}</i></span>
+        <span class="calwho">${who.length
+          ? who.map(p => person(p, me)).join("")
+          : `<span class="calnone">не заполнено</span>`}</span>
+      </button>
+      ${editing === date ? editor(date, who) : ""}
+    </div>`;
+  }
+
+  /* Правка дня разворачивается прямо в строке: на телефоне модалка
+     поверх списка только мешает — теряется, какой день правишь. */
+  function editor(date, who) {
+    const opts = Shifts.roster().map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join("");
+    return `<div class="caledit">
+      ${who.length ? who.map((p, i) => `
+        <div class="calerow">
+          <b>${esc(p.n)}</b>
+          <input type="text" class="calet" data-t="${i}" value="${esc(p.t || "")}" placeholder="время, если есть" aria-label="Время для ${esc(p.n)}">
+          <button class="btn calof${p.off ? " on" : ""}" type="button" data-off="${i}" aria-pressed="${!!p.off}">снята</button>
+          <button class="btn caldel" type="button" data-del="${i}" aria-label="Убрать ${esc(p.n)}">✕</button>
+        </div>`).join("") : `<p class="calhint">В этот день пока никого нет.</p>`}
+      <div class="calerow add">
+        <select class="calenew" aria-label="Кого добавить"><option value="">кого добавить…</option>${opts}</select>
+        <input type="text" class="calent" placeholder="время, если есть" aria-label="Время новой смены">
+        <button class="btn primary" type="button" data-add="1">Добавить</button>
+      </div>
+      <div class="calerow done">
+        <button class="btn" type="button" data-close="1">Готово</button>
+      </div>
+    </div>`;
+  }
+
+  function render() {
+    const me = Shifts.me();
+    const y = cur.getFullYear(), m = cur.getMonth();
+    const last = new Date(y, m + 1, 0).getDate();
+    title.textContent = MON[m][0].toUpperCase() + MON[m].slice(1) + " " + y;
+
+    const rows = [];
+    let filled = 0;
+    for (let i = 1; i <= last; i++) {
+      const date = y + "-" + String(m + 1).padStart(2, "0") + "-" + String(i).padStart(2, "0");
+      const rec = Shifts.get(date);
+      const who = (rec && rec.who) || [];
+      if (who.length) filled++;
+      const mine = me ? who.some(p => Shifts.same(p.n, me) && !p.off) : false;
+      if (onlyMine && !mine && editing !== date) continue;
+      rows.push(dayRow(date, rec, me));
+    }
+    daysBox.innerHTML = rows.length ? rows.join("") :
+      `<p class="empty">${onlyMine ? "В этом месяце твоих смен нет." : "Этот месяц ещё не заполнен."}</p>`;
+
+    count.textContent = me
+      ? "твоих смен: " + Shifts.countIn(y, m, me) + " · дней в графике: " + filled
+      : "дней в графике: " + filled;
+
+    fillMe();
+    renderNext();
+    wire();
+  }
+
+  function wire() {
+    daysBox.querySelectorAll("[data-open]").forEach(b => b.onclick = () => {
+      editing = editing === b.dataset.open ? "" : b.dataset.open;
+      render();
+      if (editing) {
+        const el = daysBox.querySelector(`[data-date="${editing}"]`);
+        if (el) el.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      }
+    });
+    if (!editing) return;
+    const box = daysBox.querySelector(`[data-date="${editing}"] .caledit`);
+    if (!box) return;
+    const date = editing;
+    const who = ((Shifts.get(date) || {}).who || []).map(p => ({ ...p }));
+
+    box.querySelectorAll("[data-del]").forEach(b => b.onclick = () => {
+      who.splice(+b.dataset.del, 1); Shifts.put(date, who); render();
+    });
+    box.querySelectorAll("[data-off]").forEach(b => b.onclick = () => {
+      const p = who[+b.dataset.off];
+      if (p.off) delete p.off; else p.off = true;
+      Shifts.put(date, who); render();
+    });
+    box.querySelectorAll("[data-t]").forEach(inp => inp.onchange = () => {
+      who[+inp.dataset.t].t = inp.value.trim(); Shifts.put(date, who); render();
+    });
+    const add = box.querySelector("[data-add]");
+    if (add) add.onclick = () => {
+      const n = box.querySelector(".calenew").value;
+      if (!n) return;
+      who.push({ n, t: box.querySelector(".calent").value.trim() });
+      Shifts.put(date, who); render();
+    };
+    const close = box.querySelector("[data-close]");
+    if (close) close.onclick = () => { editing = ""; render(); };
+  }
+
+  /* ---------- навигация ---------- */
+  $("#calPrev").onclick = () => { cur = new Date(cur.getFullYear(), cur.getMonth() - 1, 1); editing = ""; render(); };
+  $("#calNext2").onclick = () => { cur = new Date(cur.getFullYear(), cur.getMonth() + 1, 1); editing = ""; render(); };
+  $("#calToday").onclick = () => {
+    const n = new Date();
+    cur = new Date(n.getFullYear(), n.getMonth(), 1); editing = ""; render();
+    const el = daysBox.querySelector(`[data-date="${today}"]`);
+    if (el) el.scrollIntoView({ block: "center", behavior: "smooth" });
+  };
+  const mineBtn = $("#calOnlyMine");
+  mineBtn.onclick = () => {
+    onlyMine = !onlyMine;
+    mineBtn.setAttribute("aria-pressed", String(onlyMine));
+    render();
+  };
+
+  /* ---------- фото графика ---------- */
+  async function handle(f) {
+    if (!f) return;
+    if (!Scan.hasKey()) { askKey(); return; }
+    say("Читаю график…");
+    try {
+      /* Год на листе не пишут — берём из месяца, который сейчас открыт. */
+      const res = await Scan.recognizeShifts(f, cur.getFullYear());
+      const n = Shifts.applyPhoto(res);
+      if (n) {
+        /* Перескакиваем на месяц, который только что распознали. */
+        const first = Shifts.dateOf(res.days[0].date);
+        cur = new Date(first.getFullYear(), first.getMonth(), 1);
+        editing = "";
+      }
+      render();
+      const un = res.unknown.length ? " Не разобрано: " + res.unknown.join(", ") + "." : "";
+      say(n ? `Внесено дней: ${n}.${un} Проверь глазами — почерк есть почерк.`
+            : "Дни не распознались — попробуй переснять ровнее и ближе.",
+          n ? "ok" : "err");
+    } catch (err) {
+      say(err.message || "Не получилось прочитать график.", "err");
+    } finally { file.value = ""; }
+  }
+
+  function askKey() {
+    const k = window.prompt("Ключ Gemini (хранится только в этом браузере):", "");
+    if (k === null) return;
+    Scan.setKey(k);
+    say(Scan.hasKey() ? "Ключ сохранён. Можно фотографировать график." : "Ключ убран.", "ok");
+  }
+
+  file.addEventListener("change", () => handle(file.files && file.files[0]));
+  $("#calScan").addEventListener("click", () => file.click());
+  $("#calKey").addEventListener("click", askKey);
+
+  /* ---------- синхронизация ---------- */
+  const bar = $("#calSyncBar"), txt = $("#calSyncTxt");
+  function paint(st) {
+    bar.dataset.s = st.kind;
+    txt.textContent = st.kind === "ok" && st.at
+      ? "обновлено " + new Date(st.at).toLocaleTimeString("ru", { hour: "2-digit", minute: "2-digit" })
+      : st.text;
+  }
+  ShiftSync.onState = paint;
+  paint(ShiftSync.state);
+  $("#calSyncNow").onclick = () => ShiftSync.pull().then(() => ShiftSync.push());
+
+  Shifts.onChange = () => { try { render(); } catch (e) {} };
   render();
 })();

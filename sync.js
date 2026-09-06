@@ -92,6 +92,7 @@ const Sync = (function () {
     await pull();
     await push();
     if (typeof OrderSync !== "undefined") { await OrderSync.pull(); await OrderSync.push(); }
+    if (typeof ShiftSync !== "undefined") { await ShiftSync.pull(); await ShiftSync.push(); }
     setStatus("ok", session.email);
     return session;
   }
@@ -258,6 +259,97 @@ const OrderSync = (function () {
   setInterval(() => {
     if (document.visibilityState === "visible") pull();
   }, 15000);
+
+  const api = {
+    pull, push, queuePush,
+    get state() { return state; },
+    onState: null
+  };
+  return api;
+})();
+
+/* ============================================================
+   СИНХРОНИЗАЦИЯ СМЕН
+   График приходит фотографией на телефон, а смотреть его удобнее
+   на планшете. Хранится по дню: правка одного дня не затирает
+   неделю, приехавшую с фотографии.
+   ============================================================ */
+const ShiftSync = (function () {
+  const TABLE = "yoko_shifts";
+  let timer = null, pulling = false;
+
+  let state = { kind: "off", text: "синхронизация выключена", at: 0 };
+  const setState = (kind, text) => {
+    state = { kind, text, at: kind === "ok" ? Date.now() : state.at };
+    if (api.onState) api.onState(state);
+  };
+
+  async function pull() {
+    const s = Sync.session;
+    if (!s) { setState("off", "войди, чтобы график был на всех устройствах"); return false; }
+    if (!navigator.onLine) { setState("offline", "нет сети — смотрим сохранённое"); return false; }
+    if (pulling) return false;
+    pulling = true;
+    try {
+      const rows = await Sync.req("/rest/v1/" + TABLE +
+        "?select=date,payload,mt&user_id=eq." + s.user_id + "&order=date.desc&limit=400");
+      if (Array.isArray(rows) && rows.length) {
+        Shifts.merge(rows.map(r => ({
+          date: r.date, mt: r.mt,
+          who: (r.payload && r.payload.who) || [],
+          src: (r.payload && r.payload.src) || ""
+        })));
+      }
+      setState("ok", "обновлено");
+      return true;
+    } catch (e) {
+      if (e && e.data && e.data.code === "PGRST205")
+        setState("nosql", "таблица смен не создана — выполни supabase.sql");
+      else setState("err", e && e.message ? e.message : "не получилось синхронизировать");
+      return false;
+    } finally { pulling = false; }
+  }
+
+  async function push() {
+    const s = Sync.session;
+    if (!s || !navigator.onLine) return false;
+    const rows = Shifts.snapshot().map(d => ({
+      user_id: s.user_id, date: d.date, mt: d.mt || Date.now(),
+      updated_at: new Date().toISOString(),
+      payload: { who: d.who, src: d.src || "" }
+    }));
+    if (!rows.length) return true;
+    try {
+      await Sync.req("/rest/v1/" + TABLE, {
+        method: "POST",
+        headers: { "Prefer": "resolution=merge-duplicates,return=minimal" },
+        body: JSON.stringify(rows)
+      });
+      return true;
+    } catch (e) {
+      if (e && e.data && e.data.code === "PGRST205")
+        setState("nosql", "таблица смен не создана — выполни supabase.sql");
+      else setState("err", e && e.message ? e.message : "не получилось отправить");
+      return false;
+    }
+  }
+
+  function queuePush() {
+    if (!Sync.session) return;
+    clearTimeout(timer);
+    timer = setTimeout(push, 1500);
+  }
+
+  /* График меняется не так часто, как заказы, — хватает проверки при
+     возврате на страницу и раз в пару минут. */
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") pull();
+  });
+  window.addEventListener("online", () => pull().then(push));
+  setInterval(() => { if (document.visibilityState === "visible") pull(); }, 120000);
+  /* Первый подтяг после загрузки страницы: api ещё не объявлен, поэтому
+     через таймер, иначе setState упрётся в необъявленную константу. */
+  setTimeout(() => { if (Sync.session) pull(); }, 0);
 
   const api = {
     pull, push, queuePush,

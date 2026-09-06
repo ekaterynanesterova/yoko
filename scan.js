@@ -135,5 +135,92 @@ const Scan = (function () {
     };
   }
 
-  return { recognize, hasKey, setKey, get model() { return MODEL; } };
+  /* ============================================================
+     ФОТО ГРАФИКА → СМЕНЫ
+
+     Руководитель фотографирует лист «Dienstplan»: колонки Montag…
+     Sonntag, в каждой ячейке дата вида «14.09» и три-четыре имени
+     от руки, по-русски. Имена модель тоже выбирает из готового
+     списка, а не читает по буквам.
+     ============================================================ */
+  function shiftPrompt(year) {
+    return [
+      "На фото — рукописный график смен суши-бара, немецкий бланк «Dienstplan».",
+      "Колонки подписаны Montag, Dienstag, Mittwoch, Donnerstag, Freitag, Samstag, Sonntag.",
+      "В каждой заполненной ячейке сверху стоит дата вида «14.09», под ней от руки написаны имена сотрудников.",
+      "",
+      "Верни СТРОГО JSON такого вида:",
+      '{"days":[{"date":"YYYY-MM-DD","people":[{"name":"...","time":"","off":false}]}],"unknown":["..."]}',
+      "",
+      "Правила:",
+      "1. Имена бери ТОЛЬКО из списка ниже, дословно. Почерк неразборчивый — выбирай ближайшее имя из списка.",
+      "2. Если имя явно не из списка — положи его текст как есть в unknown, а в people не добавляй.",
+      "3. Дата в ячейке написана как ДД.ММ без года. Год — " + year + ". Верни полную дату YYYY-MM-DD.",
+      "4. time — то, что написано рядом с именем в скобках: «16:00», «до 18:00», «с 14:00», «16:00 до 21:00». Если времени нет — пустая строка.",
+      "5. Зачёркнутое имя всё равно верни, но поставь ему \"off\": true. Это снятая смена.",
+      "6. Пустые ячейки пропускай, дни без имён в ответ не включай.",
+      "7. Порядок имён внутри дня сохраняй как на листе.",
+      "8. Ничего не додумывай: если день на фото не заполнен, его в ответе быть не должно.",
+      "",
+      "СПИСОК ИМЁН:",
+      Shifts.roster().join(" | ")
+    ].join("\n");
+  }
+
+  /* Почерк мельче, чем чек термопринтера, поэтому не ужимаем так сильно. */
+  async function recognizeShifts(file, year) {
+    if (!key) throw new Error("Нет ключа Gemini — нажми «Ключ Gemini» и вставь его.");
+    const img = await fileToJpeg(file, 2000, 0.9);
+    const url = "https://generativelanguage.googleapis.com/v1beta/models/" +
+      MODEL + ":generateContent?key=" + encodeURIComponent(key);
+    const body = {
+      contents: [{
+        parts: [
+          { text: shiftPrompt(year || new Date().getFullYear()) },
+          { inline_data: { mime_type: "image/jpeg", data: img.base64 } }
+        ]
+      }],
+      generationConfig: { responseMimeType: "application/json", temperature: 0 }
+    };
+    const r = await fetch(url, {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body)
+    });
+    const data = await r.json().catch(() => null);
+    if (!r.ok) {
+      const msg = (data && data.error && data.error.message) || ("HTTP " + r.status);
+      throw new Error(r.status === 400 && /API key/i.test(msg) ? "Ключ Gemini не подошёл." : msg);
+    }
+    const txt = data && data.candidates && data.candidates[0] &&
+      data.candidates[0].content && data.candidates[0].content.parts &&
+      data.candidates[0].content.parts[0] && data.candidates[0].content.parts[0].text;
+    if (!txt) throw new Error("Модель вернула пустой ответ. Попробуй переснять график.");
+    let parsed;
+    try { parsed = JSON.parse(txt); }
+    catch (e) { throw new Error("Не удалось разобрать ответ модели."); }
+    return normalizeShifts(parsed);
+  }
+
+  /* Отсеиваем всё, что не похоже на дату, и приводим имена к тем, что
+     уже есть в составе, — иначе «Аня» и «аня» разъедутся в разных людей. */
+  function normalizeShifts(raw) {
+    const known = new Map(Shifts.roster().map(n => [n.toLowerCase(), n]));
+    const days = [], unknown = Array.isArray(raw.unknown) ? raw.unknown.slice() : [];
+    for (const d of (Array.isArray(raw.days) ? raw.days : [])) {
+      const date = String((d && d.date) || "").trim();
+      if (!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(date)) continue;
+      const people = [];
+      for (const p of (Array.isArray(d.people) ? d.people : [])) {
+        const written = String((p && p.name) || "").trim();
+        if (!written) continue;
+        const name = known.get(written.toLowerCase());
+        if (!name) { unknown.push(written); continue; }
+        people.push({ name, time: String((p && p.time) || "").trim().slice(0, 24), off: !!(p && p.off) });
+      }
+      if (people.length) days.push({ date, people });
+    }
+    days.sort((a, b) => a.date < b.date ? -1 : 1);
+    return { days, unknown: unknown.map(u => String(u).slice(0, 40)).filter(Boolean) };
+  }
+
+  return { recognize, recognizeShifts, hasKey, setKey, get model() { return MODEL; } };
 })();

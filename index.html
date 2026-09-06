@@ -37,6 +37,7 @@
       <button class="tab" role="tab" aria-selected="false" data-p="p-prep">Заготовки</button>
       <button class="tab" role="tab" aria-selected="false" data-p="p-train">Тренировка</button>
       <button class="tab" role="tab" aria-selected="false" data-p="p-order">Заказ</button>
+      <button class="tab" role="tab" aria-selected="false" data-p="p-cal">Смены</button>
     </div>
   </div>
 </div>
@@ -206,6 +207,46 @@
   <div id="orderHistory"></div>
 </section>
 
+<!-- ============ СМЕНЫ ============ -->
+<section class="panel" id="p-cal" hidden>
+  <p class="lede">График, который присылает руководитель. <b>Сфотографируй лист</b> — сайт разберёт даты и имена и разложит по дням. Смены за 11.08 — 27.09 уже внесены с четырёх присланных фото; если где-то ошибка, нажми на день и поправь.</p>
+
+  <div class="calme">
+    <label for="calMe">Кто я в графике</label>
+    <select id="calMe" aria-label="Выбери своё имя в графике"></select>
+  </div>
+
+  <div class="calnext" id="calNext"></div>
+
+  <div class="scanrow">
+    <button class="bigscan" id="calScan" type="button">
+      <span class="ic" aria-hidden="true">▤</span>
+      <span class="tx"><b>Сфотографировать график</b><i>камера или файл</i></span>
+    </button>
+    <button class="btn" id="calKey" type="button">Ключ Gemini</button>
+  </div>
+  <input type="file" id="calFile" accept="image/*" capture="environment" hidden>
+  <p class="scanstate" id="calState"></p>
+
+  <div class="syncbar" id="calSyncBar">
+    <span class="dot" aria-hidden="true"></span>
+    <span class="txt" id="calSyncTxt">синхронизация выключена</span>
+    <button class="btn" id="calSyncNow" type="button">обновить</button>
+  </div>
+
+  <div class="calhead">
+    <button class="btn" id="calPrev" type="button" aria-label="Предыдущий месяц">←</button>
+    <div class="caltitle"><b id="calMonth">—</b><i id="calCount"></i></div>
+    <button class="btn" id="calNext2" type="button" aria-label="Следующий месяц">→</button>
+  </div>
+  <div class="calfilter">
+    <button class="chip" id="calOnlyMine" type="button" aria-pressed="false">только мои смены</button>
+    <button class="chip" id="calToday" type="button">сегодня</button>
+  </div>
+
+  <div class="caldays" id="calDays"></div>
+</section>
+
 </main>
 
 <div class="sheet" id="authSheet" hidden>
@@ -243,6 +284,7 @@
 
 <script src="data.js"></script>
 <script src="photos.js"></script>
+<script src="shifts.js"></script>
 <script src="scan.js"></script>
 <script src="order.js"></script>
 <script src="progress.js"></script>
