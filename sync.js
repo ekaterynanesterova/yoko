@@ -201,8 +201,10 @@ const OrderSync = (function () {
     if (pulling) return false;
     pulling = true;
     try {
+      /* В этой же таблице лежат смены — их забирает ShiftSync. */
       const rows = await Sync.req("/rest/v1/" + TABLE +
-        "?select=id,payload,mt,deleted&user_id=eq." + s.user_id + "&order=mt.desc&limit=40");
+        "?select=id,payload,mt,deleted&user_id=eq." + s.user_id +
+        "&id=not.like." + encodeURIComponent("shift:*") + "&order=mt.desc&limit=40");
       if (Array.isArray(rows) && rows.length) {
         const mapped = rows.map(r => Object.assign({}, r.payload, { id: r.id, mt: r.mt, deleted: !!r.deleted }));
         if (Order.merge(mapped) && Order.onChange) Order.onChange();
@@ -273,9 +275,14 @@ const OrderSync = (function () {
    График приходит фотографией на телефон, а смотреть его удобнее
    на планшете. Хранится по дню: правка одного дня не затирает
    неделю, приехавшую с фотографии.
+
+   Живёт в той же таблице, что и чеки, — ключ с приставкой «shift:».
+   Отдельная таблица требовала бы ещё один прогон SQL руками, а
+   структура нужна ровно та же: ключ, содержимое, метка времени.
    ============================================================ */
 const ShiftSync = (function () {
-  const TABLE = "yoko_shifts";
+  const TABLE = "yoko_orders";
+  const PRE = "shift:";
   let timer = null, pulling = false;
 
   let state = { kind: "off", text: "синхронизация выключена", at: 0 };
@@ -292,10 +299,11 @@ const ShiftSync = (function () {
     pulling = true;
     try {
       const rows = await Sync.req("/rest/v1/" + TABLE +
-        "?select=date,payload,mt&user_id=eq." + s.user_id + "&order=date.desc&limit=400");
+        "?select=id,payload,mt&user_id=eq." + s.user_id +
+        "&id=like." + encodeURIComponent(PRE + "*") + "&order=id.desc&limit=400");
       if (Array.isArray(rows) && rows.length) {
         Shifts.merge(rows.map(r => ({
-          date: r.date, mt: r.mt,
+          date: String(r.id || "").slice(PRE.length), mt: r.mt,
           who: (r.payload && r.payload.who) || [],
           src: (r.payload && r.payload.src) || ""
         })));
@@ -304,7 +312,7 @@ const ShiftSync = (function () {
       return true;
     } catch (e) {
       if (e && e.data && e.data.code === "PGRST205")
-        setState("nosql", "таблица смен не создана — выполни supabase.sql");
+        setState("err", "таблица заказов не создана — выполни supabase.sql");
       else setState("err", e && e.message ? e.message : "не получилось синхронизировать");
       return false;
     } finally { pulling = false; }
@@ -314,8 +322,8 @@ const ShiftSync = (function () {
     const s = Sync.session;
     if (!s || !navigator.onLine) return false;
     const rows = Shifts.snapshot().map(d => ({
-      user_id: s.user_id, date: d.date, mt: d.mt || Date.now(),
-      updated_at: new Date().toISOString(),
+      user_id: s.user_id, id: PRE + d.date, mt: d.mt || Date.now(),
+      deleted: false, updated_at: new Date().toISOString(),
       payload: { who: d.who, src: d.src || "" }
     }));
     if (!rows.length) return true;
@@ -328,7 +336,7 @@ const ShiftSync = (function () {
       return true;
     } catch (e) {
       if (e && e.data && e.data.code === "PGRST205")
-        setState("nosql", "таблица смен не создана — выполни supabase.sql");
+        setState("err", "таблица заказов не создана — выполни supabase.sql");
       else setState("err", e && e.message ? e.message : "не получилось отправить");
       return false;
     }

@@ -48,28 +48,7 @@ create policy "yoko orders update" on public.yoko_orders
   for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 -- ---------------------------------------------------------------
--- График смен. Руководитель присылает фото на телефон, а смотреть
--- удобнее на планшете. Хранится по дню, а не по фотографии: правка
--- одного дня не затирает всю неделю.
+-- Смены отдельной таблицы НЕ требуют: они лежат в yoko_orders с
+-- ключом вида «shift:2026-09-14». Структура нужна та же, а лишний
+-- прогон SQL руками — только повод для ошибки.
 -- ---------------------------------------------------------------
-create table if not exists public.yoko_shifts (
-  user_id    uuid not null references auth.users(id) on delete cascade,
-  date       text not null,
-  payload    jsonb not null,
-  mt         bigint not null,
-  updated_at timestamptz not null default now(),
-  primary key (user_id, date)
-);
-
-alter table public.yoko_shifts enable row level security;
-
-drop policy if exists "yoko shifts select" on public.yoko_shifts;
-drop policy if exists "yoko shifts insert" on public.yoko_shifts;
-drop policy if exists "yoko shifts update" on public.yoko_shifts;
-
-create policy "yoko shifts select" on public.yoko_shifts
-  for select using (auth.uid() = user_id);
-create policy "yoko shifts insert" on public.yoko_shifts
-  for insert with check (auth.uid() = user_id);
-create policy "yoko shifts update" on public.yoko_shifts
-  for update using (auth.uid() = user_id) with check (auth.uid() = user_id);

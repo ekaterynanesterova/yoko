@@ -38,6 +38,8 @@ const Order = (function () {
   function merge(rows) {
     let changed = false;
     for (const r of (rows || [])) {
+      /* В общей таблице рядом лежат смены — они не заказы. */
+      if (!r || String(r.id || "").indexOf("shift:") === 0) continue;
       const cur = list.find(x => x.id === r.id);
       if (!cur || (r.mt || 0) > (cur.mt || 0)) {
         const i = list.findIndex(x => x.id === r.id);
