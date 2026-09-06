@@ -14,6 +14,8 @@ const Shifts = (function () {
   const LS = "yoko.shifts.v1";
   const ME_LS = "yoko.shifts.me";
   const SEED_LS = "yoko.shifts.seed.v1";
+  /* Поднимать при каждой правке SEED. */
+  const SEED_V = "2";
   const MIG_LS = "yoko.shifts.nooff";
 
   /* Кто вообще выходит в смену. Список нужен распознаванию: модель
@@ -42,7 +44,7 @@ const Shifts = (function () {
     "2026-08-24": "Даша, Вика, Алина (16:00)",
     "2026-08-25": "Аня (с 14:00), Джордан, Сергей, Вика (до 18:00)",
     "2026-08-26": "Аня, Алина, Катя",
-    "2026-08-27": "Вика, Аня, Сергей",
+    "2026-08-27": "Вика, Аня, Катя",
     "2026-08-28": "Джордан, Аня, Алина (с 16:00)",
     "2026-08-29": "Вика, Джордан, Сергей",
     "2026-08-30": "Джордан, Аня, Алина (16:00)",
@@ -106,17 +108,19 @@ const Shifts = (function () {
   }
 
   function seed() {
-    let done = false;
-    try { done = localStorage.getItem(SEED_LS) === "1"; } catch (e) {}
-    if (done) return;
+    let have = "";
+    try { have = localStorage.getItem(SEED_LS) || ""; } catch (e) {}
+    if (have === SEED_V) return;
     for (const date in SEED) {
-      /* День, уже правленный руками или приехавший из облака, не трогаем. */
-      if (days[date]) continue;
+      const cur = days[date];
+      /* Правленный руками день (метка времени новее переноса) не трогаем —
+         иначе исправление в репозитории затрёт живую правку. */
+      if (cur && (cur.mt || 0) !== SEED_MT) continue;
       const who = SEED[date].split(",").map(parseCell).filter(Boolean);
       days[date] = { date, who, mt: SEED_MT, src: "photo" };
     }
     save();
-    try { localStorage.setItem(SEED_LS, "1"); } catch (e) {}
+    try { localStorage.setItem(SEED_LS, SEED_V); } catch (e) {}
   }
   seed();
 
