@@ -1182,7 +1182,7 @@ if ("serviceWorker" in navigator) {
     const days = Math.round((d - Shifts.dateOf(today)) / 86400000);
     const when = days === 0 ? "сегодня" : days === 1 ? "завтра" : "через " + days + " дн.";
     const withMe = (Shifts.get(one.date).who || [])
-      .filter(p => !p.off && !Shifts.same(p.n, me)).map(p => p.n);
+      .filter(p => !Shifts.same(p.n, me)).map(p => p.n);
     nextBox.innerHTML =
       `<div class="calnextcard">
         <span class="lbl">ближайшая смена</span>
@@ -1203,11 +1203,11 @@ if ("serviceWorker" in navigator) {
     y + "-" + String(m + 1).padStart(2, "0") + "-" + String(d).padStart(2, "0");
 
   const whoOf = date => ((Shifts.get(date) || {}).who) || [];
-  const isMine = (who, me) => !!me && who.some(p => Shifts.same(p.n, me) && !p.off);
+  const isMine = (who, me) => !!me && who.some(p => Shifts.same(p.n, me));
 
   function chip(p, me) {
     const mine = me && Shifts.same(p.n, me);
-    return `<span class="calp${mine ? " me" : ""}${p.off ? " off" : ""}">${esc(p.n)}${
+    return `<span class="calp${mine ? " me" : ""}">${esc(p.n)}${
       p.t ? `<i>${esc(p.t)}</i>` : ""}</span>`;
   }
 
@@ -1238,7 +1238,7 @@ if ("serviceWorker" in navigator) {
       out += `<button class="${cls.join(" ")}" type="button" data-open="${date}" aria-expanded="${editing === date}">
         <span class="calnum">${dayNum}</span>
         <span class="calnames">${who.length
-          ? who.map(p => `<span class="caln${me && Shifts.same(p.n, me) ? " me" : ""}${p.off ? " off" : ""}">${
+          ? who.map(p => `<span class="caln${me && Shifts.same(p.n, me) ? " me" : ""}">${
               esc(p.n)}${p.t ? `<i>${esc(p.t)}</i>` : ""}</span>`).join("")
           : ""}</span>
       </button>`;
@@ -1294,7 +1294,6 @@ if ("serviceWorker" in navigator) {
         <div class="calerow">
           <b>${esc(p.n)}</b>
           <input type="text" class="calet" data-t="${i}" value="${esc(p.t || "")}" placeholder="время, если есть" aria-label="Время для ${esc(p.n)}">
-          <button class="btn calof${p.off ? " on" : ""}" type="button" data-off="${i}" aria-pressed="${!!p.off}">снята</button>
           <button class="btn caldel" type="button" data-del="${i}" aria-label="Убрать ${esc(p.n)}">✕</button>
         </div>`).join("") : `<p class="calhint">В этот день пока никого нет.</p>`}
       <div class="calerow add">
@@ -1308,11 +1307,6 @@ if ("serviceWorker" in navigator) {
     const list = who.map(p => ({ ...p }));
     editBox.querySelectorAll("[data-del]").forEach(b => b.onclick = () => {
       list.splice(+b.dataset.del, 1); Shifts.put(date, list);
-    });
-    editBox.querySelectorAll("[data-off]").forEach(b => b.onclick = () => {
-      const p = list[+b.dataset.off];
-      if (p.off) delete p.off; else p.off = true;
-      Shifts.put(date, list);
     });
     editBox.querySelectorAll("[data-t]").forEach(inp => inp.onchange = () => {
       list[+inp.dataset.t].t = inp.value.trim(); Shifts.put(date, list);

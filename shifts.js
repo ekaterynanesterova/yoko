@@ -14,6 +14,7 @@ const Shifts = (function () {
   const LS = "yoko.shifts.v1";
   const ME_LS = "yoko.shifts.me";
   const SEED_LS = "yoko.shifts.seed.v1";
+  const MIG_LS = "yoko.shifts.nooff";
 
   /* Кто вообще выходит в смену. Список нужен распознаванию: модель
      выбирает из готовых имён, а не разбирает почерк по буквам. */
@@ -21,8 +22,9 @@ const Shifts = (function () {
 
   /* ------------------------------------------------------------
      Четыре плана, присланные Ханной (11.08 — 27.09.2026).
-     Перенесены с фотографий вручную. Формат ячейки: «Имя (время)»,
-     тильда впереди — имя на фото зачёркнуто, то есть смена снята.
+     Перенесены с фотографий вручную. Формат ячейки: «Имя (время)».
+     Зачёркнутых на фото не переносим: зачеркнули — значит человека
+     в этот день не было, в таблице ему делать нечего.
      ------------------------------------------------------------ */
   const SEED = {
     "2026-08-12": "Джордан, Катя, Аня, Вика",
@@ -56,8 +58,8 @@ const Shifts = (function () {
     "2026-09-09": "Аня, Джордан, Алина (16:00)",
     "2026-09-10": "Даша, Джордан, Алина (16:00)",
     "2026-09-11": "Даша, Джордан, Аня (16:00)",
-    "2026-09-12": "Даша, Вика, ~Катя (16:00)",
-    "2026-09-13": "Аня, Даша (16:00), ~Джордан, Вика",
+    "2026-09-12": "Даша, Вика",
+    "2026-09-13": "Аня, Даша (16:00), Вика",
     "2026-09-14": "Аня, Вика, Катя",
     "2026-09-15": "Даша, Вика, Аня (16:00)",
     "2026-09-16": "Даша, Алина, Вика (16:00)",
@@ -66,7 +68,7 @@ const Shifts = (function () {
     "2026-09-19": "Даша, Алина, Аня (16:00)",
     "2026-09-20": "Даша, Аня (16:00), Джордан",
     "2026-09-21": "Аня, Джордан, Вика",
-    "2026-09-22": "~Аня, Джордан, Катя",
+    "2026-09-22": "Джордан, Катя",
     "2026-09-23": "Даша (с 13:00), Аня, Вика (до 16:00)",
     "2026-09-24": "Даша, Джордан, Алина (с 16:00)",
     "2026-09-25": "Аня, Джордан, Даша (16:00)",
@@ -88,13 +90,10 @@ const Shifts = (function () {
   const save = () => { try { localStorage.setItem(LS, JSON.stringify(days)); } catch (e) {} };
 
   /* ---------- разбор ячейки графика ---------- */
-  /* «Алина (до 18:00)» → {n:"Алина", t:"до 18:00"}. Тильда впереди —
-     зачёркнутое имя: смену видно, но она снята. */
+  /* «Алина (до 18:00)» → {n:"Алина", t:"до 18:00"} */
   function parseCell(cell) {
     let s = String(cell || "").trim();
     if (!s) return null;
-    let off = false;
-    if (s[0] === "~") { off = true; s = s.slice(1).trim(); }
     let t = "";
     const open = s.indexOf("(");
     if (open >= 0) {
@@ -103,9 +102,7 @@ const Shifts = (function () {
       s = s.slice(0, open).trim();
     }
     if (!s) return null;
-    const rec = { n: s, t };
-    if (off) rec.off = true;
-    return rec;
+    return { n: s, t };
   }
 
   function seed() {
@@ -122,6 +119,31 @@ const Shifts = (function () {
     try { localStorage.setItem(SEED_LS, "1"); } catch (e) {}
   }
   seed();
+
+  /* Зачёркнутое имя значит, что человека в этот день не было. Сначала мы
+     показывали такие записи перечёркнутыми; Kate поправила — их не должно
+     быть в таблице вовсе. Разовая чистка того, что успело сохраниться. */
+  function dropOff() {
+    let done = false;
+    try { done = localStorage.getItem(MIG_LS) === "1"; } catch (e) {}
+    if (done) return;
+    let changed = false;
+    for (const date in days) {
+      const who = days[date].who || [];
+      const keep = who.filter(p => !p.off);
+      if (keep.length !== who.length) {
+        /* Свежая метка времени, чтобы чистка победила копию на другом устройстве. */
+        days[date] = { date, who: keep, mt: Date.now(), src: days[date].src || "" };
+        changed = true;
+      }
+    }
+    if (changed) {
+      save();
+      setTimeout(() => { if (typeof ShiftSync !== "undefined") ShiftSync.queuePush(); }, 0);
+    }
+    try { localStorage.setItem(MIG_LS, "1"); } catch (e) {}
+  }
+  dropOff();
 
   /* ---------- чтение ---------- */
   function get(date) { return days[date] || null; }
@@ -146,7 +168,7 @@ const Shifts = (function () {
   function worksOn(date, name) {
     const d = days[date];
     if (!d) return null;
-    return (d.who || []).find(p => same(p.n, name) && !p.off) || null;
+    return (d.who || []).find(p => same(p.n, name)) || null;
   }
 
   /* Мои смены начиная с сегодняшнего дня — для строки «следующая смена». */
@@ -188,11 +210,9 @@ const Shifts = (function () {
     let n = 0;
     for (const d of (parsed && parsed.days) || []) {
       if (!d.date || !Array.isArray(d.people) || !d.people.length) continue;
-      const who = d.people.map(p => {
-        const rec = { n: String(p.name || "").trim(), t: String(p.time || "").trim() };
-        if (p.off) rec.off = true;
-        return rec;
-      }).filter(p => p.n);
+      const who = d.people
+        .map(p => ({ n: String(p.name || "").trim(), t: String(p.time || "").trim() }))
+        .filter(p => p.n);
       if (!who.length) continue;
       days[d.date] = { date: d.date, who, mt: Date.now(), src: "photo" };
       n++;
@@ -212,7 +232,7 @@ const Shifts = (function () {
       if (!r || !r.date) continue;
       const cur = days[r.date];
       if (!cur || (r.mt || 0) > (cur.mt || 0)) {
-        days[r.date] = { date: r.date, who: r.who || [], mt: r.mt || 0, src: r.src || "" };
+        days[r.date] = { date: r.date, who: (r.who || []).filter(p => !p.off), mt: r.mt || 0, src: r.src || "" };
         changed = true;
       }
     }
