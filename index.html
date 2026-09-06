@@ -240,11 +240,16 @@
     <button class="btn" id="calNext2" type="button" aria-label="Следующий месяц">→</button>
   </div>
   <div class="calfilter">
+    <span class="calviews" id="calView">
+      <button class="chip" data-v="grid" type="button" aria-pressed="true">сетка</button>
+      <button class="chip" data-v="list" type="button" aria-pressed="false">список</button>
+    </span>
     <button class="chip" id="calOnlyMine" type="button" aria-pressed="false">только мои смены</button>
     <button class="chip" id="calToday" type="button">сегодня</button>
   </div>
 
   <div class="caldays" id="calDays"></div>
+  <div id="calEdit" hidden></div>
 </section>
 
 </main>

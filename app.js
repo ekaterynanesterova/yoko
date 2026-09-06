@@ -1117,28 +1117,40 @@ if ("serviceWorker" in navigator) {
 /* ============================================================
    СМЕНЫ
 
-   Месяц целиком, днями сверху вниз: на телефоне это читается
-   быстрее, чем сетка 7×5, и в каждый день влезают все имена.
-   Свои смены подсвечены, чужие видно рядом — на кухне важно, кто
-   ещё сегодня выходит.
+   Два вида одного месяца. «Сетка» повторяет бумажный Dienstplan:
+   колонки понедельник—воскресенье, в ячейке число и под ним имена
+   столбиком — глаз уже привык искать смену именно так. «Список»
+   удобнее на ходу: те же дни строками, ничего не надо листать вбок.
    ============================================================ */
 (function () {
-  const daysBox = $("#calDays"), meSel = $("#calMe"), title = $("#calMonth"),
-        count = $("#calCount"), nextBox = $("#calNext"), state = $("#calState"),
-        file = $("#calFile");
+  const daysBox = $("#calDays"), editBox = $("#calEdit"), meSel = $("#calMe"),
+        title = $("#calMonth"), count = $("#calCount"), nextBox = $("#calNext"),
+        state = $("#calState"), file = $("#calFile");
   if (!daysBox) return;
 
   const WD = ["вс", "пн", "вт", "ср", "чт", "пт", "сб"];
+  /* Заголовки сетки идут с понедельника — как на листе от руководителя. */
+  const HEAD = [
+    ["понедельник", "Montag"], ["вторник", "Dienstag"], ["среда", "Mittwoch"],
+    ["четверг", "Donnerstag"], ["пятница", "Freitag"], ["суббота", "Samstag"],
+    ["воскресенье", "Sonntag"]
+  ];
   const MON = ["январь", "февраль", "март", "апрель", "май", "июнь",
                "июль", "август", "сентябрь", "октябрь", "ноябрь", "декабрь"];
   const MON_OF = ["января", "февраля", "марта", "апреля", "мая", "июня",
                   "июля", "августа", "сентября", "октября", "ноября", "декабря"];
 
+  const VIEW_LS = "yoko.shifts.view";
   const today = Shifts.iso(new Date());
   let cur = new Date();
   cur = new Date(cur.getFullYear(), cur.getMonth(), 1);
   let onlyMine = false;
   let editing = "";
+  let view = "grid";
+  /* На телефоне видно три колонки из семи — при смене месяца подводим
+     сетку к нужному дню, чтобы не искать его пальцем. */
+  let recenter = true;
+  try { view = localStorage.getItem(VIEW_LS) === "list" ? "list" : "grid"; } catch (e) {}
 
   function say(msg, kind) {
     state.textContent = msg || "";
@@ -1186,39 +1198,98 @@ if ("serviceWorker" in navigator) {
         : "");
   }
 
-  /* ---------- месяц ---------- */
-  function person(p, me) {
+  /* ---------- общее ---------- */
+  const dateStr = (y, m, d) =>
+    y + "-" + String(m + 1).padStart(2, "0") + "-" + String(d).padStart(2, "0");
+
+  const whoOf = date => ((Shifts.get(date) || {}).who) || [];
+  const isMine = (who, me) => !!me && who.some(p => Shifts.same(p.n, me) && !p.off);
+
+  function chip(p, me) {
     const mine = me && Shifts.same(p.n, me);
     return `<span class="calp${mine ? " me" : ""}${p.off ? " off" : ""}">${esc(p.n)}${
       p.t ? `<i>${esc(p.t)}</i>` : ""}</span>`;
   }
 
-  function dayRow(date, rec, me) {
-    const d = Shifts.dateOf(date);
-    const who = (rec && rec.who) || [];
-    const mine = me ? who.some(p => Shifts.same(p.n, me) && !p.off) : false;
-    const cls = ["calday"];
-    if (mine) cls.push("mine");
-    if (date === today) cls.push("today");
-    if (d.getDay() === 0 || d.getDay() === 6) cls.push("we");
-    if (!who.length) cls.push("empty");
-    if (d.getDay() === 1) cls.push("wk");
-    return `<div class="${cls.join(" ")}" data-date="${date}">
-      <button class="calopen" type="button" data-open="${date}" aria-expanded="${editing === date}">
-        <span class="caldate"><b>${d.getDate()}</b><i>${WD[d.getDay()]}</i></span>
-        <span class="calwho">${who.length
-          ? who.map(p => person(p, me)).join("")
-          : `<span class="calnone">не заполнено</span>`}</span>
-      </button>
-      ${editing === date ? editor(date, who) : ""}
-    </div>`;
+  /* ---------- сетка ---------- */
+  function renderGrid(me) {
+    const y = cur.getFullYear(), m = cur.getMonth();
+    const first = new Date(y, m, 1);
+    /* Неделя начинается с понедельника: воскресенье в JS это 0. */
+    const lead = (first.getDay() + 6) % 7;
+    const last = new Date(y, m + 1, 0).getDate();
+    const cells = Math.ceil((lead + last) / 7) * 7;
+
+    let out = `<div class="calgridwrap"><div class="calgrid">` +
+      HEAD.map(h => `<div class="calhcell"><b>${h[0]}</b><i>${h[1]}</i></div>`).join("");
+
+    for (let i = 0; i < cells; i++) {
+      const dayNum = i - lead + 1;
+      if (dayNum < 1 || dayNum > last) { out += `<div class="calcell out"></div>`; continue; }
+      const date = dateStr(y, m, dayNum);
+      const who = whoOf(date);
+      const mine = isMine(who, me);
+      const cls = ["calcell"];
+      if (mine) cls.push("mine");
+      if (date === today) cls.push("today");
+      if (!who.length) cls.push("empty");
+      if (editing === date) cls.push("sel");
+      if (onlyMine && !mine) cls.push("dim");
+      out += `<button class="${cls.join(" ")}" type="button" data-open="${date}" aria-expanded="${editing === date}">
+        <span class="calnum">${dayNum}</span>
+        <span class="calnames">${who.length
+          ? who.map(p => `<span class="caln${me && Shifts.same(p.n, me) ? " me" : ""}${p.off ? " off" : ""}">${
+              esc(p.n)}${p.t ? `<i>${esc(p.t)}</i>` : ""}</span>`).join("")
+          : ""}</span>
+      </button>`;
+    }
+    return out + `</div></div>`;
   }
 
-  /* Правка дня разворачивается прямо в строке: на телефоне модалка
-     поверх списка только мешает — теряется, какой день правишь. */
-  function editor(date, who) {
+  /* ---------- список ---------- */
+  function renderList(me) {
+    const y = cur.getFullYear(), m = cur.getMonth();
+    const last = new Date(y, m + 1, 0).getDate();
+    const rows = [];
+    for (let i = 1; i <= last; i++) {
+      const date = dateStr(y, m, i);
+      const who = whoOf(date);
+      const mine = isMine(who, me);
+      if (onlyMine && !mine && editing !== date) continue;
+      const d = Shifts.dateOf(date);
+      const cls = ["calday"];
+      if (mine) cls.push("mine");
+      if (date === today) cls.push("today");
+      if (d.getDay() === 0 || d.getDay() === 6) cls.push("we");
+      if (!who.length) cls.push("empty");
+      if (d.getDay() === 1) cls.push("wk");
+      rows.push(`<div class="${cls.join(" ")}" data-date="${date}">
+        <button class="calopen" type="button" data-open="${date}" aria-expanded="${editing === date}">
+          <span class="caldate"><b>${i}</b><i>${WD[d.getDay()]}</i></span>
+          <span class="calwho">${who.length
+            ? who.map(p => chip(p, me)).join("")
+            : `<span class="calnone">не заполнено</span>`}</span>
+        </button>
+      </div>`);
+    }
+    return rows.length ? rows.join("") :
+      `<p class="empty">${onlyMine ? "В этом месяце твоих смен нет." : "Этот месяц ещё не заполнен."}</p>`;
+  }
+
+  /* ---------- правка дня ----------
+     Отдельной панелью под календарём, а не внутри ячейки: в сетке
+     ячейка узкая, поля в неё не влезают и ломают колонки. */
+  function renderEditor() {
+    if (!editing) { editBox.innerHTML = ""; editBox.hidden = true; return; }
+    editBox.hidden = false;
+    const who = whoOf(editing);
+    const d = Shifts.dateOf(editing);
     const opts = Shifts.roster().map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join("");
-    return `<div class="caledit">
+    editBox.innerHTML = `<div class="caledit">
+      <div class="calehead">
+        <b>${WD[d.getDay()]}, ${d.getDate()} ${MON_OF[d.getMonth()]}</b>
+        <button class="btn" type="button" data-close="1">Готово</button>
+      </div>
       ${who.length ? who.map((p, i) => `
         <div class="calerow">
           <b>${esc(p.n)}</b>
@@ -1231,86 +1302,72 @@ if ("serviceWorker" in navigator) {
         <input type="text" class="calent" placeholder="время, если есть" aria-label="Время новой смены">
         <button class="btn primary" type="button" data-add="1">Добавить</button>
       </div>
-      <div class="calerow done">
-        <button class="btn" type="button" data-close="1">Готово</button>
-      </div>
     </div>`;
+
+    const date = editing;
+    const list = who.map(p => ({ ...p }));
+    editBox.querySelectorAll("[data-del]").forEach(b => b.onclick = () => {
+      list.splice(+b.dataset.del, 1); Shifts.put(date, list);
+    });
+    editBox.querySelectorAll("[data-off]").forEach(b => b.onclick = () => {
+      const p = list[+b.dataset.off];
+      if (p.off) delete p.off; else p.off = true;
+      Shifts.put(date, list);
+    });
+    editBox.querySelectorAll("[data-t]").forEach(inp => inp.onchange = () => {
+      list[+inp.dataset.t].t = inp.value.trim(); Shifts.put(date, list);
+    });
+    editBox.querySelector("[data-add]").onclick = () => {
+      const n = editBox.querySelector(".calenew").value;
+      if (!n) return;
+      list.push({ n, t: editBox.querySelector(".calent").value.trim() });
+      Shifts.put(date, list);
+    };
+    editBox.querySelector("[data-close]").onclick = () => { editing = ""; render(); };
   }
 
   function render() {
     const me = Shifts.me();
     const y = cur.getFullYear(), m = cur.getMonth();
-    const last = new Date(y, m + 1, 0).getDate();
     title.textContent = MON[m][0].toUpperCase() + MON[m].slice(1) + " " + y;
 
-    const rows = [];
-    let filled = 0;
-    for (let i = 1; i <= last; i++) {
-      const date = y + "-" + String(m + 1).padStart(2, "0") + "-" + String(i).padStart(2, "0");
-      const rec = Shifts.get(date);
-      const who = (rec && rec.who) || [];
-      if (who.length) filled++;
-      const mine = me ? who.some(p => Shifts.same(p.n, me) && !p.off) : false;
-      if (onlyMine && !mine && editing !== date) continue;
-      rows.push(dayRow(date, rec, me));
-    }
-    daysBox.innerHTML = rows.length ? rows.join("") :
-      `<p class="empty">${onlyMine ? "В этом месяце твоих смен нет." : "Этот месяц ещё не заполнен."}</p>`;
+    daysBox.className = view === "grid" ? "caldays grid" : "caldays list";
+    daysBox.innerHTML = view === "grid" ? renderGrid(me) : renderList(me);
 
+    let filled = 0;
+    const last = new Date(y, m + 1, 0).getDate();
+    for (let i = 1; i <= last; i++) if (whoOf(dateStr(y, m, i)).length) filled++;
     count.textContent = me
       ? "твоих смен: " + Shifts.countIn(y, m, me) + " · дней в графике: " + filled
       : "дней в графике: " + filled;
 
-    fillMe();
-    renderNext();
-    wire();
-  }
-
-  function wire() {
     daysBox.querySelectorAll("[data-open]").forEach(b => b.onclick = () => {
       editing = editing === b.dataset.open ? "" : b.dataset.open;
       render();
-      if (editing) {
-        const el = daysBox.querySelector(`[data-date="${editing}"]`);
-        if (el) el.scrollIntoView({ block: "nearest", behavior: "smooth" });
-      }
+      if (editing) editBox.scrollIntoView({ block: "nearest", behavior: "smooth" });
     });
-    if (!editing) return;
-    const box = daysBox.querySelector(`[data-date="${editing}"] .caledit`);
-    if (!box) return;
-    const date = editing;
-    const who = ((Shifts.get(date) || {}).who || []).map(p => ({ ...p }));
 
-    box.querySelectorAll("[data-del]").forEach(b => b.onclick = () => {
-      who.splice(+b.dataset.del, 1); Shifts.put(date, who); render();
-    });
-    box.querySelectorAll("[data-off]").forEach(b => b.onclick = () => {
-      const p = who[+b.dataset.off];
-      if (p.off) delete p.off; else p.off = true;
-      Shifts.put(date, who); render();
-    });
-    box.querySelectorAll("[data-t]").forEach(inp => inp.onchange = () => {
-      who[+inp.dataset.t].t = inp.value.trim(); Shifts.put(date, who); render();
-    });
-    const add = box.querySelector("[data-add]");
-    if (add) add.onclick = () => {
-      const n = box.querySelector(".calenew").value;
-      if (!n) return;
-      who.push({ n, t: box.querySelector(".calent").value.trim() });
-      Shifts.put(date, who); render();
-    };
-    const close = box.querySelector("[data-close]");
-    if (close) close.onclick = () => { editing = ""; render(); };
+    if (view === "grid" && recenter) {
+      const wrap = daysBox.querySelector(".calgridwrap");
+      const cell = daysBox.querySelector(".calcell.sel") || daysBox.querySelector(".calcell.today")
+        || daysBox.querySelector(".calcell.mine");
+      if (wrap && cell && wrap.scrollWidth > wrap.clientWidth) {
+        wrap.scrollLeft = Math.max(0, cell.offsetLeft - (wrap.clientWidth - cell.offsetWidth) / 2);
+        recenter = false;
+      }
+    }
+
+    fillMe();
+    renderNext();
+    renderEditor();
   }
 
   /* ---------- навигация ---------- */
-  $("#calPrev").onclick = () => { cur = new Date(cur.getFullYear(), cur.getMonth() - 1, 1); editing = ""; render(); };
-  $("#calNext2").onclick = () => { cur = new Date(cur.getFullYear(), cur.getMonth() + 1, 1); editing = ""; render(); };
+  $("#calPrev").onclick = () => { cur = new Date(cur.getFullYear(), cur.getMonth() - 1, 1); editing = ""; recenter = true; render(); };
+  $("#calNext2").onclick = () => { cur = new Date(cur.getFullYear(), cur.getMonth() + 1, 1); editing = ""; recenter = true; render(); };
   $("#calToday").onclick = () => {
     const n = new Date();
-    cur = new Date(n.getFullYear(), n.getMonth(), 1); editing = ""; render();
-    const el = daysBox.querySelector(`[data-date="${today}"]`);
-    if (el) el.scrollIntoView({ block: "center", behavior: "smooth" });
+    cur = new Date(n.getFullYear(), n.getMonth(), 1); editing = ""; recenter = true; render();
   };
   const mineBtn = $("#calOnlyMine");
   mineBtn.onclick = () => {
@@ -1318,6 +1375,16 @@ if ("serviceWorker" in navigator) {
     mineBtn.setAttribute("aria-pressed", String(onlyMine));
     render();
   };
+  const viewBtns = document.querySelectorAll("#calView .chip");
+  function paintView() {
+    viewBtns.forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === view)));
+  }
+  viewBtns.forEach(b => b.onclick = () => {
+    view = b.dataset.v;
+    try { localStorage.setItem(VIEW_LS, view); } catch (e) {}
+    recenter = true; paintView(); render();
+  });
+  paintView();
 
   /* ---------- фото графика ---------- */
   async function handle(f) {
@@ -1366,6 +1433,11 @@ if ("serviceWorker" in navigator) {
   ShiftSync.onState = paint;
   paint(ShiftSync.state);
   $("#calSyncNow").onclick = () => ShiftSync.pull().then(() => ShiftSync.push());
+
+  /* Панель рисуется скрытой, поэтому первый честный расчёт ширины
+     возможен только когда вкладку открыли. */
+  const calTab = document.querySelector(`.tab[data-p="p-cal"]`);
+  if (calTab) calTab.addEventListener("click", () => { recenter = true; render(); });
 
   Shifts.onChange = () => { try { render(); } catch (e) {} };
   render();
