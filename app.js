@@ -807,6 +807,7 @@ if ("serviceWorker" in navigator) {
           ${p.kit.length ? `<p class="packkit"><span class="lbl">в каждую коробку:</span> ${
             p.kit.map(k => `<span class="tag"><span class="mono">${k.cnt}×</span> ${esc(k.label)}</span>`).join("")}</p>` : ""}
           ${p.single && !p.box ? `<p class="packnote">Размер коробки в техкартах не указан — уточни у шефа, впишу.</p>` : ""}
+          ${p.boxAsk ? `<p class="packnote">Размер со слов Kate, у шефа ещё не подтверждён.</p>` : ""}
           ${p.items.length ? `<p class="packitems">${
             p.items.map(([n, nm]) => `<span class="pi"><span class="mono">${n}</span> ${esc(nm)}</span>`).join("")}</p>` : ""}
           ${p.note ? `<p class="packnote">${esc(p.note)}</p>` : ""}

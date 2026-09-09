@@ -131,9 +131,12 @@ const Order = (function () {
         /* Собственный соус позиции — он идёт стаканчиком рядом. */
         if (d) (d[5] || []).forEach(sauce => put(sauce, 1));
 
-        const box = single ? single.box : "";
+        /* Размер берём у самой позиции, а если его нет — по типу блюда. */
+        const byType = d ? TYPE_BOX[d[0]] : null;
+        const box = single ? single.box : (byType ? byType.box : "");
+        const boxAsk = !single && !!(byType && byType.ask);
         if (box) boxes.set(box, (boxes.get(box) || 0) + q);
-        packs.push({ name: it.name, qty: q, box, kit: ownKit, items: [], single: true,
+        packs.push({ name: it.name, qty: q, box, boxAsk, kit: ownKit, items: [], single: true,
                      note: d && d[7] ? d[7] : "" });
       }
     }

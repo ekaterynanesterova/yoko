@@ -9,6 +9,8 @@
 const PHOTO = {
   dish: {
     "Maki Avocado": ["d01.jpg", "https://sd-images.simplydelivery.io/d3ifi83838t8gw8289ad7e7ac516e78e/images/articles/b173d857c2352135f82082cf28eb9b8f8b470008.jpeg"],
+    "Build your Bowl!": ["d161.jpg", "https://sd-images.simplydelivery.io/d3ifi83838t8gw8289ad7e7ac516e78e/images/articles/3ddd282c561473aeccef708e020192976b185479.jpeg"],
+    "Maki California": ["d160.jpg", "https://sd-images.simplydelivery.io/d3ifi83838t8gw8289ad7e7ac516e78e/images/articles/c10f2e3c9f24b063d28e9cec98a14cb1cd363fd6.jpeg"],
     "Maki Chicken": ["d02.jpg", "https://sd-images.simplydelivery.io/d3ifi83838t8gw8289ad7e7ac516e78e/images/articles/464411ae4f81ba3313295b834fb14f8779bd6b5c.jpeg"],
     "Maki Crispy Ebi": ["d03.jpg", "https://sd-images.simplydelivery.io/d3ifi83838t8gw8289ad7e7ac516e78e/images/articles/6413eae0c76e70bdeb107760f028db325a610b41.jpeg"],
     "Maki Ebi": ["d04.jpg", "https://sd-images.simplydelivery.io/d3ifi83838t8gw8289ad7e7ac516e78e/images/articles/f3928d25317ede10323726e44af8fe6346ff489d.jpeg"],
@@ -153,6 +155,7 @@ const PHOTO = {
   },
   menu: {
     "Maki Menü": ["m01.jpg", "https://sd-images.simplydelivery.io/d3ifi83838t8gw8289ad7e7ac516e78e/images/articles/58ec63aaed9aea29439d084e6bcf3e647b1051d5.jpeg"],
+    "Single Lunch": ["m32.jpg", "https://sd-images.simplydelivery.io/d3ifi83838t8gw8289ad7e7ac516e78e/images/articles/a17b5f6917dd4dd645bd07eb78592d38b64a4fa0.jpeg"],
     "Westcoast Menü": ["m02.jpg", "https://sd-images.simplydelivery.io/d3ifi83838t8gw8289ad7e7ac516e78e/images/articles/2a7d3de10981b7cea5c5ef609ab890a733cca5d1.jpeg"],
     "Chicken Menü": ["m03.jpg", "https://sd-images.simplydelivery.io/d3ifi83838t8gw8289ad7e7ac516e78e/images/articles/c8c6a9f7151ab45fe8cad41d006b1c49dfbca742.jpeg"],
     "Yoko Stars Menü": ["m04.jpg", "https://sd-images.simplydelivery.io/d3ifi83838t8gw8289ad7e7ac516e78e/images/articles/66687f98a6fa578c8888b49ab8bb93362a9130af.jpeg"],
