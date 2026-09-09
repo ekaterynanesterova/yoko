@@ -168,7 +168,7 @@ const D = [
 ["yoko","Yoko Roll Peanut Chicken","Yoko ролл арахисовый",["Chicken","Gurke","Frühlingszwiebeln","Frischkäse"],["Erdnusssauce"],[],["meat","fried","deepfried"]],
 ["yoko","Yoko Roll Cranberry Chicken","Yoko ролл клюквенный",["Chicken","Gurke","Frühlingszwiebeln","Frischkäse"],["Cranberry Teriyaki Sauce"],[],["meat","fried","deepfried"]],
 ["yoko","Yoko Roll Chicken Guacamole","Yoko ролл курица-гуакамоле",["Chicken","Gurke","Frühlingszwiebeln","Frischkäse"],["Guacamole"],["Sweet Sauce"],["meat","fried","deepfried"]],
-["yoko","Korean Crunch Roll","Корейский кранч",["Korean fried Chicken","Asian Coleslaw","Gurke","Cocktailmayo"],["Sesam","Korean BBQ Sauce"],[],["meat","fried","deepfried"]],
+["yoko","Korean Crunch Roll","Корейский кранч",["Korean fried Chicken","Asian Coleslaw","Gurke","Cocktailmayo","Korean BBQ Sauce"],["Sesam"],[],["meat","fried","deepfried"]],
 ["yoko","Crunchy Chicken Roll","Кранчи с курицей",["Hühnchen","Gurke","Frühlingszwiebeln","Cocktailmayo"],["Sesam","Cranberry Teriyaki Sauce"],[],["meat","fried","deepfried"]],
 ["yoko","Crunchy Sake Roll","Кранчи с лососем",["Lachs","Avocado","Cocktailmayo"],["Sesam","Cranberry Teriyaki Sauce"],[],["fish","fried","deepfried"]],
 ["yoko","Crunchy Veggie Roll","Кранчи вегетарианский",["Rucola","Frischkäse","Möhre","Avocado","Cocktailmayo"],["Sesam","Cranberry Teriyaki Sauce"],[],["veg","fried","deepfried"]],

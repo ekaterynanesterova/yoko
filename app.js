@@ -300,8 +300,8 @@ function renderDishes() {
     `<button class="jchip" type="button" data-go="cat-${c.key}">${esc(c.label)}<span class="n">${c.n}</span></button>`
   ).join("");
 
-  const sauceKey = '<span><b class="scdemo">Sauce ↓</b> соус, который идёт внутрь</span>';
-  const topKey = '<span><i class="sw" style="background:transparent"></i> прозрачная ячейка — кладётся сверху</span>';
+  const sauceKey = '<span><b class="scdemo">Sauce ↓ внутрь</b> соус, который кладётся внутрь</span>';
+  const topKey = '<span><i class="sw" style="background:transparent"></i> прозрачная ячейка, ↑ сверху — этим поливают или посыпают</span>';
   $("#legend").innerHTML = paint === "fry"
     ? '<span><i class="sw" style="background:var(--green-band)"></i> ролл не жарится</span>'
       + '<span><i class="sw" style="background:var(--amber-band)"></i> ролл целиком во фритюре</span>'
@@ -662,7 +662,7 @@ if ("serviceWorker" in navigator) {
       </div>
       <div class="hcells" style="--cols:${meta ? meta.cols : 3}">${cellsHTML(d, meta)}</div>
       ${d.note ? `<p class="rc-note">${esc(d.note)}</p>` : ""}
-      <p class="rc-hint">Ячейка с заливкой — внутрь, прозрачная — сверху. Соус внутрь подчёркнут.</p>`;
+      <p class="rc-hint">Ячейка с заливкой — кладётся <b>внутрь</b>. Прозрачная со стрелкой <b>↑ сверху</b> — этим поливают или посыпают.</p>`;
 
     lastFocus = document.activeElement;
     rc.hidden = false;
@@ -727,11 +727,22 @@ if ("serviceWorker" in navigator) {
     return { done: all.filter(w => isDone(o, w.name)).length, total: all.length };
   }
 
+  /* Откуда взялась работа. Когда позиция пришла и из меню, и отдельной
+     строкой, разбиваем по источникам — иначе выглядит как ошибка счёта. */
+  function srcLine(w) {
+    const from = w.from && w.from.size ? [...w.from] : [];
+    const unit = w.rolls ? "" : (w.pcs ? " шт" : "");
+    const own = w.ownRolls || (w.rolls ? 0 : (w.ownPcs || 0));
+    if (!from.length) return own ? `<u>отдельной позицией</u>` : "";
+    if (!own) return `<u>из ${esc(from.join(", "))}</u>`;
+    const fromN = (w.rolls || w.pcs) - own;
+    return `<u>${fromN}${unit} из ${esc(from.join(", "))} · ${own}${unit} отдельно</u>`;
+  }
   function chip(w, o) {
-    const hasPhoto = !!PHOTO.dish[w.name];
     const done = isDone(o, w.name);
-    const th = hasPhoto && photosOn
-      ? `<img src="img/${PHOTO.dish[w.name][0]}" alt="" loading="lazy">` : "";
+    /* Миниатюра открывается во весь размер: на кухне чаще надо свериться
+       с видом ролла, а не с названием. Кнопку рисует общий помощник. */
+    const th = thumbHTML("dish", w.name, w.ru);
     const cnt = w.rolls || w.pcs || w.portions;
     const unit = w.rolls ? plural(w.rolls, "ролл", "ролла", "роллов") : (w.pcs ? "шт" : "порц");
     const rec = w.cat ? ` data-recipe="${esc(w.name)}" tabindex="0" role="button"` : "";
@@ -742,7 +753,7 @@ if ("serviceWorker" in navigator) {
       ${th}
       <span class="wt"${rec}><b>${esc(w.name)}</b>${w.ru ? `<i>${esc(w.ru)}</i>` : ""}${
         w.rolls ? `<u class="cutinfo">режем по ${w.per} кусков · всего ${w.pcs}</u>` : ""}${
-        w.from && w.from.size ? `<u>из ${esc([...w.from].join(", "))}</u>` : ""}</span>
+        srcLine(w)}</span>
     </div>`;
   }
 

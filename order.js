@@ -72,17 +72,21 @@ const Order = (function () {
       const t = d && TYPES.find(x => x.id === d[0]);
       return t && t.pcs > 1 ? t.pcs : 0;
     };
+    const blank = name => ({ name, pcs: 0, portions: 0, ownPcs: 0, from: new Set() });
     const addWork = (name, pcs, from) => {
-      const w = work.get(name) || { name, pcs: 0, portions: 0, from: new Set() };
+      const w = work.get(name) || blank(name);
       w.pcs += pcs;
       if (from) w.from.add(from);
       work.set(name, w);
     };
+    /* Одна и та же позиция приходит и из меню, и отдельной строкой заказа.
+       Складываем их в одну работу, но помним долю отдельной: иначе карточка
+       подписывала «из XL Lachsmenü» оба ролла, хотя из меню шёл только один. */
     const addPortions = (name, q) => {
       const per = typePcs(name);
-      const w = work.get(name) || { name, pcs: 0, portions: 0, from: new Set() };
+      const w = work.get(name) || blank(name);
       w.portions += q;
-      if (per) w.pcs += q * per;
+      if (per) { w.pcs += q * per; w.ownPcs += q * per; }
       work.set(name, w);
     };
     const addKit = (text, n) => kit.set(text, (kit.get(text) || 0) + n);
@@ -146,6 +150,8 @@ const Order = (function () {
       w.per = t && t.pcs > 1 ? t.pcs : 0;
       w.cut = !!(t && t.cut);
       w.rolls = w.cut && w.per ? Math.round(w.pcs / w.per) : 0;
+      /* Сколько из этого заказано отдельно, а не пришло с меню. */
+      w.ownRolls = w.rolls && w.ownPcs ? Math.round(w.ownPcs / w.per) : 0;
       if (tags.includes("deepfried")) fry.push(w);
       else if (["maki", "io", "premium", "mini", "nigiri", "sommer"].includes(cat)) roll.push(w);
       else other.push(w);
