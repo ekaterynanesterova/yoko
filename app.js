@@ -621,7 +621,9 @@ if ("serviceWorker" in navigator) {
     if (e.target === lb) close();
   });
   $("#lbX").addEventListener("click", close);
-  document.addEventListener("keydown", e => { if (e.key === "Escape" && !lb.hidden) close(); });
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape" && !lb.hidden) { e.preventDefault(); close(); }
+  });
 
   const t = $("#photoToggle");
   t.setAttribute("aria-pressed", String(photosOn));
@@ -652,7 +654,9 @@ if ("serviceWorker" in navigator) {
 
     body.innerHTML = `
       <div class="rc-head">
-        ${rec ? `<img src="img/${rec[0]}" alt="${esc(d.de)}" loading="lazy">` : ""}
+        ${rec ? `<button class="rcphoto" type="button" data-photo="dish" data-name="${esc(d.de)}"
+          aria-label="Открыть фото во весь размер: ${esc(d.de)}">
+          <img src="img/${rec[0]}" alt="${esc(d.de)}" loading="lazy"></button>` : ""}
         <div class="rc-t">
           <h3 id="rcTitle">${esc(d.de)}</h3>
           <span class="ru">${esc(d.ru)}</span>
@@ -682,7 +686,9 @@ if ("serviceWorker" in navigator) {
   document.addEventListener("keydown", e => {
     const c = e.target.closest && e.target.closest("[data-recipe]");
     if (c && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); open(c.dataset.recipe); return; }
-    if (e.key === "Escape" && !rc.hidden) close();
+    /* Просмотр фото открыт поверх карточки: он забирает Escape себе и метит
+       событие обработанным — карточка остаётся открытой. */
+    if (e.key === "Escape" && !rc.hidden && !e.defaultPrevented) close();
   });
   $("#rcX").addEventListener("click", close);
 })();

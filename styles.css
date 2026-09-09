@@ -366,7 +366,12 @@ input[type=search]{flex:1 1 220px;min-width:0}
 .rc-x:hover{color:var(--ink)}
 .rc-head{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px;padding-right:26px}
 .rc-head img{width:84px;height:84px;object-fit:cover;border:2px solid var(--cellline);
-  border-radius:6px;flex:0 0 auto;background:var(--sunk)}
+  border-radius:6px;flex:0 0 auto;background:var(--sunk);display:block}
+/* Картинка стала кнопкой: по нажатию открывается полный размер. */
+.rcphoto{padding:0;border:0;background:none;flex:0 0 auto;cursor:zoom-in;line-height:0;
+  border-radius:6px}
+.rcphoto:hover img{border-color:var(--red)}
+.rcphoto:focus-visible{outline:2px solid var(--red);outline-offset:2px}
 .rc-t{min-width:0;display:flex;flex-direction:column;gap:2px}
 .rc-t h3{font-size:25px;text-transform:uppercase;line-height:1.02}
 .rc-t .ru{font-size:13px;color:var(--muted)}
