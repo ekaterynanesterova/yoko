@@ -1,5 +1,5 @@
 /* Офлайн-режим: на кухне вайфай может пропасть, страница должна открываться всё равно. */
-const CACHE = "yoko-v6";
+const CACHE = "yoko-v7";
 const SHELL = [
   "./", "./index.html", "./styles.css",
   "./data.js", "./photos.js", "./shifts.js", "./scan.js", "./order.js",
@@ -50,7 +50,7 @@ self.addEventListener("fetch", e => {
         caches.open(CACHE).then(c => c.put(req, copy)).catch(() => {});
       }
       return res;
-    })));
+    }).catch(() => caches.match("./icon-192.png"))));
     return;
   }
 
@@ -58,12 +58,17 @@ self.addEventListener("fetch", e => {
      Иначе после деплоя телефон продолжает показывать старую версию. */
   e.respondWith(
     fetch(req)
-      .then(res => {
+      .then(async res => {
         if (res && res.ok) {
           const copy = res.clone();
           caches.open(CACHE).then(c => c.put(req, copy)).catch(() => {});
+          return res;
         }
-        return res;
+        /* Ответ пришёл, но с ошибкой — 404, 403, 5xx. Для нас это то же
+           самое, что нет сети: отдаём сохранённую копию. Иначе чужая
+           страница с ошибкой вытесняет рабочее приложение с экрана. */
+        const hit = (await caches.match(req)) || (await caches.match("./index.html"));
+        return hit || res;
       })
       .catch(() => caches.match(req).then(hit => hit || caches.match("./index.html")))
   );
