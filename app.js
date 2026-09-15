@@ -794,27 +794,41 @@ if ("serviceWorker" in navigator) {
       ${block("Во фритюр", e.fry, "w-fry")}
       ${block("Крутить", e.roll, "w-roll")}
       ${block("Остальное", e.other, "w-other")}
-      ${e.packs.length ? `<div class="wblock w-pack"><h3>Как складывать</h3>
-        ${e.packs.map(p => `<div class="pack">
+      ${e.packs.length ? (() => {
+        /* Отметка живёт под своим ключом: у отдельно заказанной позиции имя
+           совпадает с именем работы, и без приставки одна галочка гасила бы обе. */
+        const key = p => "pack:" + p.name;
+        const left = e.packs.filter(p => !isDone(o, key(p)));
+        const sorted = left.concat(e.packs.filter(p => isDone(o, key(p))));
+        const doneN = e.packs.length - left.length;
+        return `<div class="wblock w-pack">
+        <h3>Как складывать${doneN ? `<span class="donecnt">сложено ${doneN} из ${e.packs.length}</span>` : ""}</h3>
+        ${e.boxes.length ? `<p class="boxsum"><span class="lbl">достань коробки:</span> ${
+          e.boxes.map(([b, n]) => `<span class="boxchip b-${esc(b)}"><span class="mono">${n}×</span> ${esc(b)}</span>`).join("")}</p>` : ""}
+        ${sorted.map(p => { const done = isDone(o, key(p)); return `<div class="pack${done ? " done" : ""}">
           <div class="packhead">
-            ${thumbHTML("menu", p.name, "", true)}
+            <button class="wdone" type="button" data-done="${esc(key(p))}" aria-pressed="${done}"
+              aria-label="${done ? "Снять отметку" : "Отметить сложенным"}: ${esc(p.name)}">✓</button>
+            <span class="boxbig${p.box ? "" : " unk"}">${p.box ? `<b>${esc(p.box)}</b><i>коробка</i>`
+              : `<b>?</b><i>коробка</i>`}</span>
             <div class="pt">
-              <b>${p.qty > 1 ? `<span class="mono">${p.qty}×</span> ` : ""}${esc(p.name)}</b>
-              ${p.box ? `<span class="boxtag">коробка ${esc(p.box)}</span>`
-                : (p.single ? `<span class="boxtag unk">коробка отдельная</span>` : "")}
+              <b>${esc(p.name)}</b>
+              <span class="pqty">${p.qty > 1
+                ? `<span class="mono">${p.qty}</span> ${plural(p.qty, "коробка", "коробки", "коробок")} — одинаковые`
+                : "1 коробка"}</span>
             </div>
+            ${p.single ? thumbHTML("dish", p.name, "") : thumbHTML("menu", p.name, "", true)}
           </div>
-          ${p.kit.length ? `<p class="packkit"><span class="lbl">в каждую коробку:</span> ${
-            p.kit.map(k => `<span class="tag"><span class="mono">${k.cnt}×</span> ${esc(k.label)}</span>`).join("")}</p>` : ""}
+          ${p.kit.length ? `<div class="packkit"><span class="lbl">в каждую коробку</span>${
+            p.kit.map(k => `<span class="sauce"><span class="mono">${k.cnt}×</span> ${esc(k.label)}</span>`).join("")}</div>`
+            : `<div class="packkit none"><span class="lbl">в коробку</span><span class="sauce nil">ничего не кладём</span></div>`}
           ${p.single && !p.box ? `<p class="packnote">Размер коробки в техкартах не указан — уточни у шефа, впишу.</p>` : ""}
           ${p.boxAsk ? `<p class="packnote">Размер со слов Kate, у шефа ещё не подтверждён.</p>` : ""}
-          ${p.items.length ? `<p class="packitems">${
+          ${p.items.length ? `<p class="packitems"><span class="lbl">состав</span>${
             p.items.map(([n, nm]) => `<span class="pi"><span class="mono">${n}</span> ${esc(nm)}</span>`).join("")}</p>` : ""}
           ${p.note ? `<p class="packnote">${esc(p.note)}</p>` : ""}
-        </div>`).join("")}
-        ${e.boxes.length ? `<p class="wline boxsum"><span class="lbl">всего коробок:</span> ${
-          e.boxes.map(([b, n]) => `<span class="tag"><span class="mono">${n}×</span> ${esc(b)}</span>`).join("")}</p>` : ""}
-        </div>` : ""}
+        </div>`; }).join("")}
+        </div>`; })() : ""}
       ${e.kit.length ? `<div class="wblock w-kit"><h3>Комплект</h3><p class="wline">${
         e.kit.map(([k, n]) => `<span class="tag"><span class="mono">${n}×</span> ${esc(k)}</span>`).join("")}</p></div>` : ""}
       ${o.extras && o.extras.length ? `<div class="wblock w-extra"><h3>Допы с чека</h3><p class="wline">${
