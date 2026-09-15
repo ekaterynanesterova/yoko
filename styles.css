@@ -481,7 +481,7 @@ input[type=search]{flex:1 1 220px;min-width:0}
 /* ---------- как складывать ---------- */
 .pack{border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:8px;background:var(--paper)}
 .packhead{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.packhead .setthumb{flex:0 0 auto;width:54px;height:36px;border-radius:4px;overflow:hidden;
+.packhead .setthumb{flex:0 0 auto;width:62px;height:46px;border-radius:4px;overflow:hidden;
   border:1px solid var(--line);background:var(--sunk);padding:0;cursor:pointer}
 .packhead .setthumb img{width:100%;height:100%;object-fit:cover;display:block}
 .packhead .setthumb.none{cursor:default}
@@ -495,6 +495,9 @@ input[type=search]{flex:1 1 220px;min-width:0}
 .boxbig b{font-family:"Big Shoulders Display","Arial Narrow",sans-serif;font-weight:800;font-size:30px}
 .boxbig i{font-style:normal;font-size:8.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
 .boxbig.unk{border-style:dashed}
+/* Миниатюра стоит вплотную к букве: размер коробки и вид блюда читаются одним взглядом. */
+.packhead .thumb{width:46px;height:46px}
+.packhead .setthumb,.packhead .thumb{margin-left:-3px}
 .boxbig.unk b{color:var(--muted)}
 
 .packhead .pt{display:flex;flex-direction:column;min-width:0;flex:1 1 auto}
@@ -503,8 +506,7 @@ input[type=search]{flex:1 1 220px;min-width:0}
 .pqty .mono{font-weight:700;color:var(--red)}
 
 /* Соусы и комплект — главное в карточке, поэтому отдельной полосой и цветом. */
-.packkit{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 7px;
-  background:var(--red-soft);border-radius:7px;padding:7px 9px}
+.packkit{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 8px;padding:0}
 .packkit .lbl,.packitems .lbl,.boxsum .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.06em;
   font-weight:700;color:var(--red)}
 /* Подпись на своей строке: иначе первый стаканчик прилипает к ней, и ряд
@@ -513,7 +515,7 @@ input[type=search]{flex:1 1 220px;min-width:0}
 .packkit .sauce{font-size:14px;font-weight:600;color:var(--red);background:var(--surface);
   border:1.5px solid var(--red);border-radius:6px;padding:2px 10px;white-space:nowrap}
 .packkit .sauce .mono{font-weight:700}
-.packkit.none{background:var(--sunk)}
+.packkit.none{background:none}
 .packkit.none .lbl{color:var(--muted)}
 .packkit.none .sauce.nil{font-size:12.5px;font-weight:400;color:var(--muted);background:none;border:0;padding:2px 0}
 

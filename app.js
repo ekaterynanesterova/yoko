@@ -811,13 +811,13 @@ if ("serviceWorker" in navigator) {
               aria-label="${done ? "Снять отметку" : "Отметить сложенным"}: ${esc(p.name)}">✓</button>
             <span class="boxbig${p.box ? "" : " unk"}">${p.box ? `<b>${esc(p.box)}</b><i>коробка</i>`
               : `<b>?</b><i>коробка</i>`}</span>
+            ${p.single ? thumbHTML("dish", p.name, "") : thumbHTML("menu", p.name, "", true)}
             <div class="pt">
               <b>${esc(p.name)}</b>
               <span class="pqty">${p.qty > 1
                 ? `<span class="mono">${p.qty}</span> ${plural(p.qty, "коробка", "коробки", "коробок")} — одинаковые`
                 : "1 коробка"}</span>
             </div>
-            ${p.single ? thumbHTML("dish", p.name, "") : thumbHTML("menu", p.name, "", true)}
           </div>
           ${p.kit.length ? `<div class="packkit"><span class="lbl">в каждую коробку</span>${
             p.kit.map(k => `<span class="sauce"><span class="mono">${k.cnt}×</span> ${esc(k.label)}</span>`).join("")}</div>`
