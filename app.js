@@ -597,11 +597,24 @@ if ("serviceWorker" in navigator) {
     const rec = PHOTO[kind] && PHOTO[kind][name];
     const box = kind === "menu" ? PHOTO.box[name] : null;
     /* У меню полезнее показать собранную коробку; если её нет — фото блюда. */
-    const src = box ? "img/box/" + box : (navigator.onLine && rec ? rec[1] : (rec ? "img/" + rec[0] : ""));
+    /* Полный размер лежит на сервере Yoko, уменьшённая копия — у нас.
+       Каталог периодически теряет снимки, поэтому держим запасной путь. */
+    const thumb = rec ? "img/" + rec[0] : "";
+    const full = rec && rec[1] ? rec[1] : "";
+    const src = box ? "img/box/" + box : (navigator.onLine && full ? full : thumb);
     if (!src) return;
     let note = "";
     if (box) note = "Раскладка коробки из Handbuch, Anhang 2";
     else if (!navigator.onLine) note = "Офлайн — показан уменьшенный снимок";
+    else if (!full) note = "Полного снимка у Yoko больше нет — показан уменьшенный";
+    /* Снимок мог пропасть уже после сборки: тогда молча подставляем свой. */
+    img.onerror = () => {
+      img.onerror = null;
+      if (thumb && img.getAttribute("src") !== thumb) {
+        img.src = thumb;
+        cap.innerHTML = `<b>${esc(name)}</b>Полный снимок не открылся — показан уменьшенный`;
+      }
+    };
     img.src = src;
     img.alt = name;
     cap.innerHTML = `<b>${esc(name)}</b>${note ? esc(note) : ""}`;
