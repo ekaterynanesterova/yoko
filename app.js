@@ -28,6 +28,25 @@ function thumbHTML(kind, name, ru, preferBox) {
 }
 
 /* ============================================================
+   СПРОСИТЬ У ШЕФА
+   Список из data.js, чтобы вопросы были под рукой на смене,
+   а не лежали в файле, который на телефоне не открыть.
+   ============================================================ */
+(function () {
+  const box = document.getElementById("askList");
+  if (!box || typeof ASK === "undefined") return;
+  const n = ASK.reduce((a, g) => a + g.items.length, 0);
+  box.innerHTML = ASK.map(g => `<div class="askg">
+    <h3>${esc(g.g)}<span class="askn">${g.items.length}</span></h3>
+    ${g.items.map(i => `<div class="askq">
+      <b>${esc(i.q)}</b>
+      <i>${esc(i.why)}</i>
+    </div>`).join("")}
+  </div>`).join("") +
+  `<p class="asktotal">Всего открытых вопросов: <b>${n}</b></p>`;
+})();
+
+/* ============================================================
    ГОЛОСОВОЙ ВВОД
    Встроенное в браузер распознавание речи: ни ключа, ни трафика
    на наши сервисы. Одна реализация на два поля — поиск по блюдам
