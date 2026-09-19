@@ -601,12 +601,15 @@ if ("serviceWorker" in navigator) {
        Каталог периодически теряет снимки, поэтому держим запасной путь. */
     const thumb = rec ? "img/" + rec[0] : "";
     const full = rec && rec[1] ? rec[1] : "";
-    const src = box ? "img/box/" + box : (navigator.onLine && full ? full : thumb);
+    /* Часть полных снимков лежит у нас (Yoko свои потеряла) — такие открываем
+       всегда, даже без сети; остальные только онлайн. */
+    const own = full && !/^https?:/i.test(full);
+    const big = full && (own || navigator.onLine);
+    const src = box ? "img/box/" + box : (big ? full : thumb);
     if (!src) return;
     let note = "";
     if (box) note = "Раскладка коробки из Handbuch, Anhang 2";
-    else if (!navigator.onLine) note = "Офлайн — показан уменьшенный снимок";
-    else if (!full) note = "Полного снимка у Yoko больше нет — показан уменьшенный";
+    else if (!big) note = "Офлайн — показан уменьшенный снимок";
     /* Снимок мог пропасть уже после сборки: тогда молча подставляем свой. */
     img.onerror = () => {
       img.onerror = null;
