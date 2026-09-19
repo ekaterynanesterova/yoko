@@ -155,6 +155,7 @@ const PHOTO = {
   },
   menu: {
     "Maki Menü": ["m01.jpg", "https://sd-images.simplydelivery.io/d3ifi83838t8gw8289ad7e7ac516e78e/images/articles/58ec63aaed9aea29439d084e6bcf3e647b1051d5.jpeg"],
+    "Veggie Combi": ["m33.jpg", "img/full/m33.jpg"],
     "Single Lunch": ["m32.jpg", "https://sd-images.simplydelivery.io/d3ifi83838t8gw8289ad7e7ac516e78e/images/articles/a17b5f6917dd4dd645bd07eb78592d38b64a4fa0.jpeg"],
     "Westcoast Menü": ["m02.jpg", "https://sd-images.simplydelivery.io/d3ifi83838t8gw8289ad7e7ac516e78e/images/articles/2a7d3de10981b7cea5c5ef609ab890a733cca5d1.jpeg"],
     "Chicken Menü": ["m03.jpg", "https://sd-images.simplydelivery.io/d3ifi83838t8gw8289ad7e7ac516e78e/images/articles/c8c6a9f7151ab45fe8cad41d006b1c49dfbca742.jpeg"],

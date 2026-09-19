@@ -66,6 +66,8 @@ const TYPES = [
   rule:"Рисовая бумага, <b>не жарятся</b>. 35 г риса на ролл, соус гость выбирает."},
  {id:"bao", frame:false, ru:"Bao Buns", de:"Bao Buns", rice:0, pcs:0, c:"var(--amber)",
   rule:"Паровая булочка, закрытый бутерброд: <b>вся начинка внутри</b>, поливать и посыпать нечего."},
+ {id:"big", cut:true, frame:false, ru:"Big Rolls", de:"Big Rolls", rice:0, pcs:5, c:"var(--green)",
+  rule:"Начинка как у Yoko Roll, но <b>без фритюра</b>. Режем на <b>5 кусков</b>. Граммовку риса уточнить."},
  {id:"snack", frame:false, ru:"Снеки и десерты", de:"Snacks / Dessert", rice:0, pcs:0, c:"var(--red)",
   rule:"Количество и соус — у каждой позиции своё, смотри подпись. У большинства <b>дип на выбор гостя</b>."},
  {id:"soup", frame:false, ru:"Супы и салаты", de:"Suppen / Salate", rice:0, pcs:0, c:"var(--slate)",
@@ -231,6 +233,8 @@ const D = [
 ["snack","Japanese fried Chicken Box","Курица карааге",["Karaage"],[],["Sweet Chili Sauce"],["meat","fried"],"5 шт · соус фиксированный"],
 ["snack","Korean fried Chicken - 5 Stück","Корейская курица, 5 шт",["Korean fried Chicken"],["Sesam","Korean BBQ Sauce"],[],["meat","fried"],"5 шт"],
 ["snack","Korean fried Chicken - 10 Stück","Корейская курица, 10 шт",["Korean fried Chicken"],["Sesam","Korean BBQ Sauce"],[],["meat","fried"],"10 шт"],
+["big","Big Roll Veggie","Биг ролл вегетарианский",["Frischkäse","Gurke","Avocado","Möhre","Frühlingszwiebeln"],["Sesam","Yoko Cocktailmayonnaise"],[],["veg"],"5 шт · не жарится · верх уточнить"],
+["big","Big Roll Chicken","Биг ролл с курицей",["Frischkäse","Gurke","Frühlingszwiebeln","Hühnchen"],["Sesam","Yoko Cocktailmayonnaise"],[],["meat"],"5 шт · не жарится · верх уточнить"],
 ["bao","Bao Bun Chicken","Бао с курицей",["Bao Teigtasche","Hähnchen","Asian Coleslaw","Möhrenstreifen","Frühlingszwiebeln","Sesam","Sweet Sauce","Yoko Cocktailmayonnaise"],[],[],["meat","fried"],"1 шт"],
 ["bao","Bao Bun Sake Avocado","Бао с лососем и авокадо",["Bao Teigtasche","Lachs","Avocado","Asian Coleslaw","Möhrenstreifen","Frühlingszwiebeln","Sesam","Sweet Sauce","Yoko Cocktailmayonnaise"],[],[],["fish"],"1 шт · лосось жареный"],
 ["bao","Bao Bun Veggie","Бао вегетарианский",["Bao Teigtasche","Avocado","Asian Coleslaw","Möhrenstreifen","Frühlingszwiebeln","Sesam","Sweet Sauce","Yoko Cocktailmayonnaise"],[],[],["veg"],"1 шт"],
@@ -471,6 +475,7 @@ const CATS = {
  mini:{short:"Mini Yoko", ru:"Mini Yoko Rolls", sub:"Жареные, маленькие", cols:3, band:"--amber-band", ink:"--amber-ink"},
  nigiri:{short:"Нигири", ru:"Nigiris / Inaris", sub:"Парами",          cols:3, band:"--slate-band", ink:"--slate-ink"},
  sommer:{short:"Sommerrollen", ru:"Sommerrollen",  sub:"Рисовая бумага",     cols:3, band:"--yellow-band", ink:"--yellow-ink"},
+ big:{short:"Big Rolls", ru:"Big Rolls", sub:"Как Yoko Roll, но без фритюра", cols:3, band:"--green-band", ink:"--green-ink"},
  bao:{short:"Bao Buns", ru:"Bao Buns", sub:"Всё внутри булочки", cols:3, band:"--amber-band", ink:"--amber-ink"},
  snack:{short:"Снеки", ru:"Snacks / Dessert", sub:"Штуки и дип — в подписи", cols:3, band:"--red-soft", ink:"--red"},
  soup:{short:"Супы", ru:"Suppen / Salate", sub:"Порциями", cols:3, band:"--slate-band", ink:"--slate-ink"},
@@ -582,6 +587,14 @@ const SET_EXTRA = {
 };
 
 const MENUCARDS = [
+ {name:"Snacks & Rolls", pcs:18, box:"", kit:"",
+  note:"С Lieferando, 19,30 €. Коробка и комплект не указаны — уточнить",
+  items:[[5,"Mini Frühlingsrollen"],[8,"Maki Sake Avocado"],[5,"Big Roll Chicken"]]},
+
+ {name:"Veggie Combi", pcs:13, box:"", kit:"",
+  note:"С Lieferando, 17,20 €. Идёт по акции «2 für 1» во вторник. Коробка и комплект не указаны — уточнить",
+  items:[[8,"Crunchy Veggie Roll"],[5,"Big Roll Veggie"]]},
+
  {name:"Maki Menü", pcs:24, box:"M", kit:"васаби · имбирь · соевый extra",
   items:[[8,"Maki Sake"],[8,"Maki Kappa"],[8,"Maki Crispy Ebi"]]},
 
