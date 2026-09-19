@@ -118,6 +118,10 @@ const ASK = [
    { q: "Их вообще заказывают?",
      why: "На витрине Lieferando, откуда идёт много заказов, обеденными числятся только Veggie Lunch, Premium Lunch и Single Lunch. Mittagsmenü там нет вовсе — возможно, он только для самовывоза и в зале." }
  ]},
+ { g: "Фотографии", items: [
+   { q: "Сфотографируй Big Roll — вегетарианский и с курицей.",
+     why: "Отдельного снимка не существует нигде: в каталоге Yoko этой позиции нет ни в одном филиале, на Lieferando она продаётся только внутри меню. Вырезать из фотографии меню пробовали — сзади маки, спереди спринг-роллы, выходит грязно. Снимешь на телефон — положу в приложение, и это будет единственное нормальное фото Big Roll." }
+ ]},
  { g: "Соусы", items: [
    { q: "Gyoza Chicken: Sweet Sauce поливаем сверху или это просто один из дипов на выбор?",
      why: "Папка говорит «дрессинг на выбор», брошюра — «дип на выбор», сайт — «Sweet Sauce и дип». Пока стоит как на сайте: и то и другое." }
@@ -289,8 +293,8 @@ const D = [
 ["snack","Japanese fried Chicken Box","Курица карааге",["Karaage"],[],["Sweet Chili Sauce"],["meat","fried"],"5 шт · соус фиксированный"],
 ["snack","Korean fried Chicken - 5 Stück","Корейская курица, 5 шт",["Korean fried Chicken"],["Sesam","Korean BBQ Sauce"],[],["meat","fried"],"5 шт"],
 ["snack","Korean fried Chicken - 10 Stück","Корейская курица, 10 шт",["Korean fried Chicken"],["Sesam","Korean BBQ Sauce"],[],["meat","fried"],"10 шт"],
-["big","Big Roll Veggie","Биг ролл вегетарианский",["Frischkäse","Gurke","Avocado","Möhre","Frühlingszwiebeln"],["Sesam","Yoko Cocktailmayonnaise"],[],["veg"],"5 шт · не жарится · верх уточнить"],
-["big","Big Roll Chicken","Биг ролл с курицей",["Frischkäse","Gurke","Frühlingszwiebeln","Hühnchen"],["Sesam","Yoko Cocktailmayonnaise"],[],["meat"],"5 шт · не жарится · верх уточнить"],
+["big","Big Roll Veggie","Биг ролл вегетарианский",["Frischkäse","Gurke","Avocado","Möhre","Frühlingszwiebeln"],["Sesam","Yoko Cocktailmayonnaise"],[],["veg"],"5 шт · не жарится · отдельного фото нет — смотри меню Veggie Combi · верх уточнить"],
+["big","Big Roll Chicken","Биг ролл с курицей",["Frischkäse","Gurke","Frühlingszwiebeln","Hühnchen"],["Sesam","Yoko Cocktailmayonnaise"],[],["meat"],"5 шт · не жарится · отдельного фото нет — смотри меню Snacks & Rolls · верх уточнить"],
 ["bao","Bao Bun Chicken","Бао с курицей",["Bao Teigtasche","Hähnchen","Asian Coleslaw","Möhrenstreifen","Frühlingszwiebeln","Sesam","Sweet Sauce","Yoko Cocktailmayonnaise"],[],[],["meat","fried"],"1 шт"],
 ["bao","Bao Bun Sake Avocado","Бао с лососем и авокадо",["Bao Teigtasche","Lachs","Avocado","Asian Coleslaw","Möhrenstreifen","Frühlingszwiebeln","Sesam","Sweet Sauce","Yoko Cocktailmayonnaise"],[],[],["fish"],"1 шт · лосось жареный"],
 ["bao","Bao Bun Veggie","Бао вегетарианский",["Bao Teigtasche","Avocado","Asian Coleslaw","Möhrenstreifen","Frühlingszwiebeln","Sesam","Sweet Sauce","Yoko Cocktailmayonnaise"],[],[],["veg"],"1 шт"],
