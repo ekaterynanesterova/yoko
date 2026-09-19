@@ -18,7 +18,7 @@ const G = {
 "Masago":"икра масаго","Algensalat":"салат вакамэ","Salatmix":"салатная смесь","Eisbergsalat":"айсберг",
 "Edamame":"эдамаме","Erdnüsse":"арахис","Thai-Spargel Tempura":"тайская спаржа в темпуре",
 "Tempuraspargel":"спаржа в темпуре","grüner Spargel":"зелёная спаржа","Hummus":"хумус",
-"Granatapfelkerne":"зёрна граната","Asian Coleslaw":"азиатский капустный салат","Rotkohl":"краснокочанная капуста",
+"Granatapfelkerne":"зёрна граната","Asian Coleslaw":"айсберг, морковь, зелёный лук","Rotkohl":"краснокочанная капуста",
 "Reispapier":"рисовая бумага","Thai-Pesto":"тайское песто из базилика","Cocktailtomaten":"черри",
 "Reis":"рис","Nori":"нори","Pak Choi":"пак-чой","Spiegelei":"глазунья","Wakame":"вакамэ",
 "Sweet Sauce":"сладкий соус унаги","Sweet Chili Sauce":"сладкий чили",
