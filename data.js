@@ -112,6 +112,12 @@ const ASK = [
    { q: "Veggie Combi (13 шт) — какая коробка и что в комплект?",
      why: "8 Crunchy Veggie Roll и 5 Big Roll Veggie. Идёт по акции «2 für 1» во вторник." }
  ]},
+ { g: "Обеденные меню", items: [
+   { q: "В какие часы идёт Mittagsmenü 1–6?",
+     why: "Ты их ни разу не видела — и понятно почему: в каталоге у них стоит расписание действия и флаг «вне срока не показывать». То есть они всплывают только в обеденное окно и исключены из всех скидок. Часы в каталоге не указаны, спроси у шефа — впишу в карточки." },
+   { q: "Их вообще заказывают?",
+     why: "На витрине Lieferando, откуда идёт много заказов, обеденными числятся только Veggie Lunch, Premium Lunch и Single Lunch. Mittagsmenü там нет вовсе — возможно, он только для самовывоза и в зале." }
+ ]},
  { g: "Соусы", items: [
    { q: "Gyoza Chicken: Sweet Sauce поливаем сверху или это просто один из дипов на выбор?",
      why: "Папка говорит «дрессинг на выбор», брошюра — «дип на выбор», сайт — «Sweet Sauce и дип». Пока стоит как на сайте: и то и другое." }
@@ -740,22 +746,22 @@ const MENUCARDS = [
  {name:"Peanut Pokal Menü", pcs:15, box:"", kit:"Erdnuss Sauce",
   items:[[2,"Sommerrolle Peanut Chicken"],[5,"Yoko Roll Peanut Chicken"],[8,"Peanut Chicken Deluxe"]]},
 
- {name:"Mittagsmenü 1", pcs:null, box:"", kit:"", note:"Не участвует в акциях",
+ {name:"Mittagsmenü 1", pcs:null, box:"", kit:"", note:"Только в обед — вне обеденных часов не показывается. Не участвует в акциях",
   items:[[1,"Miso Suppe"],[8,"Maki Sake"],[8,"California Roll","масаго"]]},
 
- {name:"Mittagsmenü 2", pcs:null, box:"", kit:"", note:"Не участвует в акциях",
+ {name:"Mittagsmenü 2", pcs:null, box:"", kit:"", note:"Только в обед — вне обеденных часов не показывается. Не участвует в акциях",
   items:[[1,"Algensalat"],[8,"Maki Avocado"],[8,"Maki Rucola"]]},
 
- {name:"Mittagsmenü 3", pcs:null, box:"", kit:"", note:"Не участвует в акциях",
+ {name:"Mittagsmenü 3", pcs:null, box:"", kit:"", note:"Только в обед — вне обеденных часов не показывается. Не участвует в акциях",
   items:[[1,"Miso Suppe"],[8,"Maki Sake Avocado"],[8,"Maki Salmon"]]},
 
- {name:"Mittagsmenü 4", pcs:null, box:"", kit:"", note:"Не участвует в акциях",
+ {name:"Mittagsmenü 4", pcs:null, box:"", kit:"", note:"Только в обед — вне обеденных часов не показывается. Не участвует в акциях",
   items:[[1,"Miso Suppe"],[8,"Maki Kappa"],[8,"Alaska Roll","шнитт-лук"]]},
 
- {name:"Mittagsmenü 5", pcs:null, box:"", kit:"", note:"Не участвует в акциях",
+ {name:"Mittagsmenü 5", pcs:null, box:"", kit:"", note:"Только в обед — вне обеденных часов не показывается. Не участвует в акциях",
   items:[[6,"Crispy Ebi Sticks"],[8,"Chicken Teriyaki Roll"]]},
 
- {name:"Mittagsmenü 6", pcs:null, box:"", kit:"", note:"Не участвует в акциях; дип и обсыпка на выбор",
+ {name:"Mittagsmenü 6", pcs:null, box:"", kit:"", note:"Только в обед — вне обеденных часов не показывается. Не участвует в акциях; дип и обсыпка на выбор",
   items:[[2,"Sommerrolle Chicken"],[8,"Philadelphia Roll"]]},
 
  {name:"Happy Sushi Menü", pcs:null, box:"XXL", kit:"2× васаби · 3× имбирь · 2× соевый",
