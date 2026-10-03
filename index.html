@@ -130,14 +130,19 @@
 <section class="panel" id="p-sauce" hidden>
   <p class="lede">Соусов всего десяток. <b>Sweet Sauce</b> и <b>Yoko Cocktailmayonnaise</b> — рабочая пара, они закрывают большинство позиций. Остальные встречаются точечно.</p>
 
-  <h2 class="sec"><span class="num">01</span>Карта соусов</h2>
+  <h2 class="sec"><span class="num">01</span>Жареное: что поливаем, что в коробку</h2>
+  <p class="seclede">Шестнадцать жареных роллов укладываются в три правила и одно исключение. Запоминай правило, а не каждый ролл. Тренировать — во вкладке «Тренировка», режим «Жареное».</p>
+  <div class="frygrid" id="fryCheat"></div>
+  <p class="frynote">К любому отдельному заказу суши дополнительно: <b>васаби, имбирь, соевый</b>.</p>
+
+  <h2 class="sec"><span class="num">02</span>Карта соусов</h2>
   <p class="seclede">Колонка «где» — самое полезное: по ней видно, какой соус к чему идёт по умолчанию.</p>
   <div class="tw"><table>
     <thead><tr><th style="width:24%">Соус</th><th style="width:20%">Что это</th><th>Где используется</th></tr></thead>
     <tbody id="sauceBody"></tbody>
   </table></div>
 
-  <h2 class="sec"><span class="num">02</span>Соус на выбор гостя</h2>
+  <h2 class="sec"><span class="num">03</span>Соус на выбор гостя</h2>
   <p class="seclede">Есть позиции, где соус не фиксирован — гость выбирает из списка. Их надо знать наизусть, чтобы не тормозить на кассе.</p>
   <div class="tw"><table>
     <thead><tr><th style="width:34%">Позиция</th><th class="n" style="width:14%">Порция</th><th>Варианты дипа (50 мл)</th></tr></thead>
@@ -160,6 +165,7 @@
     <div class="tr-modes" id="trModes">
       <button class="chip" data-m="fill" aria-pressed="true" type="button">Что внутри</button>
       <button class="chip" data-m="sauce" aria-pressed="false" type="button">Какой соус</button>
+      <button class="chip" data-m="fry" aria-pressed="false" type="button">Жареное</button>
       <button class="chip" data-m="gram" aria-pressed="false" type="button">Граммовки</button>
       <button class="chip" data-m="quiz" aria-pressed="false" type="button">Тест</button>
     </div>

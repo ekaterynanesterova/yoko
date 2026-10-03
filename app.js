@@ -173,6 +173,42 @@ function typeOf(cat){ return TYPES.find(t=>t.id===cat); }
    по-прежнему ищет блюда во всём списке, чтобы ссылки не рвались. */
 const dishes = allDishes.filter(d => !HIDDEN.has(d.de) && !(typeOf(d.cat) || {}).off);
 
+/* ---------- жареное: группа по правилу ----------
+   Считаем из данных, а не списком: появится новый Yoko Roll со Sweet
+   Sauce — сам попадёт куда надо. */
+const isFried = d => (d.tags || []).includes("deepfried");
+function fryGroup(d) {
+  if (d.cat === "mini") return "mini";
+  if (/^Crunchy/i.test(d.de)) return "crunchy";
+  if (d.cat === "yoko" && d.t.includes("Sweet Sauce")) return "yoko";
+  return "taste";
+}
+/* Соус первым, посыпка после — так же, как в шпаргалке: «Sweet Sauce + кунжут». */
+const fryList = arr => arr.length ? [...arr].sort((x, y) => SAUCES.has(y) - SAUCES.has(x)).map(x => esc(x) + " <i>" + esc(ru(x)) + "</i>").join(" + ") : "ничего";
+
+(function () {
+  const box = document.getElementById("fryCheat");
+  if (!box || typeof FRY_GROUPS === "undefined") return;
+  const fried = dishes.filter(isFried);
+  box.innerHTML = FRY_GROUPS.map(g => {
+    const list = fried.filter(d => fryGroup(d) === g.key);
+    if (!list.length) return "";
+    /* У исключений соус у каждого свой — поэтому построчно. */
+    const rolls = g.key === "taste"
+      ? list.map(d => `<li><b>${esc(d.de)}</b> → ${fryList(d.t)}${d.f.some(x => SAUCES.has(x)) ? ` <span class="fryin">внутри: ${d.f.filter(x => SAUCES.has(x)).map(esc).join(", ")}</span>` : ""}</li>`).join("")
+      : list.map(d => `<li>${esc(d.de)}</li>`).join("");
+    return `<div class="frycard fry-${g.key}">
+      <h3>${esc(g.title)}<span class="frycount">${list.length}</span></h3>
+      <p class="fryrule">${esc(g.rule)}</p>
+      ${g.key === "taste" ? "" : `<div class="frywhat">
+        <span><em>поливаем сверху</em>${esc(g.top)}</span>
+        <span><em>в коробку</em>${esc(g.box)}</span>
+      </div>`}
+      <ul class="frylist">${rolls}</ul>
+    </div>`;
+  }).join("");
+})();
+
 /* ============================================================
    СЕТ-МЕНЮ
    Каждая позиция — своя ячейка, цвет по тому, жарится она или нет.
@@ -358,6 +394,8 @@ function buildDeck(){
     deck = TYPES.filter(t => t.frame !== false && !t.off).map(t => ({k:"g:"+t.id, t}));
   } else if (mode === "sauce") {
     deck = dishes.filter(d => d.s.length || d.t.length).map(d => ({k:"s:"+d.i, d}));
+  } else if (mode === "fry") {
+    deck = dishes.filter(isFried).map(d => ({k:"r:"+d.i, d}));
   } else if (mode === "quiz") {
     deck = dishes.filter(d => d.s.length || d.t.length).map(d => ({k:"q:"+d.i, d}));
   } else {
@@ -369,9 +407,10 @@ function buildDeck(){
 }
 function stats(){
   const total = mode==="gram" ? TYPES.filter(t => t.frame !== false && !t.off).length
+    : mode==="fry" ? dishes.filter(isFried).length
     : (mode==="sauce"||mode==="quiz") ? dishes.filter(d=>d.s.length||d.t.length).length
     : dishes.filter(d=>d.f.length).length;
-  const pre = mode==="gram"?"g:":mode==="sauce"?"s:":mode==="quiz"?"q:":"f:";
+  const pre = mode==="gram"?"g:":mode==="sauce"?"s:":mode==="quiz"?"q:":mode==="fry"?"r:":"f:";
   const done = P.count(pre);
   $("#stDeck").textContent = deck.length;
   $("#stKnown").textContent = done + " / " + total;
@@ -396,7 +435,7 @@ function draw(){
       <p style="color:var(--muted);max-width:34ch">Колода пройдена. Можно сбросить прогресс и пройти заново или переключить режим.</p>`;
     act.innerHTML = `<button class="btn" id="reset" type="button">Сбросить этот режим</button>`;
     $("#reset").onclick = () => {
-      const pre = mode==="gram"?"g:":mode==="sauce"?"s:":mode==="quiz"?"q:":"f:";
+      const pre = mode==="gram"?"g:":mode==="sauce"?"s:":mode==="quiz"?"q:":mode==="fry"?"r:":"f:";
       P.clearPrefix(pre);
       streak = 0; buildDeck();
     };
@@ -417,6 +456,15 @@ function draw(){
     card.innerHTML = `<div class="kicker">какой соус и что сверху</div>
       <div class="q">${esc(d.de)}</div><div class="qru">${esc(d.ru)}</div>
       ${shown ? `<div class="a">${sauce.map(x=>`<span class="ii ${SAUCES.has(x)?"sauce":""} top">${esc(x)}<br><small style="opacity:.6;font-weight:400">${esc(ru(x))}</small></span>`).join("")}</div>` : ""}`;
+  } else if (mode === "fry"){
+    const d = cur.d, g = FRY_GROUPS.find(x => x.key === fryGroup(d));
+    card.innerHTML = `<div class="kicker">чем поливаем и что в коробку</div>
+      <div class="q">${esc(d.de)}</div><div class="qru">${esc(d.ru)}</div>
+      ${shown ? `<div class="fryans">
+          <div><em>поливаем сверху</em><b>${fryList(d.t)}</b></div>
+          <div><em>в коробку</em><b>${fryList(d.s)}</b></div>
+        </div>
+        <p class="fryhint"><b>${esc(g.title)}:</b> ${esc(g.rule)}</p>` : ""}`;
   } else if (mode === "quiz"){
     const d = cur.d;
     const right = d.s.length ? d.s[0] : (d.t[0] || d.f[d.f.length-1]);
