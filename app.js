@@ -105,9 +105,18 @@ function thumbHTML(kind, name, ru, preferBox) {
       <h3>${head}<span class="frycount">${list.length}</span></h3>
       <ul>${list.map(({ m, cups, fried }) => {
         const soyOnly = k === "соевый" && fried.length;
-        const multHTML = cups.filter(c => /^\d+\s*×/.test(c))
-          .map(c => `<span class="msmult sx-${sauceKey(c)}">${esc(c)}</span>`).join(" ");
-        return `<li${soyOnly ? ' class="mswarn"' : ""}><b>${esc(m.name)}</b>${multHTML ? " " + multHTML : ""}${
+        /* Каждый стаканчик плашкой с количеством: «1× Sweet Sauce», «2× Cocktailmayo».
+           Так и в меню с разными соусами сразу видно, чего и сколько класть. */
+        const cupHTML = cups.map(c => {
+          const n = (c.match(/^(\d+)\s*×/) || [])[1] || "1";
+          const name = c.replace(/^\d+\s*×\s*/, "").replace(/\s*extra$/i, "")
+            .replace(/cocktail\s*mayo(nnaise)?/i, "Cocktailmayo").trim();
+          return `<span class="mscup sx-${sauceKey(name)}"><i></i>${n}× ${esc(name)}</span>`;
+        }).join("");
+        const kinds = new Set(cups.map(c => sauceKey(c))).size;
+        return `<li${soyOnly ? ' class="mswarn"' : ""}><b>${esc(m.name)}</b>${
+          kinds > 1 ? ` <span class="msmany">${kinds} разных соуса</span>` : ""}${
+          cupHTML ? `<span class="mscups-row">${cupHTML}</span>` : ""}${
           fried.length ? `<span class="msfried">жареное: ${esc(fried.join(" · "))}</span>` : ""}${
           soyOnly ? ` <span class="msnote">исключение: жареное есть, но по техкарте только соевый</span>` : ""}</li>`;
       }).join("")}</ul>
