@@ -116,11 +116,16 @@ function thumbHTML(kind, name, ru, preferBox) {
           return `<span class="mscup sx-${key}"><i></i>${n}× ${esc(name)}${size ? `<small>${esc(size)}</small>` : ""}</span>`;
         }).join("");
         const kinds = new Set(cups.map(c => sauceKey(c))).size;
-        return `<li${soyOnly ? ' class="mswarn"' : ""}><b>${esc(m.name)}</b>${
+        /* Размер коробки квадратиком перед названием — теми же цветами, что
+           коробки в сборочном листе. У XL Lachsmenü две коробки: «L×2». */
+        const bx = m.box || "";
+        const boxBadge = `<span class="msbox${bx ? " b-" + esc(bx) : " unk"}" title="${bx ? "коробка " + esc(bx) : "размер коробки не указан"}">${
+          bx ? esc(bx) + (m.nbox > 1 ? `<small>×${m.nbox}</small>` : "") : "?"}</span>`;
+        return `<li class="msrow${soyOnly ? " mswarn" : ""}">${boxBadge}<div class="msbody"><b>${esc(m.name)}</b>${
           kinds > 1 ? ` <span class="msmany">${kinds} разных соуса</span>` : ""}${
           cupHTML ? `<span class="mscups-row">${cupHTML}</span>` : ""}${
           fried.length ? `<span class="msfried">жареное: ${esc(fried.join(" · "))}</span>` : ""}${
-          soyOnly ? ` <span class="msnote">исключение: жареное есть, но по техкарте только соевый</span>` : ""}</li>`;
+          soyOnly ? ` <span class="msnote">исключение: жареное есть, но по техкарте только соевый</span>` : ""}</div></li>`;
       }).join("")}</ul>
     </div>`;
   }).join("");

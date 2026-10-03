@@ -125,6 +125,8 @@ const ASK = [
  { g: "Соус в коробку меню", items: [
    { q: "Maki Menü — соевый маленьким пакетиком?",
      why: "В техкарте «Soja Sauce extra», размер не указан. Ты думаешь, что это маленький пакетик — подтверди у шефа. Во всех остальных меню соевый — стаканчик 50 мл." },
+   { q: "Какая коробка у меню, где размер нигде не записан?",
+     why: "Single, Premium и Veggie Lunch; Family Lachs, Chicken и Veggie Deluxe; Crunchy Chicken, Sake и Veggie Menü; Mittagsmenü 1–6. В техкарте упаковки их нет, в PDF обедов — только состав. В таблице соусов у них пока «?» вместо буквы." },
    { q: "Crunchy Chicken/Sake/Veggie Menü — что кладём в коробку?",
      why: "В папке этих меню нет. По правилу выходит Cranberry Teriyaki, как в Family Deluxe, но у кранчи клюквенный и так налит сверху." }
  ]},

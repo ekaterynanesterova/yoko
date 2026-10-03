@@ -844,3 +844,18 @@ input[type=search]{flex:1 1 220px;min-width:0}
   color:var(--red);border:1px solid var(--red);border-radius:99px;padding:0 7px;vertical-align:2px}
 
 .mscup small{font-size:11px;font-weight:600;opacity:.8;margin-left:4px;padding-left:5px;border-left:1px solid currentColor}
+
+/* размер коробки квадратиком перед названием меню */
+.msgroup ul{list-style:none;padding-left:0}
+.msrow{display:flex;align-items:flex-start;gap:9px;padding:5px 0;border-top:1px solid var(--line)}
+.msrow:first-child{border-top:0;padding-top:1px}
+.msbody{flex:1 1 auto;min-width:0}
+.msbox{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;
+  min-width:30px;height:28px;padding:0 5px;border-radius:6px;border:1.5px solid var(--cellline);
+  font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:700;line-height:1;margin-top:1px}
+.msbox small{font-size:9.5px;margin-left:1px}
+.msbox.b-S{background:var(--green-band);color:var(--green-ink)}
+.msbox.b-M{background:var(--yellow-band);color:var(--yellow-ink)}
+.msbox.b-L{background:var(--amber-band);color:var(--amber-ink)}
+.msbox.b-XL{background:var(--red-soft);color:var(--red)}
+.msbox.unk{border-style:dashed;color:var(--muted);background:none}
