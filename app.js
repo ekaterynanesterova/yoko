@@ -90,7 +90,7 @@ function thumbHTML(kind, name, ru, preferBox) {
         const mult = cups.filter(c => /^\d+\s*×/.test(c)).join(", ");
         return `<li${soyOnly ? ' class="mswarn"' : ""}><b>${esc(m.name)}</b>${mult ? ` <span class="msmult">${esc(mult)}</span>` : ""}${
           fried.length ? ` <span class="msfried">жареное: ${esc(fried.join(", "))}</span>` : ""}${
-          soyOnly ? ` <span class="msnote">жареное есть, а по папке только соевый — уточнить</span>` : ""}</li>`;
+          soyOnly ? ` <span class="msnote">исключение: жареное есть, но по техкарте только соевый</span>` : ""}</li>`;
       }).join("")}</ul>
     </div>`;
   }).join("");

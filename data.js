@@ -103,8 +103,8 @@ const ASK = [
  { g: "Big Roll и новые меню", items: [
    { q: "Чем поливают Big Roll?",
      why: "Ты сказала, это тот же Yoko Roll, только не жареный. Но у Yoko Roll сверху Sweet Sauce, а на фото Veggie Combi — майонез с кунжутом." },
-   { q: "Сколько в Big Roll риса и на сколько кусков режем?",
-     why: "На витрине он идёт по 5 штук, а в папке, в разделе Specials, записан как 4 куска и коробка M." },
+   { q: "Сколько в Big Roll риса?",
+     why: "Режем на 5 — так написано и на сайте Yoko, и на Lieferando (в старой техкарте было 4). А граммовки риса нет нигде." },
    { q: "Big Roll Chicken — начинка как у Yoko Roll Chicken?",
      why: "Взяли по аналогии с вегетарианским, глазами не проверяли." },
    { q: "Snacks & Rolls (18 шт) — какая коробка и что в комплект?",
@@ -123,27 +123,14 @@ const ASK = [
      why: "Отдельного снимка не существует нигде: в каталоге Yoko этой позиции нет ни в одном филиале, на Lieferando она продаётся только внутри меню. Вырезать из фотографии меню пробовали — сзади маки, спереди спринг-роллы, выходит грязно. Снимешь на телефон — положу в приложение, и это будет единственное нормальное фото Big Roll." }
  ]},
  { g: "Соус в коробку меню", items: [
-   { q: "Yoko Stars Menü и XL Lachsmenü — правда только соевый?",
-     why: "Общее правило: в коробку кладём соус того жареного, что в меню есть. Yoko Roll → Sweet Sauce, Mini Yoko → Cocktailmayo. А у этих двух жареное внутри есть, но по папке в комплекте только соевый. Ошибка в папке или так задумано?" },
    { q: "Crunchy Chicken/Sake/Veggie Menü — что кладём в коробку?",
      why: "В папке этих меню нет. По правилу выходит Cranberry Teriyaki, как в Family Deluxe, но у кранчи клюквенный и так налит сверху." }
  ]},
- { g: "Соусы", items: [
-   { q: "Gyoza Chicken: Sweet Sauce поливаем сверху или это просто один из дипов на выбор?",
-     why: "Папка говорит «дрессинг на выбор», брошюра — «дип на выбор», сайт — «Sweet Sauce и дип». Пока стоит как на сайте: и то и другое." }
- ]},
  { g: "Рецептура", items: [
-   { q: "Nigiri Inari — сверху Sweet Sauce или Teriyaki?",
-     why: "В папке Sweet Sauce, на сайте Teriyaki." },
    { q: "Лосось в роллах — кожа или брюшко?",
      why: "Каталог поменял рецептуру: везде стало жареное брюшко, раньше была кожа. В тренажёре уже брюшко, но заготовка в папке описывает именно кожу — как резать и жарить. Если теперь брюшко, нужна новая техкарта." },
-   { q: "Шнитт-лук в Japanese fried Chicken Roll и Magic Shrimp Deluxe — он или обычный зелёный лук?",
-     why: "В бао шнитт-лук значился, а кладут зелёный кольцами. Может, и здесь так же." }
  ]},
- { g: "Ассортимент", items: [
-   { q: "Это правда есть у нас?",
-     why: "Каталог показывает их для Castrop-Rauxel, но в брошюре они не напечатаны: Maki Sake Spicy, Crispy Chicken Roll, Mini Yoko Roll Ebi, Crunchy Chicken/Sake/Veggie Roll поштучно, Double Baked Gyoza Chicken, Korean fried Chicken на 10 штук, Bao Bun Chicken/Sake Avocado/Veggie, Mittagsmenü 1–6. Сейчас показываются все. Что лишнее — скрою." }
- ]}
+
 ];
 
 /* ============================================================
@@ -278,9 +265,9 @@ const D = [
 ["nigiri","Nigiri Sake Flamed","Нигири фламбированный",["flambierter Lachs"],["Frühlingszwiebeln","Sesam","Sweet Sauce"],[],["fish"]],
 ["nigiri","Nigiri Ebi","Нигири с креветкой",["Garnele"],[],[],["fish"]],
 ["nigiri","Nigiri Maguro","Нигири с тунцом",["Thunfisch"],[],[],["fish"]],
-["nigiri","Nigiri Inari","Инари",["Reis"],["Sesam","Sweet Sauce"],[],["veg"],"на сайте указан Teriyaki — уточни"],
-["nigiri","Inari Taco Vegan","Инари тако веган",["Avocadowürfel","Karotten","Frühlingszwiebeln"],["Sesam","Sweet Sauce"],[],["veg"]],
-["nigiri","Inari Taco Sake","Инари тако с лососем",["Lachswürfel","Avocadowürfel","Karotten","Frühlingszwiebeln"],["Sesam","Sweet Sauce"],[],["fish"],"в техкарте подписан как Nigiri Sake Flamed — опечатка"],
+["nigiri","Nigiri Inari","Инари",["Reis"],["Teriyaki Sauce","Sesam"],[],["veg"]],
+["nigiri","Inari Taco Vegan","Инари тако веган",["Avocadowürfel","Karotten","Frühlingszwiebeln"],["Teriyaki Sauce","Sesam"],[],["veg"]],
+["nigiri","Inari Taco Sake","Инари тако с лососем",["Lachswürfel","Avocadowürfel","Karotten","Frühlingszwiebeln"],["Teriyaki Sauce","Sesam"],[],["fish"],"в техкарте подписан как Nigiri Sake Flamed — опечатка"],
 ["nigiri","Lachs Sashimi","Сашими из лосося",["Lachs","Salatmix"],[],[],["fish"],"8 кусков на салатной подушке"],
 
 /* --- SOMMERROLLEN, 2 шт --- */
