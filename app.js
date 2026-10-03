@@ -257,7 +257,8 @@ const dishes = allDishes.filter(d => !HIDDEN.has(d.de) && !(typeOf(d.cat) || {})
 const isFried = d => (d.tags || []).includes("deepfried");
 function fryGroup(d) {
   if (d.cat === "mini") return "mini";
-  if (/crunch/i.test(d.de)) return "crunchy";
+  /* Только Crunchy: у Korean Crunch клюквенного нет — он в исключениях. */
+  if (/^Crunchy/i.test(d.de)) return "crunchy";
   if (d.cat === "yoko" && d.t.includes("Sweet Sauce")) return "yoko";
   return "taste";
 }

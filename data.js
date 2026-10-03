@@ -139,11 +139,11 @@ const ASK = [
 const FRY_GROUPS = [
  { key: "yoko",    title: "Yoko Roll",        rule: "Большой жареный — поливаем.",
    top: "Sweet Sauce + кунжут",          box: "ничего" },
- { key: "crunchy", title: "Crunch",           rule: "Всё, что Crunch, — майонезом сверху.",
-   top: "Cocktailmayo + кунжут",         box: "ничего" },
+ { key: "crunchy", title: "Crunchy",          rule: "Кранчи — майонез и клюквенный сверху.",
+   top: "Cocktailmayo + Cranberry Teriyaki + кунжут", box: "ничего" },
  { key: "mini",    title: "Mini Yoko",        rule: "Маленький жареный — стаканчик.",
    top: "ничего",                        box: "Cocktailmayo стаканчиком" },
- { key: "taste",   title: "Вкус в названии",  rule: "Если в названии есть вкус — он и есть соус.",
+ { key: "taste",   title: "Исключения",       rule: "Вкус в названии — соус по названию. Korean Crunch: майонез сверху без клюквенного, а Korean BBQ внутри.",
    top: "по названию",                   box: "ничего" }
 ];
 
