@@ -125,8 +125,6 @@ const ASK = [
  { g: "Соус в коробку меню", items: [
    { q: "Maki Menü — «соевый extra»: это маленький пакетик?",
      why: "В техкарте написано «Soja Sauce extra», и на фото в коробке соевого нет — значит кладётся отдельно. А какого он размера, не сказано. Во всех остальных меню соевый — стаканчик 50 мл." },
-   { q: "Cocktailmayo в Yoko Single Menü и Mini Yoko Roll Menü — какого размера наш стаканчик?",
-     why: "В Big Salmon и XL Lachsmenü на фото фирменная баночка 50 г. А в Single Menü и Mini Yoko Roll Menü — прозрачный стаканчик без надписи, его наполняем сами. Плюс у Mini Yoko Roll Menü написано «2× Cocktail Mayo», а на фото стаканчик один — побольше. Это два маленьких или один большой?" },
    { q: "Crunchy Chicken/Sake/Veggie Menü — что кладём в коробку?",
      why: "В папке этих меню нет. По правилу выходит Cranberry Teriyaki, как в Family Deluxe, но у кранчи клюквенный и так налит сверху." }
  ]},
@@ -704,25 +702,29 @@ const MENUCARDS = [
   note:"Sweet Chili сверху",
   items:[[8,"Magic Garden Roll"],[8,"Japanese fried Chicken Roll"],[5,"Yoko Roll Vegetaria"]]},
 
- {name:"Mini Yoko Roll Menü", pcs:24, box:"L", kit:"васаби · имбирь · 2× Cocktail Mayo",
-  /* На фото не фирменная баночка, а наш прозрачный стаканчик, и он один. */
-  cupNote:{ mayo:"наш стаканчик" },
+ {name:"Mini Yoko Roll Menü", pcs:24, box:"L", kit:"васаби · имбирь · Cocktail Mayo (большой)",
+  /* В техкарте «2× Cocktail Mayo», а на фото один стаканчик — большой.
+     Kate: «2×» и значит большой; маленький — как под васаби и имбирь. */
+  cupNote:{ mayo:"большой стаканчик" },
   items:[[8,"Mini Yoko Roll Sake"],[8,"Mini Yoko Roll Chicken"],[8,"Mini Yoko Roll Avocado"]]},
 
  {name:"Yoko Roll Menü", pcs:15, box:"XL", kit:"васаби · имбирь · 2× Sweet Sauce",
   note:"Sweet Sauce и кунжут сверху",
   items:[[5,"Yoko Roll Garnele"],[5,"Yoko Roll Chicken"],[5,"Yoko Roll Vegetaria"]]},
 
- {name:"Yoko Single Menü Sake", pcs:16, box:"M", kit:"васаби · имбирь · Cocktail Mayo",
-  cupNote:{ mayo:"наш стаканчик" },
+ {name:"Yoko Single Menü Sake", pcs:16, box:"M", kit:"васаби · имбирь · Cocktail Mayo (большой)",
+  /* На фото тот же большой прозрачный стаканчик, что у Mini Yoko Roll Menü. */
+  cupNote:{ mayo:"большой стаканчик" },
   items:[[8,"Philadelphia Roll"],[8,"Mini Yoko Roll Sake"]]},
 
- {name:"Yoko Single Menü Chicken", pcs:16, box:"M", kit:"васаби · имбирь · Cocktail Mayo",
-  cupNote:{ mayo:"наш стаканчик" },
+ {name:"Yoko Single Menü Chicken", pcs:16, box:"M", kit:"васаби · имбирь · Cocktail Mayo (большой)",
+  /* На фото тот же большой прозрачный стаканчик, что у Mini Yoko Roll Menü. */
+  cupNote:{ mayo:"большой стаканчик" },
   items:[[8,"Chicken Teriyaki Roll"],[8,"Mini Yoko Roll Chicken"]]},
 
- {name:"Yoko Single Menü Veggie", pcs:16, box:"M", kit:"васаби · имбирь · Cocktail Mayo",
-  cupNote:{ mayo:"наш стаканчик" },
+ {name:"Yoko Single Menü Veggie", pcs:16, box:"M", kit:"васаби · имбирь · Cocktail Mayo (большой)",
+  /* На фото тот же большой прозрачный стаканчик, что у Mini Yoko Roll Menü. */
+  cupNote:{ mayo:"большой стаканчик" },
   items:[[8,"Fitness Roll"],[8,"Mini Yoko Roll Avocado"]]},
 
  {name:"Party Menü", pcs:52, box:"L", kit:"васаби · 2× имбирь · 2× соевый",

@@ -63,7 +63,7 @@ function thumbHTML(kind, name, ru, preferBox) {
     .filter(x => !always.test(x.replace(/^\d+\s*×\s*/, "")));
   /* Подпись группы — без множителей и «extra», чтобы «2× Sweet Sauce»
      и «Sweet Sauce» попали в одну строку. */
-  const sig = cups => cups.map(c => c.replace(/^\d+\s*×\s*/, "").replace(/\s*extra$/i, "")
+  const sig = cups => cups.map(c => c.replace(/^\d+\s*×\s*/, "").replace(/\s*extra$/i, "").replace(/\s*\(большой\)/i, "")
     .replace(/cocktail\s*mayo(nnaise)?/i, "Cocktailmayo").trim()).sort().join(" + ");
   /* Не «Yoko Roll» вообще, а какой именно и сколько штук: Kate по этому
      ориентируется, что ещё лежит в коробке. */
@@ -109,7 +109,7 @@ function thumbHTML(kind, name, ru, preferBox) {
            Так и в меню с разными соусами сразу видно, чего и сколько класть. */
         const cupHTML = cups.map(c => {
           const n = (c.match(/^(\d+)\s*×/) || [])[1] || "1";
-          const name = c.replace(/^\d+\s*×\s*/, "").replace(/\s*extra$/i, "")
+          const name = c.replace(/^\d+\s*×\s*/, "").replace(/\s*extra$/i, "").replace(/\s*\(большой\)/i, "")
             .replace(/cocktail\s*mayo(nnaise)?/i, "Cocktailmayo").trim();
           const key = sauceKey(name);
           const size = ((m.cupNote || {})[key]) || CUP_SIZE[key] || "";
