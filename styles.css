@@ -10,6 +10,12 @@
   --cellline:#151A17; --sauceline:#151A17;
   --sh:0 1px 2px rgba(21,26,23,.05), 0 4px 14px rgba(21,26,23,.05);
   --r:10px;
+  /* соусы: цвет как у самого соуса */
+  --s-soy:#5a3518;   --s-soy-bg:#efe3d6;   --s-soy-ink:#4a2a14;
+  --s-sweet:#b5651d; --s-sweet-bg:#f6e2c4; --s-sweet-ink:#7a4310;
+  --s-mayo:#e2c66b;  --s-mayo-bg:#fbf3d4;  --s-mayo-ink:#6e5a14;
+  --s-cran:#a3203f;  --s-cran-bg:#f6dde3;  --s-cran-ink:#8a1c3a;
+  --s-other:#8a8f86; --s-other-bg:#ecebe6; --s-other-ink:#4a4f47;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
@@ -23,6 +29,11 @@
     --ok:#8CC96B; --warn:#E0A94A;
     --cellline:#4A5247; --sauceline:#FFFFFF;
     --sh:0 1px 2px rgba(0,0,0,.4), 0 6px 20px rgba(0,0,0,.3);
+    --s-soy:#9a6a45;   --s-soy-bg:#2e2219;   --s-soy-ink:#e0c2a4;
+    --s-sweet:#d0883a; --s-sweet-bg:#3a2a14; --s-sweet-ink:#f2c47e;
+    --s-mayo:#e8d48a;  --s-mayo-bg:#33301e;  --s-mayo-ink:#f3e4a8;
+    --s-cran:#d0486a;  --s-cran-bg:#3a1c25;  --s-cran-ink:#f4a2b6;
+    --s-other:#7c8278; --s-other-bg:#262923; --s-other-ink:#c3c9be;
   }
 }
 :root[data-theme="dark"]{
@@ -36,6 +47,11 @@
   --ok:#8CC96B; --warn:#E0A94A;
   --cellline:#4A5247; --sauceline:#FFFFFF;
   --sh:0 1px 2px rgba(0,0,0,.4), 0 6px 20px rgba(0,0,0,.3);
+  --s-soy:#9a6a45;   --s-soy-bg:#2e2219;   --s-soy-ink:#e0c2a4;
+  --s-sweet:#d0883a; --s-sweet-bg:#3a2a14; --s-sweet-ink:#f2c47e;
+  --s-mayo:#e8d48a;  --s-mayo-bg:#33301e;  --s-mayo-ink:#f3e4a8;
+  --s-cran:#d0486a;  --s-cran-bg:#3a1c25;  --s-cran-ink:#f4a2b6;
+  --s-other:#7c8278; --s-other-bg:#262923; --s-other-ink:#c3c9be;
 }
 
 *{box-sizing:border-box}
@@ -788,14 +804,30 @@ input[type=search]{flex:1 1 220px;min-width:0}
 
 /* ---------- меню: какой соус в коробку ---------- */
 .mscups{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:10px}
-.msgroup{border:1px solid var(--line);border-left:4px solid var(--red);border-radius:var(--r);
-  background:var(--surface);padding:10px 13px 11px}
+.msgroup{position:relative;border:1px solid var(--line);border-radius:var(--r);
+  background:var(--surface);padding:10px 13px 11px 17px;overflow:hidden}
+.msgroup::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;
+  background:var(--stripe,var(--line))}
 .msgroup.unk{border-left-color:var(--line);opacity:.8}
-.msgroup h3{display:flex;align-items:baseline;gap:8px;font-size:17px;margin-bottom:6px;color:var(--red)}
-.msgroup.unk h3{color:var(--muted);font-size:15px}
+.msgroup h3{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.spill{display:inline-flex;align-items:center;gap:6px;font-family:"Instrument Sans",sans-serif;
+  font-size:13.5px;font-weight:700;padding:3px 10px 3px 8px;border-radius:99px;text-transform:none;letter-spacing:0}
+.spill i{width:10px;height:10px;border-radius:50%;flex:0 0 auto;box-shadow:0 0 0 1px rgba(0,0,0,.12)}
+.sp-soy{background:var(--s-soy-bg);color:var(--s-soy-ink)}       .sp-soy i{background:var(--s-soy)}
+.sp-sweet{background:var(--s-sweet-bg);color:var(--s-sweet-ink)} .sp-sweet i{background:var(--s-sweet)}
+.sp-mayo{background:var(--s-mayo-bg);color:var(--s-mayo-ink)}    .sp-mayo i{background:var(--s-mayo)}
+.sp-cran{background:var(--s-cran-bg);color:var(--s-cran-ink)}    .sp-cran i{background:var(--s-cran)}
+.sp-other{background:var(--s-other-bg);color:var(--s-other-ink)} .sp-other i{background:var(--s-other)}
+.msunk{font-size:15px;font-weight:600;color:var(--muted)}
+
 .msgroup ul{margin:0;padding-left:17px;font-size:13.5px;line-height:1.6}
 .msgroup li b{font-weight:600}
-.msmult{font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:700;color:var(--red)}
-.msfried{font-size:11px;color:var(--muted)}
+.msmult{font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:700;border-radius:5px;padding:0 5px}
+.sx-soy{background:var(--s-soy-bg);color:var(--s-soy-ink)}
+.sx-sweet{background:var(--s-sweet-bg);color:var(--s-sweet-ink)}
+.sx-mayo{background:var(--s-mayo-bg);color:var(--s-mayo-ink)}
+.sx-cran{background:var(--s-cran-bg);color:var(--s-cran-ink)}
+.sx-other{background:var(--s-other-bg);color:var(--s-other-ink)}
+.msfried{display:block;font-size:11.5px;color:var(--muted);line-height:1.4}
 .msnote{display:block;font-size:11.5px;color:var(--warn)}
 .mswarn b{color:var(--warn)}

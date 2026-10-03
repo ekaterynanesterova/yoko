@@ -65,8 +65,18 @@ function thumbHTML(kind, name, ru, preferBox) {
      и «Sweet Sauce» попали в одну строку. */
   const sig = cups => cups.map(c => c.replace(/^\d+\s*×\s*/, "").replace(/\s*extra$/i, "")
     .replace(/cocktail\s*mayo(nnaise)?/i, "Cocktailmayo").trim()).sort().join(" + ");
-  const friedKinds = m => [...new Set((m.items || []).map(i => byDe.get(i[1])).filter(d => d && (d[6] || []).includes("deepfried"))
-    .map(d => d[0] === "mini" ? "Mini Yoko" : /crunch/i.test(d[1]) ? "Crunch" : "Yoko Roll"))];
+  /* Не «Yoko Roll» вообще, а какой именно и сколько штук: Kate по этому
+     ориентируется, что ещё лежит в коробке. */
+  const friedKinds = m => (m.items || []).filter(i => {
+    const d = byDe.get(i[1]); return d && (d[6] || []).includes("deepfried");
+  }).map(i => i[0] + " " + i[1]);
+
+  /* Цвет соуса — по самому соусу: соевый тёмно-коричневый, Sweet Sauce
+     карамельный, майонез кремовый, клюквенный — клюквенный. Один и тот же
+     соус везде одного цвета, глаз запоминает быстрее слова. */
+  const sauceKey = t => /соев/i.test(t) ? "soy" : /sweet/i.test(t) ? "sweet"
+    : /cocktail|mayo/i.test(t) ? "mayo" : /cranberry/i.test(t) ? "cran" : "other";
+  const pill = t => `<span class="spill sp-${sauceKey(t)}"><i></i>${esc(t)}</span>`;
 
   const shown = MENUCARDS.filter(m => !HIDDEN_MENUS.has(m.name));
   const groups = new Map();
@@ -82,14 +92,23 @@ function thumbHTML(kind, name, ru, preferBox) {
 
   box.innerHTML = keys.map(k => {
     const list = groups.get(k);
-    const title = k === "?" ? "Не знаем — в папке не указано" : k;
-    return `<div class="msgroup${k === "?" ? " unk" : ""}">
-      <h3>${esc(title)}<span class="frycount">${list.length}</span></h3>
+    const parts = k === "?" ? [] : k.split(" + ");
+    const head = k === "?" ? `<span class="msunk">Не знаем — в папке не указано</span>` : parts.map(pill).join("");
+    /* Полоска слева делится поровну между соусами группы. */
+    const stripe = parts.length
+      ? "linear-gradient(to bottom," + parts.map((p, i) => {
+          const c = "var(--s-" + sauceKey(p) + ")";
+          return c + " " + (i * 100 / parts.length) + "%," + c + " " + ((i + 1) * 100 / parts.length) + "%";
+        }).join(",") + ")"
+      : "";
+    return `<div class="msgroup${k === "?" ? " unk" : ""}"${stripe ? ` style="--stripe:${stripe}"` : ""}>
+      <h3>${head}<span class="frycount">${list.length}</span></h3>
       <ul>${list.map(({ m, cups, fried }) => {
         const soyOnly = k === "соевый" && fried.length;
-        const mult = cups.filter(c => /^\d+\s*×/.test(c)).join(", ");
-        return `<li${soyOnly ? ' class="mswarn"' : ""}><b>${esc(m.name)}</b>${mult ? ` <span class="msmult">${esc(mult)}</span>` : ""}${
-          fried.length ? ` <span class="msfried">жареное: ${esc(fried.join(", "))}</span>` : ""}${
+        const multHTML = cups.filter(c => /^\d+\s*×/.test(c))
+          .map(c => `<span class="msmult sx-${sauceKey(c)}">${esc(c)}</span>`).join(" ");
+        return `<li${soyOnly ? ' class="mswarn"' : ""}><b>${esc(m.name)}</b>${multHTML ? " " + multHTML : ""}${
+          fried.length ? `<span class="msfried">жареное: ${esc(fried.join(" · "))}</span>` : ""}${
           soyOnly ? ` <span class="msnote">исключение: жареное есть, но по техкарте только соевый</span>` : ""}</li>`;
       }).join("")}</ul>
     </div>`;
