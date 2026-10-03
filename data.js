@@ -122,6 +122,12 @@ const ASK = [
    { q: "Сфотографируй Big Roll — вегетарианский и с курицей.",
      why: "Отдельного снимка не существует нигде: в каталоге Yoko этой позиции нет ни в одном филиале, на Lieferando она продаётся только внутри меню. Вырезать из фотографии меню пробовали — сзади маки, спереди спринг-роллы, выходит грязно. Снимешь на телефон — положу в приложение, и это будет единственное нормальное фото Big Roll." }
  ]},
+ { g: "Соус в коробку меню", items: [
+   { q: "Yoko Stars Menü и XL Lachsmenü — правда только соевый?",
+     why: "Общее правило: в коробку кладём соус того жареного, что в меню есть. Yoko Roll → Sweet Sauce, Mini Yoko → Cocktailmayo. А у этих двух жареное внутри есть, но по папке в комплекте только соевый. Ошибка в папке или так задумано?" },
+   { q: "Crunchy Chicken/Sake/Veggie Menü — что кладём в коробку?",
+     why: "В папке этих меню нет. По правилу выходит Cranberry Teriyaki, как в Family Deluxe, но у кранчи клюквенный и так налит сверху." }
+ ]},
  { g: "Соусы", items: [
    { q: "Gyoza Chicken: Sweet Sauce поливаем сверху или это просто один из дипов на выбор?",
      why: "Папка говорит «дрессинг на выбор», брошюра — «дип на выбор», сайт — «Sweet Sauce и дип». Пока стоит как на сайте: и то и другое." }
@@ -151,8 +157,8 @@ const ASK = [
 const FRY_GROUPS = [
  { key: "yoko",    title: "Yoko Roll",        rule: "Большой жареный — поливаем.",
    top: "Sweet Sauce + кунжут",          box: "ничего" },
- { key: "crunchy", title: "Crunchy",          rule: "Кранчи — клюквенный.",
-   top: "Cranberry Teriyaki + кунжут",   box: "ничего" },
+ { key: "crunchy", title: "Crunch",           rule: "Всё, что Crunch, — майонезом сверху.",
+   top: "Cocktailmayo + кунжут",         box: "ничего" },
  { key: "mini",    title: "Mini Yoko",        rule: "Маленький жареный — стаканчик.",
    top: "ничего",                        box: "Cocktailmayo стаканчиком" },
  { key: "taste",   title: "Вкус в названии",  rule: "Если в названии есть вкус — он и есть соус.",
@@ -252,9 +258,9 @@ const D = [
 ["yoko","Yoko Roll Cranberry Chicken","Yoko ролл клюквенный",["Chicken","Gurke","Frühlingszwiebeln","Frischkäse"],["Cranberry Teriyaki Sauce"],[],["meat","fried","deepfried"]],
 ["yoko","Yoko Roll Chicken Guacamole","Yoko ролл курица-гуакамоле",["Chicken","Gurke","Frühlingszwiebeln","Frischkäse"],["Guacamole"],["Sweet Sauce"],["meat","fried","deepfried"]],
 ["yoko","Korean Crunch Roll","Корейский кранч",["Korean fried Chicken","Korean BBQ Sauce","Asian Coleslaw","Gurke"],["Yoko Cocktailmayonnaise","Sesam"],[],["meat","fried","deepfried"]],
-["yoko","Crunchy Chicken Roll","Кранчи с курицей",["Hühnchen","Gurke","Frühlingszwiebeln","Cocktailmayo"],["Sesam","Cranberry Teriyaki Sauce"],[],["meat","fried","deepfried"]],
-["yoko","Crunchy Sake Roll","Кранчи с лососем",["Lachs","Avocado","Cocktailmayo"],["Sesam","Cranberry Teriyaki Sauce"],[],["fish","fried","deepfried"]],
-["yoko","Crunchy Veggie Roll","Кранчи вегетарианский",["Rucola","Frischkäse","Möhre","Avocado","Cocktailmayo"],["Sesam","Cranberry Teriyaki Sauce"],[],["veg","fried","deepfried"]],
+["yoko","Crunchy Chicken Roll","Кранчи с курицей",["Hühnchen","Gurke","Frühlingszwiebeln","Cocktailmayo"],["Yoko Cocktailmayonnaise","Cranberry Teriyaki Sauce","Sesam"],[],["meat","fried","deepfried"]],
+["yoko","Crunchy Sake Roll","Кранчи с лососем",["Lachs","Avocado","Cocktailmayo"],["Yoko Cocktailmayonnaise","Cranberry Teriyaki Sauce","Sesam"],[],["fish","fried","deepfried"]],
+["yoko","Crunchy Veggie Roll","Кранчи вегетарианский",["Rucola","Frischkäse","Möhre","Avocado","Cocktailmayo"],["Yoko Cocktailmayonnaise","Cranberry Teriyaki Sauce","Sesam"],[],["veg","fried","deepfried"]],
 ["yoko","Crunchy Spargel Roll","Кранчи со спаржей",["Hühnchen","Frischkäse","grüner Spargel"],["Schnittlauch"],["Sauce Hollandaise"],["meat","fried","deepfried"]],
 ["yoko","Sushi Burger Sake","Суши-бургер с лососем",["Lachs","Avocado","Cocktailmayo"],["Frühlingszwiebeln"],["Sweet Sauce"],["fish"]],
 ["yoko","Sushi Burger Chicken","Суши-бургер с курицей",["Hühnchen","Avocado","Möhrenstreifen","Gurke","Cocktailmayo"],["Frühlingszwiebeln"],["Sweet Sauce"],["meat"]],

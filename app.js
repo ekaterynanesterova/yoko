@@ -47,6 +47,56 @@ function thumbHTML(kind, name, ru, preferBox) {
 })();
 
 /* ============================================================
+   МЕНЮ: КАКОЙ СОУС В КОРОБКУ
+   Группируем меню по тому, какие стаканчики в него кладутся, — это
+   и есть действие на кухне. Васаби с имбирём кладутся всегда и только
+   мешают глазу, поэтому из списка выброшены. Где в меню есть жареное,
+   а в коробку по папке идёт один соевый, ставим пометку: это расходится
+   с общим правилом и ждёт ответа шефа.
+   ============================================================ */
+(function () {
+  const box = document.getElementById("menuSauce");
+  if (!box || typeof MENUCARDS === "undefined") return;
+  const byDe = new Map(D.map(d => [d[1], d]));
+  const always = /^(васаби|имбирь)$/i;
+  const cupsOf = m => String(m.kit || "").split("·").map(x => x.trim()).filter(Boolean)
+    .filter(x => !always.test(x.replace(/^\d+\s*×\s*/, "")));
+  /* Подпись группы — без множителей и «extra», чтобы «2× Sweet Sauce»
+     и «Sweet Sauce» попали в одну строку. */
+  const sig = cups => cups.map(c => c.replace(/^\d+\s*×\s*/, "").replace(/\s*extra$/i, "")
+    .replace(/cocktail\s*mayo(nnaise)?/i, "Cocktailmayo").trim()).sort().join(" + ");
+  const friedKinds = m => [...new Set((m.items || []).map(i => byDe.get(i[1])).filter(d => d && (d[6] || []).includes("deepfried"))
+    .map(d => d[0] === "mini" ? "Mini Yoko" : /crunch/i.test(d[1]) ? "Crunch" : "Yoko Roll"))];
+
+  const shown = MENUCARDS.filter(m => !HIDDEN_MENUS.has(m.name));
+  const groups = new Map();
+  for (const m of shown) {
+    const cups = cupsOf(m);
+    const key = !m.kit ? "?" : sig(cups) || "—";
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push({ m, cups, fried: friedKinds(m) });
+  }
+  /* Порядок: от простого к сложному, неизвестное — в конец. */
+  const order = k => k === "?" ? 99 : k === "соевый" ? 0 : k.split(" + ").length;
+  const keys = [...groups.keys()].sort((a, b) => order(a) - order(b) || a.localeCompare(b));
+
+  box.innerHTML = keys.map(k => {
+    const list = groups.get(k);
+    const title = k === "?" ? "Не знаем — в папке не указано" : k;
+    return `<div class="msgroup${k === "?" ? " unk" : ""}">
+      <h3>${esc(title)}<span class="frycount">${list.length}</span></h3>
+      <ul>${list.map(({ m, cups, fried }) => {
+        const soyOnly = k === "соевый" && fried.length;
+        const mult = cups.filter(c => /^\d+\s*×/.test(c)).join(", ");
+        return `<li${soyOnly ? ' class="mswarn"' : ""}><b>${esc(m.name)}</b>${mult ? ` <span class="msmult">${esc(mult)}</span>` : ""}${
+          fried.length ? ` <span class="msfried">жареное: ${esc(fried.join(", "))}</span>` : ""}${
+          soyOnly ? ` <span class="msnote">жареное есть, а по папке только соевый — уточнить</span>` : ""}</li>`;
+      }).join("")}</ul>
+    </div>`;
+  }).join("");
+})();
+
+/* ============================================================
    ГОЛОСОВОЙ ВВОД
    Встроенное в браузер распознавание речи: ни ключа, ни трафика
    на наши сервисы. Одна реализация на два поля — поиск по блюдам
@@ -179,7 +229,7 @@ const dishes = allDishes.filter(d => !HIDDEN.has(d.de) && !(typeOf(d.cat) || {})
 const isFried = d => (d.tags || []).includes("deepfried");
 function fryGroup(d) {
   if (d.cat === "mini") return "mini";
-  if (/^Crunchy/i.test(d.de)) return "crunchy";
+  if (/crunch/i.test(d.de)) return "crunchy";
   if (d.cat === "yoko" && d.t.includes("Sweet Sauce")) return "yoko";
   return "taste";
 }
@@ -193,14 +243,16 @@ const fryList = arr => arr.length ? [...arr].sort((x, y) => SAUCES.has(y) - SAUC
   box.innerHTML = FRY_GROUPS.map(g => {
     const list = fried.filter(d => fryGroup(d) === g.key);
     if (!list.length) return "";
-    /* У исключений соус у каждого свой — поэтому построчно. */
-    const rolls = g.key === "taste"
+    /* Одинаковый верх у всей группы — показываем один раз. Разный — у каждого
+       ролла строкой: так у Crunch видно, что клюквенный только у Crunchy. */
+    const same = list.every(d => d.t.join("|") === list[0].t.join("|"));
+    const rolls = !same
       ? list.map(d => `<li><b>${esc(d.de)}</b> → ${fryList(d.t)}${d.f.some(x => SAUCES.has(x)) ? ` <span class="fryin">внутри: ${d.f.filter(x => SAUCES.has(x)).map(esc).join(", ")}</span>` : ""}</li>`).join("")
       : list.map(d => `<li>${esc(d.de)}</li>`).join("");
     return `<div class="frycard fry-${g.key}">
       <h3>${esc(g.title)}<span class="frycount">${list.length}</span></h3>
       <p class="fryrule">${esc(g.rule)}</p>
-      ${g.key === "taste" ? "" : `<div class="frywhat">
+      ${!same ? "" : `<div class="frywhat">
         <span><em>поливаем сверху</em>${esc(g.top)}</span>
         <span><em>в коробку</em>${esc(g.box)}</span>
       </div>`}
