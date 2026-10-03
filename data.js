@@ -123,6 +123,10 @@ const ASK = [
      why: "Отдельного снимка не существует нигде: в каталоге Yoko этой позиции нет ни в одном филиале, на Lieferando она продаётся только внутри меню. Вырезать из фотографии меню пробовали — сзади маки, спереди спринг-роллы, выходит грязно. Снимешь на телефон — положу в приложение, и это будет единственное нормальное фото Big Roll." }
  ]},
  { g: "Соус в коробку меню", items: [
+   { q: "Maki Menü — «соевый extra»: это маленький пакетик?",
+     why: "В техкарте написано «Soja Sauce extra», и на фото в коробке соевого нет — значит кладётся отдельно. А какого он размера, не сказано. Во всех остальных меню соевый — стаканчик 50 мл." },
+   { q: "Cocktailmayo в Yoko Single Menü и Mini Yoko Roll Menü — какого размера наш стаканчик?",
+     why: "В Big Salmon и XL Lachsmenü на фото фирменная баночка 50 г. А в Single Menü и Mini Yoko Roll Menü — прозрачный стаканчик без надписи, его наполняем сами. Плюс у Mini Yoko Roll Menü написано «2× Cocktail Mayo», а на фото стаканчик один — побольше. Это два маленьких или один большой?" },
    { q: "Crunchy Chicken/Sake/Veggie Menü — что кладём в коробку?",
      why: "В папке этих меню нет. По правилу выходит Cranberry Teriyaki, как в Family Deluxe, но у кранчи клюквенный и так налит сверху." }
  ]},
@@ -136,6 +140,11 @@ const ASK = [
    легко: три группы и одно исключение. Состав групп считается из самих
    блюд (app.js, fryGroup), здесь только слова.
    ============================================================ */
+/* Размер стаканчика — напечатан на крышке на фотографиях техкарты
+   (Anhang 2 «Verpackungsrichtlinien», 06/24). Соевый один на все меню,
+   «2× соевый» — это два стаканчика по 50 мл, а не один большой. */
+const CUP_SIZE = { soy: "50 мл", sweet: "35 мл", mayo: "50 г" };
+
 const FRY_GROUPS = [
  { key: "yoko",    title: "Yoko Roll",        rule: "Большой жареный — поливаем.",
    top: "Sweet Sauce + кунжут",          box: "ничего" },
@@ -663,6 +672,8 @@ const MENUCARDS = [
   items:[[8,"Crunchy Veggie Roll"],[5,"Big Roll Veggie"]]},
 
  {name:"Maki Menü", pcs:24, box:"M", kit:"васаби · имбирь · соевый extra",
+  /* «Soja Sauce extra»: на фото в коробке соевого нет — кладётся отдельно. */
+  cupNote:{ soy:"отдельно, не в коробку" },
   items:[[8,"Maki Sake"],[8,"Maki Kappa"],[8,"Maki Crispy Ebi"]]},
 
  {name:"Westcoast Menü", pcs:24, box:"L", kit:"васаби · имбирь · соевый",
@@ -694,6 +705,8 @@ const MENUCARDS = [
   items:[[8,"Magic Garden Roll"],[8,"Japanese fried Chicken Roll"],[5,"Yoko Roll Vegetaria"]]},
 
  {name:"Mini Yoko Roll Menü", pcs:24, box:"L", kit:"васаби · имбирь · 2× Cocktail Mayo",
+  /* На фото не фирменная баночка, а наш прозрачный стаканчик, и он один. */
+  cupNote:{ mayo:"наш стаканчик" },
   items:[[8,"Mini Yoko Roll Sake"],[8,"Mini Yoko Roll Chicken"],[8,"Mini Yoko Roll Avocado"]]},
 
  {name:"Yoko Roll Menü", pcs:15, box:"XL", kit:"васаби · имбирь · 2× Sweet Sauce",
@@ -701,12 +714,15 @@ const MENUCARDS = [
   items:[[5,"Yoko Roll Garnele"],[5,"Yoko Roll Chicken"],[5,"Yoko Roll Vegetaria"]]},
 
  {name:"Yoko Single Menü Sake", pcs:16, box:"M", kit:"васаби · имбирь · Cocktail Mayo",
+  cupNote:{ mayo:"наш стаканчик" },
   items:[[8,"Philadelphia Roll"],[8,"Mini Yoko Roll Sake"]]},
 
  {name:"Yoko Single Menü Chicken", pcs:16, box:"M", kit:"васаби · имбирь · Cocktail Mayo",
+  cupNote:{ mayo:"наш стаканчик" },
   items:[[8,"Chicken Teriyaki Roll"],[8,"Mini Yoko Roll Chicken"]]},
 
  {name:"Yoko Single Menü Veggie", pcs:16, box:"M", kit:"васаби · имбирь · Cocktail Mayo",
+  cupNote:{ mayo:"наш стаканчик" },
   items:[[8,"Fitness Roll"],[8,"Mini Yoko Roll Avocado"]]},
 
  {name:"Party Menü", pcs:52, box:"L", kit:"васаби · 2× имбирь · 2× соевый",
@@ -716,7 +732,8 @@ const MENUCARDS = [
  {name:"Lachsmenü", pcs:26, box:"L", kit:"васаби · имбирь · соевый",
   items:[[2,"Nigiri Sake"],[8,"Maki Sake"],[8,"Alaska Roll","масаго"],[8,"Philadelphia Roll","шнитт-лук"]]},
 
- {name:"XL Lachsmenü", pcs:39, box:"L", kit:"васаби · имбирь · соевый",
+ {name:"XL Lachsmenü", pcs:39, box:"L", nbox:2, kit:"2× васаби · имбирь · соевый · Sweet Sauce · Cocktail Mayo",
+  note:"Две коробки L. В первой нигири, маки, аляска и филадельфия — к ним васаби, имбирь, соевый. Во второй жареное — Mini Yoko и Yoko Roll, к ним васаби, Sweet Sauce и Cocktail Mayo.",
   items:[[2,"Nigiri Sake"],[8,"Maki Sake"],[8,"Alaska Roll","масаго"],[8,"Philadelphia Roll","шнитт-лук"],
          [8,"Mini Yoko Roll Sake"],[5,"Yoko Roll Lachs"]]},
 

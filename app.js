@@ -111,7 +111,9 @@ function thumbHTML(kind, name, ru, preferBox) {
           const n = (c.match(/^(\d+)\s*×/) || [])[1] || "1";
           const name = c.replace(/^\d+\s*×\s*/, "").replace(/\s*extra$/i, "")
             .replace(/cocktail\s*mayo(nnaise)?/i, "Cocktailmayo").trim();
-          return `<span class="mscup sx-${sauceKey(name)}"><i></i>${n}× ${esc(name)}</span>`;
+          const key = sauceKey(name);
+          const size = ((m.cupNote || {})[key]) || CUP_SIZE[key] || "";
+          return `<span class="mscup sx-${key}"><i></i>${n}× ${esc(name)}${size ? `<small>${esc(size)}</small>` : ""}</span>`;
         }).join("");
         const kinds = new Set(cups.map(c => sauceKey(c))).size;
         return `<li${soyOnly ? ' class="mswarn"' : ""}><b>${esc(m.name)}</b>${
@@ -326,7 +328,9 @@ function renderSets() {
     const meta = [];
     if (m.pcs) meta.push(`<span class="mono">${m.pcs}</span> шт`);
     else if (sum) meta.push(`<span class="mono">${sum}</span> шт`);
-    if (m.box) meta.push(`коробка <span class="mono">${esc(m.box)}</span>`);
+    if (m.box) meta.push(m.nbox > 1
+      ? `${m.nbox} коробки <span class="mono">${esc(m.box)}</span>`
+      : `коробка <span class="mono">${esc(m.box)}</span>`);
     if (m.kit) meta.push(esc(m.kit));
 
     return `<article class="setcard">
@@ -978,12 +982,14 @@ if ("serviceWorker" in navigator) {
             ${p.single ? thumbHTML("dish", p.name, "") : thumbHTML("menu", p.name, "", true)}
             <div class="pt">
               <b>${esc(p.name)}</b>
-              <span class="pqty">${p.qty > 1
+              <span class="pqty">${p.nbox > 1
+                ? `<span class="mono">${p.qty * p.nbox}</span> ${plural(p.qty * p.nbox, "коробка", "коробки", "коробок")} — разные, см. ниже`
+                : p.qty > 1
                 ? `<span class="mono">${p.qty}</span> ${plural(p.qty, "коробка", "коробки", "коробок")} — одинаковые`
                 : "1 коробка"}</span>
             </div>
           </div>
-          ${p.kit.length ? `<div class="packkit"><span class="lbl">в каждую коробку</span>${
+          ${p.kit.length ? `<div class="packkit"><span class="lbl">${p.nbox > 1 ? "на все коробки этого меню" : "в каждую коробку"}</span>${
             p.kit.map(k => `<span class="sauce"><span class="mono">${k.cnt}×</span> ${esc(k.label)}</span>`).join("")}</div>`
             : `<div class="packkit none"><span class="lbl">в коробку</span><span class="sauce nil">ничего не кладём</span></div>`}
           ${p.single && !p.box ? `<p class="packnote">Размер коробки в техкартах не указан — уточни у шефа, впишу.</p>` : ""}

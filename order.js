@@ -97,7 +97,8 @@ const Order = (function () {
         const m = menuBy.get(it.name);
         if (!m) continue;
         for (const [n, dishName] of (m.items || [])) addWork(dishName, n * q, m.name);
-        if (m.box) boxes.set(m.box, (boxes.get(m.box) || 0) + q);
+        /* Некоторые меню едут в двух коробках (XL Lachsmenü). */
+        if (m.box) boxes.set(m.box, (boxes.get(m.box) || 0) + q * (m.nbox || 1));
         /* Комплект в карточке записан строкой вида «васаби · имбирь · 2× Cocktail Mayo».
            В packs держим комплект НА ОДНУ коробку — так его и кладут. */
         const perBox = [];
@@ -108,7 +109,7 @@ const Order = (function () {
           perBox.push({ label, cnt });
           addKit(label, cnt * q);
         });
-        packs.push({ name: m.name, qty: q, box: m.box || "", kit: perBox,
+        packs.push({ name: m.name, qty: q, box: m.box || "", nbox: m.nbox || 1, kit: perBox,
                      items: (m.items || []).slice(), note: m.note || "" });
       } else {
         addPortions(it.name, q);
