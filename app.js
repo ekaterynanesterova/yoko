@@ -98,7 +98,7 @@ function thumbHTML(kind, name, ru, preferBox) {
   const order = k => k === "?" ? 99 : k === "соевый" ? 0 : k.split(" + ").length;
   const keys = [...groups.keys()].sort((a, b) => order(a) - order(b) || a.localeCompare(b));
 
-  box.innerHTML = keys.map(k => {
+  const cards = keys.map(k => {
     const list = groups.get(k);
     const parts = k === "?" ? [] : k.split(" + ");
     const head = k === "?" ? `<span class="msunk">Не знаем — в папке не указано</span>` : parts.map(pill).join("");
@@ -139,7 +139,16 @@ function thumbHTML(kind, name, ru, preferBox) {
           soyOnly ? ` <span class="msnote">жареное есть, а соус только соевый — проверить</span>` : ""}</div></li>`;
       }).join("")}</ul>
     </div>`;
-  }).join("");
+  });
+  /* Группы из одного меню стоят парой в одной ячейке, одна под другой, —
+     иначе каждая занимает целую клетку сетки и под ней пусто. */
+  const out = [];
+  for (let i = 0; i < keys.length; i++) {
+    const single = j => j < keys.length && keys[j] !== "?" && groups.get(keys[j]).length === 1;
+    if (single(i) && single(i + 1)) { out.push(`<div class="msstack">${cards[i]}${cards[i + 1]}</div>`); i++; }
+    else out.push(cards[i]);
+  }
+  box.innerHTML = out.join("");
 })();
 
 /* ============================================================

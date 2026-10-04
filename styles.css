@@ -876,3 +876,6 @@ input[type=search]{flex:1 1 220px;min-width:0}
 .boxans-row{display:flex;gap:10px;align-items:flex-start}
 .boxans-row b{display:block;font-size:14px;line-height:1.35}
 .boxans-kit{display:block;font-size:12.5px;color:var(--muted);margin-top:2px}
+
+/* две маленькие группы соусов в одной ячейке */
+.msstack{display:flex;flex-direction:column;gap:10px}
