@@ -127,8 +127,8 @@ const ASK = [
      why: "В техкарте «Soja Sauce extra», размер не указан. Ты думаешь, что это маленький пакетик — подтверди у шефа. Во всех остальных меню соевый — стаканчик 50 мл." },
    { q: "Какая коробка у меню, где размер нигде не записан?",
      why: "Single, Premium и Veggie Lunch; Family Lachs, Chicken и Veggie Deluxe; Crunchy Chicken, Sake и Veggie Menü; Mittagsmenü 1–6. В техкарте упаковки их нет, в PDF обедов — только состав. В таблице соусов у них пока «?» вместо буквы." },
-   { q: "Crunchy Chicken/Sake/Veggie Menü — что кладём в коробку?",
-     why: "В папке этих меню нет. По правилу выходит Cranberry Teriyaki, как в Family Deluxe, но у кранчи клюквенный и так налит сверху." }
+   { q: "Crunchy Chicken/Sake/Veggie Menü — тоже две коробки?",
+     why: "В папке этих меню нет. По техкарте жареное везде едет отдельной коробкой: значит, Crunchy в одной, маки в другой с соевым? И кладём ли к Crunchy стаканчик — клюквенный и майонез у него и так налиты сверху." }
  ]},
 ];
 
@@ -679,28 +679,40 @@ const MENUCARDS = [
  {name:"Westcoast Menü", pcs:24, box:"L", kit:"васаби · имбирь · соевый",
   items:[[8,"California Roll","кунжут"],[8,"Alaska Roll","шнитт-лук"],[8,"Crispy Ebi Roll","масаго"]]},
 
- {name:"Chicken Menü", pcs:21, box:"M", kit:"васаби · имбирь · Sweet Sauce",
+ {name:"Chicken Menü", pcs:21,
+  parts:[{box:"M", what:"жареное", kit:"васаби · имбирь · Sweet Sauce", items:["Yoko Roll Chicken"]},
+         {box:"M", what:"холодное", kit:"васаби · имбирь · соевый", items:["Maki Chicken","Chicken Teriyaki Roll"]}],
   note:"Sweet Sauce и кунжут сверху",
   items:[[8,"Maki Chicken"],[5,"Yoko Roll Chicken"],[8,"Chicken Teriyaki Roll"]]},
 
- {name:"Yoko Stars Menü", pcs:21, box:"M", kit:"васаби · имбирь · соевый",
+ {name:"Yoko Stars Menü", pcs:21,
+  parts:[{box:"M", what:"жареное", kit:"васаби · имбирь · Sweet Sauce", items:["Yoko Roll Lachs"]},
+         {box:"M", what:"холодное", kit:"васаби · имбирь · соевый", items:["Maki Sake","Philadelphia Roll"]}],
   note:"Sweet Sauce и кунжут сверху",
   items:[[8,"Maki Sake"],[5,"Yoko Roll Lachs"],[8,"Philadelphia Roll","шнитт-лук"]]},
 
- {name:"Big Salmon Menü", pcs:29, box:"L", kit:"васаби · имбирь · Sweet Sauce · Cocktail Mayo",
+ {name:"Big Salmon Menü", pcs:29,
+  parts:[{box:"L", what:"жареное", kit:"васаби · имбирь · Sweet Sauce · Cocktail Mayo", items:["Mini Yoko Roll Salmon","Yoko Roll Salmon"]},
+         {box:"M", what:"холодное", kit:"васаби · имбирь · соевый", items:["Maki Salmon Avocado","Salmon Roll"]}],
   note:"Всё на жареной коже лосося. Sweet Sauce и кунжут на Yoko Rolls",
   items:[[8,"Maki Salmon Avocado"],[8,"Mini Yoko Roll Salmon"],[5,"Yoko Roll Salmon"],[8,"Salmon Roll"]]},
 
- {name:"Master of the Rolls Menü", pcs:42, box:"L", kit:"васаби · имбирь · Sweet Sauce",
+ {name:"Master of the Rolls Menü", pcs:42,
+  parts:[{box:"L", what:"жареное", kit:"васаби · имбирь · Sweet Sauce", items:["Yoko Roll Lachs","Yoko Roll Vegetaria"]},
+         {box:"L", what:"холодное", kit:"васаби · 2× имбирь · соевый", items:["California Roll","Chicken Teriyaki Roll","Maki Sake","Maki Kappa"]}],
   note:"Sweet Sauce и кунжут сверху",
   items:[[8,"California Roll","масаго"],[8,"Chicken Teriyaki Roll","кунжут"],[8,"Maki Sake"],
          [8,"Maki Kappa"],[5,"Yoko Roll Lachs"],[5,"Yoko Roll Vegetaria"]]},
 
- {name:"Fitness Menü", pcs:29, box:"M", kit:"васаби · имбирь · Sweet Sauce",
+ {name:"Fitness Menü", pcs:29,
+  parts:[{box:"M", what:"жареное", kit:"васаби · имбирь · Sweet Sauce", items:["Yoko Roll Vegetaria"]},
+         {box:"L", what:"холодное", kit:"васаби · имбирь · соевый", items:["Fitness Roll","Maki Avocado","Maki Rucola"]}],
   note:"Веганское. Sweet Sauce и кунжут сверху",
   items:[[8,"Fitness Roll","шнитт-лук"],[8,"Maki Avocado"],[8,"Maki Rucola"],[5,"Yoko Roll Vegetaria"]]},
 
- {name:"Magic Mix Menü", pcs:21, box:"M", kit:"васаби · имбирь · Sweet Sauce",
+ {name:"Magic Mix Menü", pcs:21,
+  parts:[{box:"M", what:"жареное", kit:"васаби · имбирь · Sweet Sauce", items:["Yoko Roll Vegetaria"]},
+         {box:"M", what:"холодное", kit:"васаби · имбирь · соевый", items:["Magic Garden Roll","Japanese fried Chicken Roll"]}],
   note:"Sweet Chili сверху",
   items:[[8,"Magic Garden Roll"],[8,"Japanese fried Chicken Roll"],[5,"Yoko Roll Vegetaria"]]},
 
@@ -714,18 +726,30 @@ const MENUCARDS = [
   note:"Sweet Sauce и кунжут сверху",
   items:[[5,"Yoko Roll Garnele"],[5,"Yoko Roll Chicken"],[5,"Yoko Roll Vegetaria"]]},
 
- {name:"Yoko Single Menü Sake", pcs:16, box:"M", kit:"васаби · имбирь · Cocktail Mayo (большой)",
-  /* На фото тот же большой прозрачный стаканчик, что у Mini Yoko Roll Menü. */
+ {name:"Yoko Single Menü Sake", pcs:16,
+  parts:[{box:"M", what:"жареное", kit:"васаби · имбирь · Cocktail Mayo (большой)", items:["Mini Yoko Roll Sake"]},
+         {box:"M", what:"холодное", kit:"васаби · имбирь · соевый", items:["Philadelphia Roll"]}],
+  /* Две коробки: Mini Yoko с большим стаканчиком Cocktailmayo и холодный
+     ролл с соевым. Размер второй коробки в техкарте не подписан — на фото
+     она такая же, как первая. Kate, 04.10. */
   cupNote:{ mayo:"большой стаканчик" },
   items:[[8,"Philadelphia Roll"],[8,"Mini Yoko Roll Sake"]]},
 
- {name:"Yoko Single Menü Chicken", pcs:16, box:"M", kit:"васаби · имбирь · Cocktail Mayo (большой)",
-  /* На фото тот же большой прозрачный стаканчик, что у Mini Yoko Roll Menü. */
+ {name:"Yoko Single Menü Chicken", pcs:16,
+  parts:[{box:"M", what:"жареное", kit:"васаби · имбирь · Cocktail Mayo (большой)", items:["Mini Yoko Roll Chicken"]},
+         {box:"M", what:"холодное", kit:"васаби · имбирь · соевый", items:["Chicken Teriyaki Roll"]}],
+  /* Две коробки: Mini Yoko с большим стаканчиком Cocktailmayo и холодный
+     ролл с соевым. Размер второй коробки в техкарте не подписан — на фото
+     она такая же, как первая. Kate, 04.10. */
   cupNote:{ mayo:"большой стаканчик" },
   items:[[8,"Chicken Teriyaki Roll"],[8,"Mini Yoko Roll Chicken"]]},
 
- {name:"Yoko Single Menü Veggie", pcs:16, box:"M", kit:"васаби · имбирь · Cocktail Mayo (большой)",
-  /* На фото тот же большой прозрачный стаканчик, что у Mini Yoko Roll Menü. */
+ {name:"Yoko Single Menü Veggie", pcs:16,
+  parts:[{box:"M", what:"жареное", kit:"васаби · имбирь · Cocktail Mayo (большой)", items:["Mini Yoko Roll Avocado"]},
+         {box:"M", what:"холодное", kit:"васаби · имбирь · соевый", items:["Fitness Roll"]}],
+  /* Две коробки: Mini Yoko с большим стаканчиком Cocktailmayo и холодный
+     ролл с соевым. Размер второй коробки в техкарте не подписан — на фото
+     она такая же, как первая. Kate, 04.10. */
   cupNote:{ mayo:"большой стаканчик" },
   items:[[8,"Fitness Roll"],[8,"Mini Yoko Roll Avocado"]]},
 
@@ -736,8 +760,10 @@ const MENUCARDS = [
  {name:"Lachsmenü", pcs:26, box:"L", kit:"васаби · имбирь · соевый",
   items:[[2,"Nigiri Sake"],[8,"Maki Sake"],[8,"Alaska Roll","масаго"],[8,"Philadelphia Roll","шнитт-лук"]]},
 
- {name:"XL Lachsmenü", pcs:39, box:"L", nbox:2, kit:"2× васаби · имбирь · соевый · Sweet Sauce · Cocktail Mayo",
-  note:"Две коробки L. В первой нигири, маки, аляска и филадельфия — к ним васаби, имбирь, соевый. Во второй жареное — Mini Yoko и Yoko Roll, к ним васаби, Sweet Sauce и Cocktail Mayo.",
+ {name:"XL Lachsmenü", pcs:39,
+  parts:[{box:"L", what:"холодное", kit:"васаби · имбирь · соевый", items:["Nigiri Sake","Maki Sake","Alaska Roll","Philadelphia Roll"]},
+         {box:"L", what:"жареное", kit:"васаби · Sweet Sauce · Cocktail Mayo", items:["Mini Yoko Roll Sake","Yoko Roll Lachs"]}],
+  note:"Во второй коробке имбиря нет — по техкарте только васаби.",
   items:[[2,"Nigiri Sake"],[8,"Maki Sake"],[8,"Alaska Roll","масаго"],[8,"Philadelphia Roll","шнитт-лук"],
          [8,"Mini Yoko Roll Sake"],[5,"Yoko Roll Lachs"]]},
 
@@ -802,6 +828,25 @@ const MENUCARDS = [
  {name:"Big Yoko Menü", pcs:null, box:"XXL", kit:"2× васаби · 3× имбирь · 2× соевый",
   note:"Состав в техкартах не расписан — есть только фото раскладки", items:[]}
 ];
+
+/* Меню из двух коробок. В техкарте (Anhang 2, Menüanordnung) у такого меню
+   два фото: жареное едет в своей коробке со своим соусом, холодные роллы —
+   в другой, с соевым. У каждой коробки свой васаби и имбирь. Здесь из
+   коробок собираем общий комплект (kit), первую коробку (box) и их число. */
+for (const m of MENUCARDS) {
+  if (!m.parts) continue;
+  m.nbox = m.parts.length;
+  m.box = m.parts[0].box;
+  m.boxLabel = m.parts.map(p => p.box || "?").join(" + ");
+  const tot = new Map();
+  for (const p of m.parts) for (const raw of p.kit.split("·")) {
+    const t = raw.trim(); if (!t) continue;
+    const mm = t.match(/^(\d+)\s*×\s*(.+)$/);
+    const label = mm ? mm[2].trim() : t;
+    tot.set(label, (tot.get(label) || 0) + (mm ? +mm[1] : 1));
+  }
+  m.kit = [...tot].map(([l, n]) => (n > 1 ? n + "× " : "") + l).join(" · ");
+}
 
 const SNACKS = [
  ["Sommerrollen","2","M","50 мл дипа на выбор"],

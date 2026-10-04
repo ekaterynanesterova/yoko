@@ -77,6 +77,14 @@ function thumbHTML(kind, name, ru, preferBox) {
   const sauceKey = t => /соев/i.test(t) ? "soy" : /sweet/i.test(t) ? "sweet"
     : /cocktail|mayo/i.test(t) ? "mayo" : /cranberry/i.test(t) ? "cran" : "other";
   const pill = t => `<span class="spill sp-${sauceKey(t)}"><i></i>${esc(t)}</span>`;
+  const cupPill = (m, c) => {
+    const n = (c.match(/^(\d+)\s*×/) || [])[1] || "1";
+    const name = c.replace(/^\d+\s*×\s*/, "").replace(/\s*extra$/i, "").replace(/\s*\(большой\)/i, "")
+      .replace(/cocktail\s*mayo(nnaise)?/i, "Cocktailmayo").trim();
+    const key = sauceKey(name);
+    const size = ((m.cupNote || {})[key]) || CUP_SIZE[key] || "";
+    return `<span class="mscup sx-${key}"><i></i>${n}× ${esc(name)}${size ? `<small>${esc(size)}</small>` : ""}</span>`;
+  };
 
   const shown = MENUCARDS.filter(m => !HIDDEN_MENUS.has(m.name));
   const groups = new Map();
@@ -107,25 +115,28 @@ function thumbHTML(kind, name, ru, preferBox) {
         const soyOnly = k === "соевый" && fried.length;
         /* Каждый стаканчик плашкой с количеством: «1× Sweet Sauce», «2× Cocktailmayo».
            Так и в меню с разными соусами сразу видно, чего и сколько класть. */
-        const cupHTML = cups.map(c => {
-          const n = (c.match(/^(\d+)\s*×/) || [])[1] || "1";
-          const name = c.replace(/^\d+\s*×\s*/, "").replace(/\s*extra$/i, "").replace(/\s*\(большой\)/i, "")
-            .replace(/cocktail\s*mayo(nnaise)?/i, "Cocktailmayo").trim();
-          const key = sauceKey(name);
-          const size = ((m.cupNote || {})[key]) || CUP_SIZE[key] || "";
-          return `<span class="mscup sx-${key}"><i></i>${n}× ${esc(name)}${size ? `<small>${esc(size)}</small>` : ""}</span>`;
-        }).join("");
+        const cupHTML = cups.map(c => cupPill(m, c)).join("");
         const kinds = new Set(cups.map(c => sauceKey(c))).size;
         /* Размер коробки квадратиком перед названием — теми же цветами, что
            коробки в сборочном листе. У XL Lachsmenü две коробки: «L×2». */
         const bx = m.box || "";
         const boxBadge = `<span class="msbox${bx ? " b-" + esc(bx) : " unk"}" title="${bx ? "коробка " + esc(bx) : "размер коробки не указан"}">${
           bx ? esc(bx) + (m.nbox > 1 ? `<small>×${m.nbox}</small>` : "") : "?"}</span>`;
+        if (m.parts) {
+          const partHTML = m.parts.map(p => {
+            const pc = cupsOf(p).map(c => cupPill(m, c)).join("");
+            const pf = friedKinds({ items: (m.items || []).filter(([, nm]) => p.items.includes(nm)) });
+            return `<div class="mspart"><span class="msbox sm b-${esc(p.box || "")}">${esc(p.box || "?")}</span><div>${
+              pc ? `<span class="mscups-row">${pc}</span>` : ""}<span class="msfried">${esc(p.what === "жареное" && pf.length ? "жареное: " + pf.join(" · ") : p.items.join(" · "))}</span></div></div>`;
+          }).join("");
+          return `<li class="msrow"><span class="msbox two" title="${m.nbox} коробки">${m.nbox}<small>кор</small></span><div class="msbody"><b>${esc(m.name)}</b>${
+            kinds > 1 ? ` <span class="msmany">${kinds} разных соуса</span>` : ""}${partHTML}</div></li>`;
+        }
         return `<li class="msrow${soyOnly ? " mswarn" : ""}">${boxBadge}<div class="msbody"><b>${esc(m.name)}</b>${
           kinds > 1 ? ` <span class="msmany">${kinds} разных соуса</span>` : ""}${
           cupHTML ? `<span class="mscups-row">${cupHTML}</span>` : ""}${
           fried.length ? `<span class="msfried">жареное: ${esc(fried.join(" · "))}</span>` : ""}${
-          soyOnly ? ` <span class="msnote">исключение: жареное есть, но по техкарте только соевый</span>` : ""}</div></li>`;
+          soyOnly ? ` <span class="msnote">жареное есть, а соус только соевый — проверить</span>` : ""}</div></li>`;
       }).join("")}</ul>
     </div>`;
   }).join("");
@@ -322,6 +333,14 @@ function setItemCell(it) {
   </div>`;
 }
 
+/* Коробки меню: у меню из двух коробок (жареное отдельно) — каждая со
+   своим составом и соусами, у остальных одна. */
+function menuBoxes(m) {
+  if (m.parts) return m.parts.map(p => ({ box: p.box || "", what: p.what || "", kit: p.kit || "",
+    items: (m.items || []).filter(([, nm]) => p.items.includes(nm)) }));
+  return [{ box: m.box || "", what: "", kit: m.kit || "", items: m.items || [] }];
+}
+
 function renderSets() {
   $("#setList").innerHTML = MENUCARDS.filter(m => !HIDDEN_MENUS.has(m.name)).map(m => {
     const items = m.items || [];
@@ -333,10 +352,12 @@ function renderSets() {
     const meta = [];
     if (m.pcs) meta.push(`<span class="mono">${m.pcs}</span> шт`);
     else if (sum) meta.push(`<span class="mono">${sum}</span> шт`);
-    if (m.box) meta.push(m.nbox > 1
+    if (m.parts) meta.push(`${m.nbox} коробки <span class="mono">${esc(m.boxLabel)}</span>`);
+    else if (m.box) meta.push(m.nbox > 1
       ? `${m.nbox} коробки <span class="mono">${esc(m.box)}</span>`
       : `коробка <span class="mono">${esc(m.box)}</span>`);
-    if (m.kit) meta.push(esc(m.kit));
+    /* У меню из двух коробок комплект написан над каждой коробкой ниже. */
+    if (!m.parts && m.kit) meta.push(esc(m.kit));
 
     return `<article class="setcard">
       <header class="sethead">
@@ -348,7 +369,9 @@ function renderSets() {
       </header>
       ${m.note ? `<p class="setnote">${esc(m.note)}</p>` : ""}
       ${mismatch ? `<p class="setwarn">Заявлено ${m.pcs} шт, а по списку выходит ${sum}. Сверь у шефа.</p>` : ""}
-      ${items.length ? `<div class="scells">${items.map(setItemCell).join("")}</div>` : ""}
+      ${!items.length ? "" : m.parts ? menuBoxes(m).map(b => `<div class="setbox"><span class="msbox sm b-${esc(b.box)}">${esc(b.box || "?")}</span><b>${esc(b.what)}</b><span>${esc(b.kit)}</span></div>
+        <div class="scells">${b.items.map(setItemCell).join("")}</div>`).join("")
+        : `<div class="scells">${items.map(setItemCell).join("")}</div>`}
     </article>`;
   }).join("");
 
@@ -486,6 +509,8 @@ function buildDeck(){
     deck = dishes.filter(d => d.s.length || d.t.length).map(d => ({k:"s:"+d.i, d}));
   } else if (mode === "fry") {
     deck = dishes.filter(isFried).map(d => ({k:"r:"+d.i, d}));
+  } else if (mode === "box") {
+    deck = MENUCARDS.filter(m => !HIDDEN_MENUS.has(m.name) && m.kit && (m.items || []).length).map(m => ({k:"b:"+m.name, m}));
   } else if (mode === "quiz") {
     deck = dishes.filter(d => d.s.length || d.t.length).map(d => ({k:"q:"+d.i, d}));
   } else {
@@ -498,9 +523,10 @@ function buildDeck(){
 function stats(){
   const total = mode==="gram" ? TYPES.filter(t => t.frame !== false && !t.off).length
     : mode==="fry" ? dishes.filter(isFried).length
+    : mode==="box" ? MENUCARDS.filter(m => !HIDDEN_MENUS.has(m.name) && m.kit && (m.items || []).length).length
     : (mode==="sauce"||mode==="quiz") ? dishes.filter(d=>d.s.length||d.t.length).length
     : dishes.filter(d=>d.f.length).length;
-  const pre = mode==="gram"?"g:":mode==="sauce"?"s:":mode==="quiz"?"q:":mode==="fry"?"r:":"f:";
+  const pre = mode==="gram"?"g:":mode==="sauce"?"s:":mode==="quiz"?"q:":mode==="fry"?"r:":mode==="box"?"b:":"f:";
   const done = P.count(pre);
   $("#stDeck").textContent = deck.length;
   $("#stKnown").textContent = done + " / " + total;
@@ -525,7 +551,7 @@ function draw(){
       <p style="color:var(--muted);max-width:34ch">Колода пройдена. Можно сбросить прогресс и пройти заново или переключить режим.</p>`;
     act.innerHTML = `<button class="btn" id="reset" type="button">Сбросить этот режим</button>`;
     $("#reset").onclick = () => {
-      const pre = mode==="gram"?"g:":mode==="sauce"?"s:":mode==="quiz"?"q:":mode==="fry"?"r:":"f:";
+      const pre = mode==="gram"?"g:":mode==="sauce"?"s:":mode==="quiz"?"q:":mode==="fry"?"r:":mode==="box"?"b:":"f:";
       P.clearPrefix(pre);
       streak = 0; buildDeck();
     };
@@ -555,6 +581,17 @@ function draw(){
           <div><em>в коробку</em><b>${fryList(d.s)}</b></div>
         </div>
         <p class="fryhint"><b>${esc(g.title)}:</b> ${esc(g.rule)}</p>` : ""}`;
+  } else if (mode === "box"){
+    const m = cur.m, bs = menuBoxes(m);
+    card.innerHTML = `<div class="kicker">сколько коробок, что куда и какие соусы</div>
+      <div class="q">${esc(m.name)}</div><div class="qru">${m.pcs ? m.pcs + " шт" : ""}</div>
+      ${shown ? `<div class="boxans">${bs.map(b => `<div class="boxans-row">
+          <span class="msbox b-${esc(b.box)}${b.box ? "" : " unk"}">${esc(b.box || "?")}</span>
+          <div><b>${esc(b.items.map(([n, nm]) => n + " " + nm).join(" · "))}</b>
+            <span class="boxans-kit">${esc(b.kit || "комплект не указан")}</span></div></div>`).join("")}</div>
+        <p class="fryhint">${bs.length > 1
+          ? "<b>" + bs.length + " коробки:</b> жареное отдельно со своим соусом, холодное — с соевым."
+          : "<b>Одна коробка.</b>"}</p>` : ""}`;
   } else if (mode === "quiz"){
     const d = cur.d;
     const right = d.s.length ? d.s[0] : (d.t[0] || d.f[d.f.length-1]);
@@ -984,9 +1021,9 @@ if ("serviceWorker" in navigator) {
               aria-label="${done ? "Снять отметку" : "Отметить сложенным"}: ${esc(p.name)}">✓</button>
             <span class="boxbig${p.box ? "" : " unk"}">${p.box ? `<b>${esc(p.box)}</b><i>коробка</i>`
               : `<b>?</b><i>коробка</i>`}</span>
-            ${p.single ? thumbHTML("dish", p.name, "") : thumbHTML("menu", p.name, "", true)}
+            ${p.single ? thumbHTML("dish", p.name, "") : thumbHTML("menu", p.menu || p.name, "", true)}
             <div class="pt">
-              <b>${esc(p.name)}</b>
+              <b>${esc(p.menu || p.name)}</b>${p.part ? `<span class="ppart">коробка ${esc(p.part)}${p.what ? " · " + esc(p.what) : ""}</span>` : ""}
               <span class="pqty">${p.nbox > 1
                 ? `<span class="mono">${p.qty * p.nbox}</span> ${plural(p.qty * p.nbox, "коробка", "коробки", "коробок")} — разные, см. ниже`
                 : p.qty > 1

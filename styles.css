@@ -859,3 +859,20 @@ input[type=search]{flex:1 1 220px;min-width:0}
 .msbox.b-L{background:var(--amber-band);color:var(--amber-ink)}
 .msbox.b-XL{background:var(--red-soft);color:var(--red)}
 .msbox.unk{border-style:dashed;color:var(--muted);background:none}
+
+/* меню из двух коробок: строка на каждую коробку */
+.mspart{display:flex;align-items:flex-start;gap:7px;margin-top:5px}
+.mspart .mscups-row{margin:0 0 1px}
+.msbox.sm{min-width:24px;height:22px;font-size:11.5px;border-width:1px}
+.msbox.two{flex-direction:column;background:var(--paper);color:var(--ink);height:auto;padding:3px 5px}
+.msbox.two small{font-size:8.5px;margin:1px 0 0;font-weight:600;color:var(--muted)}
+.ppart{display:block;font-size:12px;font-weight:700;color:var(--red)}
+
+/* состав меню по коробкам (вкладка «Меню и коробки») */
+.setbox{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:10px 0 5px;font-size:12.5px;color:var(--ink-2)}
+.setbox b{color:var(--ink)}
+/* тренажёр «Коробки меню» */
+.boxans{display:flex;flex-direction:column;gap:9px;width:100%;max-width:440px;text-align:left}
+.boxans-row{display:flex;gap:10px;align-items:flex-start}
+.boxans-row b{display:block;font-size:14px;line-height:1.35}
+.boxans-kit{display:block;font-size:12.5px;color:var(--muted);margin-top:2px}

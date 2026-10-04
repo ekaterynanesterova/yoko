@@ -97,7 +97,26 @@ const Order = (function () {
         const m = menuBy.get(it.name);
         if (!m) continue;
         for (const [n, dishName] of (m.items || [])) addWork(dishName, n * q, m.name);
-        /* Некоторые меню едут в двух коробках (XL Lachsmenü). */
+        /* Меню из двух коробок (жареное отдельно) складываем как две
+           карточки — у каждой коробки свой размер, состав и соусы. */
+        if (m.parts) {
+          m.parts.forEach((p, i) => {
+            if (p.box) boxes.set(p.box, (boxes.get(p.box) || 0) + q);
+            const kitP = [];
+            p.kit.split("·").map(x => x.trim()).filter(Boolean).forEach(part => {
+              const mm = part.match(/^(\d+)\s*[×x]\s*(.+)$/);
+              const cnt = mm ? +mm[1] : 1;
+              const label = mm ? mm[2].trim() : part;
+              kitP.push({ label, cnt });
+              addKit(label, cnt * q);
+            });
+            const its = (m.items || []).filter(([, nm]) => p.items.includes(nm));
+            packs.push({ name: m.name + " · коробка " + (i + 1), menu: m.name, part: (i + 1) + " из " + m.parts.length,
+                         what: p.what || "", qty: q, box: p.box || "", nbox: 1, kit: kitP, items: its,
+                         note: i === m.parts.length - 1 ? (m.note || "") : "" });
+          });
+          continue;
+        }
         if (m.box) boxes.set(m.box, (boxes.get(m.box) || 0) + q * (m.nbox || 1));
         /* Комплект в карточке записан строкой вида «васаби · имбирь · 2× Cocktail Mayo».
            В packs держим комплект НА ОДНУ коробку — так его и кладут. */
