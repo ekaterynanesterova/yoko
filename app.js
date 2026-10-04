@@ -95,7 +95,8 @@ function thumbHTML(kind, name, ru, preferBox) {
     groups.get(key).push({ m, cups, fried: friedKinds(m) });
   }
   /* Порядок: от простого к сложному, неизвестное — в конец. */
-  const order = k => k === "?" ? 99 : k === "соевый" ? 0 : k.split(" + ").length;
+  /* «Соус на выбор» (обеды) — в конце, перед неизвестными: там класть нечего запоминать. */
+  const order = k => k === "?" ? 99 : /на выбор/i.test(k) ? 98 : k === "соевый" ? 0 : k.split(" + ").length;
   const keys = [...groups.keys()].sort((a, b) => order(a) - order(b) || a.localeCompare(b));
 
   const cards = keys.map(k => {
