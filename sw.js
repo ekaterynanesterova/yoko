@@ -1,5 +1,5 @@
 /* Офлайн-режим: на кухне вайфай может пропасть, страница должна открываться всё равно. */
-const CACHE = "yoko-v11";
+const CACHE = "yoko-v12";
 const SHELL = [
   "./", "./index.html", "./styles.css",
   "./data.js", "./photos.js", "./shifts.js", "./scan.js", "./order.js",
