@@ -1,4 +1,6 @@
 -- Таблица прогресса тренажёра. Выполнить один раз в SQL Editor проекта Supabase.
+-- С 30.10.2026 новые таблицы в public без GRANT недоступны через API: если пересоздаёшь эти
+-- или добавляешь новую — допиши grant select, insert, update, delete on table public.<имя> to authenticated, service_role;
 create table if not exists public.yoko_progress (
   user_id    uuid primary key references auth.users(id) on delete cascade,
   known      jsonb not null default '{}'::jsonb,
