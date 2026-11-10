@@ -1,0 +1,780 @@
+<title>Табель Yoko</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Caveat:wght@600&display=swap">
+<style>
+/* Layout: одна колонка под телефон — итог месяца, ближайшая смена, сетка Mo–So как на листе Dienstplan, строки смен, настройки внизу. */
+:root{
+  --bg:#eef1f6; --surface:#ffffff; --sunk:#e3e8f1; --ink:#152036; --muted:#5a667f; --line:#d3dae6;
+  --pen:#2643c4; --pen-soft:#dfe5fb; --salmon:#e8573b; --salmon-soft:#fde4dd;
+  --ok:#1f7a4d; --warn:#9a5b00; --warn-soft:#fff1d6;
+  --f-display:"Bricolage Grotesque","Manrope",system-ui,sans-serif;
+  --f-body:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-num:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  --f-hand:"Caveat","Segoe Print","Comic Sans MS",cursive;
+  --r:14px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0e1320; --surface:#161d2d; --sunk:#1d2638; --ink:#e5e9f2; --muted:#98a2b8; --line:#2a3448;
+  --pen:#86a0ff; --pen-soft:#22305a; --salmon:#ff8a6f; --salmon-soft:#4a2a24;
+  --ok:#5fd39a; --warn:#f2b552; --warn-soft:#3d2f15; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1320; --surface:#161d2d; --sunk:#1d2638; --ink:#e5e9f2; --muted:#98a2b8; --line:#2a3448;
+  --pen:#86a0ff; --pen-soft:#22305a; --salmon:#ff8a6f; --salmon-soft:#4a2a24;
+  --ok:#5fd39a; --warn:#f2b552; --warn-soft:#3d2f15; color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--f-body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:680px;margin:0 auto;padding-block:20px 48px;display:flex;flex-direction:column;gap:18px}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:1.65rem;font-weight:800}
+h2{font-size:1.1rem;font-weight:600}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.small{font-size:.85rem}
+.eyebrow{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+button,.btn{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);
+  padding:.55em .9em;font-weight:600;display:inline-flex;align-items:center;gap:.45em;text-decoration:none;line-height:1.2}
+button:hover,.btn:hover{border-color:var(--pen)}
+button:focus-visible,.btn:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--pen);outline-offset:2px}
+button.primary{background:var(--pen);border-color:var(--pen);color:var(--surface)}
+button.ghost{background:transparent;border-color:transparent;color:var(--pen);padding-inline:.4em}
+button.danger{color:var(--salmon)}
+button:disabled{opacity:.55;cursor:default}
+input,select{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:.45em .6em;min-width:0}
+input[type=time]{font-family:var(--f-num)}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:.8rem;color:var(--muted);font-weight:600;min-width:0}
+svg{flex:none}
+
+/* шапка */
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.monthnav{display:flex;align-items:center;gap:4px}
+.monthnav b{font-family:var(--f-display);font-weight:600;min-width:9.5em;text-align:center;font-size:1.05rem}
+.monthnav button{padding:.4em .6em}
+
+/* итог */
+.pay{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:flex;flex-direction:column;gap:14px}
+.pay-head{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-end}
+.big{font-family:var(--f-display);font-weight:800;font-size:2.6rem;line-height:1;letter-spacing:-.02em}
+.big small{font-size:.5em;font-weight:600;color:var(--muted);margin-left:.15em}
+.stats{display:flex;gap:18px;flex-wrap:wrap}
+.stat{display:flex;flex-direction:column}
+.stat b{font-family:var(--f-num);font-size:1.05rem}
+.bar{display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--sunk)}
+.bar i{display:block;height:100%}
+.seg-hi{background:var(--salmon)} .seg-lo{background:var(--pen)}
+.seg-plan{background-image:repeating-linear-gradient(135deg,transparent 0 4px,var(--surface) 4px 6px);opacity:.75}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.82rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:10px;height:10px;border-radius:3px;display:inline-block}
+.capnote{font-size:.9rem}
+
+/* ближайшая */
+.next{display:flex;gap:14px;align-items:center;background:var(--pen-soft);border-radius:var(--r);padding:14px 16px;flex-wrap:wrap}
+.next .when{font-family:var(--f-display);font-weight:600;font-size:1.05rem}
+.hand{font-family:var(--f-hand);font-size:1.25rem;line-height:1.1;color:var(--pen)}
+
+/* действия */
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.filebtn{position:relative;overflow:hidden}
+.filebtn input{position:absolute;inset:0;opacity:0;cursor:pointer}
+
+/* панели */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:12px}
+.panel.warn{background:var(--warn-soft);border-color:transparent}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.spacer{flex:1}
+
+/* сетка месяца */
+.cal-wrap{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.cal .dow{font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:center;font-weight:700;padding:2px 0 4px}
+.day{min-height:54px;border-radius:9px;border:1px solid transparent;background:var(--bg);padding:4px 5px;text-align:left;display:flex;flex-direction:column;gap:2px;
+  font-weight:500;cursor:pointer;color:var(--ink);font-size:.8rem}
+.day .d{font-family:var(--f-num);font-size:.78rem;color:var(--muted)}
+.day.out{visibility:hidden}
+.day.today{border-color:var(--ink)}
+.day.has{background:var(--pen-soft)}
+.day.has .d{color:var(--pen);font-weight:700}
+.day.done{background:var(--pen);color:var(--surface)}
+.day.done .d{color:var(--surface)}
+.day .t{font-family:var(--f-num);font-size:.68rem;line-height:1.15}
+.day.sel{outline:2px solid var(--salmon);outline-offset:1px}
+
+/* список смен */
+.list{display:flex;flex-direction:column;gap:8px}
+.shift{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;grid-template-columns:auto 1fr auto;gap:4px 14px;align-items:start}
+.shift.sel{border-color:var(--salmon)}
+.shift .date{font-family:var(--f-display);font-weight:600;line-height:1.15;min-width:3.6em}
+.shift .date small{display:block;font-family:var(--f-body);font-weight:600;color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.06em}
+.shift .mid{min-width:0;display:flex;flex-direction:column;gap:3px}
+.shift .time{font-family:var(--f-num);font-size:.92rem}
+.shift .money{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+.shift .money b{white-space:nowrap;font-family:var(--f-num);font-size:1rem}
+.chips{display:flex;gap:4px;flex-wrap:wrap}
+.chip{font-size:.7rem;font-weight:700;border-radius:20px;padding:1px 7px;font-family:var(--f-num);white-space:nowrap}
+.chip.hi{background:var(--salmon-soft);color:var(--salmon)}
+.chip.lo{background:var(--pen-soft);color:var(--pen)}
+.chip.plan{background:var(--sunk);color:var(--muted);font-family:var(--f-body)}
+.chip.todo{background:var(--warn-soft);color:var(--warn);font-family:var(--f-body)}
+.shift .tools{grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap;align-items:center;padding-top:6px;border-top:1px dashed var(--line);margin-top:6px}
+.shift .tools .lbl{font-size:.8rem;color:var(--muted);font-weight:600}
+.shift .tools button,.shift .tools .btn{padding:.3em .6em;font-size:.82rem}
+
+/* распознавание */
+.thumbs{display:flex;gap:8px;flex-wrap:wrap}
+.thumbs img{height:84px;border-radius:8px;border:1px solid var(--line);object-fit:cover}
+.prop{display:flex;flex-direction:column;gap:6px}
+.prop label{display:flex;gap:10px;align-items:center;padding:8px 10px;border-radius:10px;background:var(--bg);cursor:pointer}
+.prop label.rm{background:var(--salmon-soft)}
+.prop input{width:18px;height:18px;flex:none}
+.alldays{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:.88rem}
+.alldays .me{color:var(--pen);font-weight:700}
+
+/* по месяцам */
+.tbl-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 6px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700}
+td.num{font-family:var(--f-num)}
+tr.cur td{font-weight:700}
+
+details.panel>summary{cursor:pointer;font-family:var(--f-display);font-weight:600;font-size:1.05rem;list-style:none;display:flex;justify-content:space-between}
+details.panel>summary::-webkit-details-marker{display:none}
+details.panel>summary::after{content:"+";color:var(--muted)}
+details.panel[open]>summary::after{content:"–"}
+
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);
+  padding:10px 16px;border-radius:10px;font-weight:600;font-size:.9rem;max-width:calc(100% - 32px);z-index:20}
+.empty{padding:18px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:12px}
+@media (max-width:420px){
+  .big{font-size:2.2rem}
+  .day{min-height:46px;padding:3px}
+  .day .t{font-size:.6rem}
+  .shift{grid-template-columns:auto 1fr;}
+  .shift .money{grid-column:1/-1;flex-direction:row;justify-content:space-between;align-items:center;text-align:left}
+}
+@media (prefers-reduced-motion:no-preference){.day,.shift,button{transition:border-color .15s,background-color .15s}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow">Yoko · смены и зарплата</div>
+      <h1>Табель</h1>
+    </div>
+    <div class="monthnav">
+      <button id="prevM" aria-label="Предыдущий месяц">‹</button>
+      <b id="monthName">—</b>
+      <button id="nextM" aria-label="Следующий месяц">›</button>
+    </div>
+  </header>
+
+  <div id="status" class="panel warn" hidden></div>
+
+  <section class="pay" aria-label="Зарплата за месяц">
+    <div class="pay-head">
+      <div>
+        <div class="eyebrow" id="payLabel">Заработано</div>
+        <div class="big num" id="payDone">0<small>€</small></div>
+      </div>
+      <div class="stats">
+        <div class="stat"><span class="eyebrow">Прогноз</span><b id="payAll">0 €</b></div>
+        <div class="stat"><span class="eyebrow">Часы</span><b id="hoursAll">0 ч</b></div>
+        <div class="stat"><span class="eyebrow">Смены</span><b id="shiftCount">0</b></div>
+      </div>
+    </div>
+    <div class="bar" id="bar" role="img" aria-label="Разбивка по ставкам"></div>
+    <div class="legend" id="legend"></div>
+    <div class="capnote" id="capNote"></div>
+  </section>
+
+  <section class="next" id="next" hidden></section>
+
+  <div class="actions">
+    <span class="btn filebtn primary" id="photoBtn" style="background:var(--pen);border-color:var(--pen);color:var(--surface)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+      Фото графика
+      <input type="file" id="photoInput" accept="image/*" multiple aria-label="Выбрать фото графика">
+    </span>
+    <button id="addBtn">+ Смена</button>
+    <button id="icsBtn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+      В календарь
+    </button>
+  </div>
+
+  <section class="panel" id="importPanel" hidden></section>
+  <section class="panel" id="icsPanel" hidden></section>
+
+  <section class="cal-wrap" aria-label="Месяц">
+    <div class="cal" id="cal"></div>
+  </section>
+
+  <section class="panel" id="editor" hidden></section>
+
+  <section>
+    <div class="row" style="margin-bottom:8px"><h2>Смены месяца</h2><span class="spacer"></span><span class="small muted" id="listHint"></span></div>
+    <div class="list" id="list"></div>
+  </section>
+
+  <section class="panel">
+    <h2>По месяцам</h2>
+    <div class="tbl-wrap"><table id="months"></table></div>
+  </section>
+
+  <details class="panel" id="settings">
+    <summary>Правила и настройки</summary>
+    <div class="grid2">
+      <label class="f">Моё имя в графике<input id="cfgMe" placeholder="Катя, Kate, Katja"></label>
+      <label class="f">Порог за месяц, €<input id="cfgCap" type="number" min="0" step="1"></label>
+      <label class="f">До порога, €/ч<input id="cfgHi" type="number" min="0" step="0.5"></label>
+      <label class="f">После порога, €/ч<input id="cfgLo" type="number" min="0" step="0.5"></label>
+      <label class="f">Начало смены<input id="cfgStart" type="time"></label>
+      <label class="f">Конец по графику<input id="cfgEnd" type="time"></label>
+      <label class="f">Обед, мин (не оплачивается)<input id="cfgBrk" type="number" min="0" step="5"></label>
+      <label class="f">Обед только если смена дольше, ч<input id="cfgBrkMin" type="number" min="0" step="0.5"></label>
+    </div>
+    <p class="small muted" style="margin:0">Оплачивается время от начала до ухода: уборка после закрытия считается. Обед вычитается из каждой смены, которая длиннее указанного порога; в смене можно поставить свой. Порог 200 € считается заново каждый месяц, смены заполняют его по порядку дат.</p>
+    <div class="row"><button class="primary" id="cfgSave">Сохранить правила</button></div>
+  </details>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+"use strict";
+/* ============ модель ============ */
+const DEF = { me:"Катя, Kate, Katja", cap:200, hi:14, lo:9, start:"11:00", end:"22:00", brk:40, brkMin:6 };
+const ROSTER = ["Аня","Вика","Даша","Алина","Джордан","Катя","Сергей","Саша","Chimly"];
+const S = { shifts:{}, cfg:{...DEF}, month:null, sel:null, editing:null, imp:null, loaded:false };
+const MON = ["январь","февраль","март","апрель","май","июнь","июль","август","сентябрь","октябрь","ноябрь","декабрь"];
+const MON_G = ["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
+const DOW = ["вс","пн","вт","ср","чт","пт","сб"];
+const DOW_DE = ["Mo","Di","Mi","Do","Fr","Sa","So"];
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pad = n => String(n).padStart(2,"0");
+const iso = d => d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const dateOf = s => new Date(s+"T12:00:00");
+const today = () => iso(new Date());
+const mins = t => { const m = /^(\d{1,2}):(\d{2})$/.exec(String(t||"").trim()); return m ? (+m[1])*60 + (+m[2]) : null; };
+const hm = m => pad(Math.floor(m/60)%24)+":"+pad(m%60);
+const dur = m => { m = Math.round(m); const h = Math.floor(m/60), r = m%60; return h + " ч" + (r ? " " + r + " мин" : ""); };
+const eur = (v, frac) => (Math.round(v*100)/100).toLocaleString("ru-RU",{minimumFractionDigits:frac?2:0,maximumFractionDigits:2}) + " €";
+const hShort = m => { m = Math.round(m); return Math.floor(m/60) + ":" + pad(m%60) + " ч"; };
+const norm = s => String(s||"").trim().toLowerCase().replace(/ё/g,"е");
+
+/* ============ расчёт ============ */
+/* Одна смена: от начала до ухода (если отмечен) или до конца по графику, минус обед. */
+function calcShift(s, cfg){
+  const st = mins(s.start) ?? mins(cfg.start);
+  let en = mins(s.left) ?? mins(s.end) ?? mins(cfg.end);
+  if (en <= st) en += 1440;                        /* ушли после полуночи */
+  const span = en - st;
+  const brk = (s.brk !== null && s.brk !== undefined && s.brk !== "") ? +s.brk
+            : (span > cfg.brkMin*60 ? +cfg.brk : 0);
+  return { st, en, span, brk, paid: Math.max(0, span - brk), actual: !!s.left };
+}
+/* Месяц: смены по порядку дат заполняют порог по высокой ставке, остальное — по низкой. */
+function calcMonth(list, cfg){
+  const t = today();
+  let acc = 0;
+  const rows = list.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(s => {
+    const c = calcShift(s, cfg);
+    const h = c.paid/60;
+    const left = Math.max(0, cfg.cap - acc);
+    const hiH = cfg.hi > 0 ? Math.min(h, left/cfg.hi) : 0;
+    const loH = h - hiH;
+    const pay = hiH*cfg.hi + loH*cfg.lo;
+    acc += pay;
+    const done = s.date < t || (s.date === t && !!s.left);
+    return { s, ...c, h, hiH, loH, hiPay: hiH*cfg.hi, loPay: loH*cfg.lo, pay, done };
+  });
+  const sum = f => rows.reduce((a,r)=>a+f(r),0);
+  const capRow = rows.find((r,i) => { const before = rows.slice(0,i+1).reduce((a,x)=>a+x.hiPay,0); return cfg.cap>0 && before >= cfg.cap - 0.005; });
+  return {
+    rows, capRow,
+    total: sum(r=>r.pay), done: sum(r=>r.done ? r.pay : 0),
+    hours: sum(r=>r.h), hoursDone: sum(r=>r.done ? r.h : 0),
+    hiDone: sum(r=>r.done?r.hiPay:0), hiPlan: sum(r=>r.done?0:r.hiPay),
+    loDone: sum(r=>r.done?r.loPay:0), loPlan: sum(r=>r.done?0:r.loPay),
+    capHours: cfg.hi > 0 ? cfg.cap/cfg.hi : 0
+  };
+}
+const shiftsIn = ym => Object.values(S.shifts).filter(s => s.date && s.date.startsWith(ym));
+
+/* ============ хранилище ============ */
+let db = null;
+const LS = "tabel-yoko.v1";
+function loadLocal(){ try { const o = JSON.parse(localStorage.getItem(LS)||"null"); if (o){ S.shifts = o.shifts||{}; S.cfg = {...DEF, ...(o.cfg||{})}; } } catch(e){} }
+function saveLocal(){ try { localStorage.setItem(LS, JSON.stringify({shifts:S.shifts, cfg:S.cfg})); } catch(e){} }
+
+async function putShift(s){
+  s = { ...s, mt: Date.now() };
+  S.shifts[s.date] = s; render();
+  if (db) { try { await db.collection("shifts").doc(s.date).set(s); } catch(e){ toast("Не сохранилось: " + (e.message||e.code)); } }
+  else saveLocal();
+}
+async function delShift(date){
+  delete S.shifts[date]; render();
+  if (db) { try { await db.collection("shifts").doc(date).delete(); } catch(e){ toast("Не удалилось: " + (e.message||e.code)); } }
+  else saveLocal();
+}
+async function saveCfg(cfg){
+  S.cfg = { ...DEF, ...cfg }; render();
+  if (db) { try { await db.doc("config/main").set(S.cfg); } catch(e){ toast("Правила не сохранились: " + (e.message||e.code)); } }
+  else saveLocal();
+}
+
+async function initStore(){
+  const use = window.claude && window.claude.use;
+  db = use ? await window.claude.use("db").catch(()=>null) : null;
+  if (!db){
+    loadLocal(); S.loaded = true; S.picked = true; S.month = pickMonth();
+    showStatus("Смены хранятся только в этом браузере: облачное хранилище здесь недоступно. Открой табель в Claude, чтобы данные были общими для телефона и компьютера.");
+    render(); return;
+  }
+  const timer = setTimeout(()=>{ if (!S.loaded) showStatus("Хранилище пока не отвечает. Смены появятся, как только связь восстановится."); }, 10000);
+  db.collection("shifts").onSnapshot(snap => {
+    const o = {}; snap.docs.forEach(d => { const v = d.data(); if (v && v.date) o[v.date] = v; });
+    S.shifts = o;
+    if (!snap.metadata.fromCache){ S.loaded = true; clearTimeout(timer); hideStatus(); }
+    if (!S.picked && !snap.metadata.fromCache){ S.picked = true; S.month = pickMonth(); }
+    render();
+  }, e => { clearTimeout(timer); S.loaded = true; showStatus("Не удалось загрузить смены: " + (e.message||e.code)); render(); });
+  db.doc("config/main").onSnapshot(d => { if (d.exists) { S.cfg = { ...DEF, ...d.data() }; render(); fillCfg(); } }, ()=>{});
+}
+/* Открываемся на текущем месяце; если в нём пусто, а ближайшая будущая смена есть — на её месяце. */
+function pickMonth(){
+  const cur = today().slice(0,7);
+  if (shiftsIn(cur).length) return cur;
+  const fut = Object.keys(S.shifts).filter(d => d >= today()).sort()[0];
+  return fut ? fut.slice(0,7) : cur;
+}
+
+/* ============ отрисовка ============ */
+function render(){
+  if (!S.month) S.month = today().slice(0,7);
+  const [y,m] = S.month.split("-").map(Number);
+  $("monthName").textContent = MON[m-1][0].toUpperCase() + MON[m-1].slice(1) + " " + y;
+  const M = calcMonth(shiftsIn(S.month), S.cfg);
+  renderPay(M); renderNext(); renderCal(y, m-1, M); renderList(M); renderMonths(); renderEditor();
+}
+
+function renderPay(M){
+  const cfg = S.cfg;
+  const isPast = S.month < today().slice(0,7);
+  $("payLabel").textContent = isPast ? "Заработано за месяц" : "Уже заработано";
+  $("payDone").innerHTML = esc(eur(M.done).replace(" €","")) + "<small>€</small>";
+  $("payAll").textContent = eur(M.total);
+  $("hoursAll").textContent = dur(M.hours*60);
+  $("shiftCount").textContent = M.rows.length + (M.rows.some(r=>!r.done) ? " · " + M.rows.filter(r=>r.done).length + " отраб." : "");
+  const T = Math.max(M.total, cfg.cap) || 1;
+  const seg = (v, cls) => v > 0.004 ? `<i class="${cls}" style="width:${(v/T*100).toFixed(2)}%"></i>` : "";
+  $("bar").innerHTML = seg(M.hiDone,"seg-hi") + seg(M.hiPlan,"seg-hi seg-plan") + seg(M.loDone,"seg-lo") + seg(M.loPlan,"seg-lo seg-plan");
+  $("bar").setAttribute("aria-label", `По ${cfg.hi} €/ч: ${eur(M.hiDone+M.hiPlan)}, по ${cfg.lo} €/ч: ${eur(M.loDone+M.loPlan)}`);
+  $("legend").innerHTML =
+    `<span><i class="dot seg-hi"></i>по ${eur(cfg.hi)}/ч · <b class="num">${eur(M.hiDone+M.hiPlan,1)}</b></span>` +
+    `<span><i class="dot seg-lo"></i>по ${eur(cfg.lo)}/ч · <b class="num">${eur(M.loDone+M.loPlan,1)}</b></span>` +
+    (M.rows.some(r=>!r.done) ? `<span><i class="dot seg-lo seg-plan" style="outline:1px solid var(--line)"></i>ещё впереди</span>` : "");
+  let note = "";
+  if (!M.rows.length) note = `<span class="muted">Первые ${eur(cfg.cap)} идут по ${eur(cfg.hi)}/ч — это ${dur(M.capHours*60)} работы, дальше по ${eur(cfg.lo)}/ч.</span>`;
+  else if (M.capRow) note = `Порог ${eur(cfg.cap)} закрывается на смене <b>${fmtDate(M.capRow.s.date)}</b>, дальше всё по ${eur(cfg.lo)}/ч.`;
+  else note = `До порога ${eur(cfg.cap)} ещё <b class="num">${dur((cfg.cap - M.hiDone - M.hiPlan)/cfg.hi*60)}</b> по ${eur(cfg.hi)}/ч.`;
+  $("capNote").innerHTML = note;
+}
+
+function fmtDate(d, long){
+  const x = dateOf(d);
+  return long ? `${DOW[x.getDay()]}, ${x.getDate()} ${MON_G[x.getMonth()]}` : `${pad(x.getDate())}.${pad(x.getMonth()+1)}`;
+}
+function relDay(d){
+  const diff = Math.round((dateOf(d) - dateOf(today()))/864e5);
+  if (diff === 0) return "Сегодня";
+  if (diff === 1) return "Завтра";
+  if (diff === 2) return "Послезавтра";
+  return null;
+}
+function withText(arr){ return (arr||[]).filter(Boolean).map(p => typeof p === "string" ? p : p.n + (p.t ? ` (${p.t})` : "")).join(", "); }
+
+function renderNext(){
+  const t = today();
+  const s = Object.values(S.shifts).filter(x => x.date >= t && !(x.date === t && x.left)).sort((a,b)=>a.date.localeCompare(b.date))[0];
+  const el = $("next");
+  if (!s){ el.hidden = true; return; }
+  const c = calcShift(s, S.cfg);
+  const rel = relDay(s.date);
+  el.hidden = false;
+  el.innerHTML = `<div style="flex:1;min-width:0">
+      <div class="eyebrow">Ближайшая смена</div>
+      <div class="when">${rel ? rel + ", " : ""}${esc(fmtDate(s.date,true))} · <span class="num">${hm(c.st)}–${hm(c.en)}</span></div>
+      ${s.with && s.with.length ? `<div class="hand">в смене: ${esc(withText(s.with))}</div>` : ""}
+    </div>
+    <a class="btn" href="${gcalUrl(s)}" target="_blank" rel="noopener">В Google Календарь</a>`;
+}
+
+function renderCal(y, m, M){
+  const first = new Date(y, m, 1, 12);
+  const lead = (first.getDay()+6)%7;
+  const days = new Date(y, m+1, 0).getDate();
+  const t = today();
+  const byDate = {}; M.rows.forEach(r => byDate[r.s.date] = r);
+  let h = DOW_DE.map(d => `<div class="dow">${d}</div>`).join("");
+  for (let i=0;i<lead;i++) h += `<div class="day out" aria-hidden="true"></div>`;
+  for (let d=1; d<=days; d++){
+    const ds = `${y}-${pad(m+1)}-${pad(d)}`;
+    const r = byDate[ds];
+    const cls = ["day", r ? "has" : "", r && r.done ? "done" : "", ds===t ? "today" : "", S.sel===ds ? "sel" : ""].join(" ");
+    h += `<button class="${cls}" data-date="${ds}" aria-label="${esc(fmtDate(ds,true))}${r ? ", смена" : ""}">
+      <span class="d">${d}</span>${r ? `<span class="t">${hm(r.st)}<br>${hm(r.en)}</span>` : ""}</button>`;
+  }
+  $("cal").innerHTML = h;
+}
+
+function renderList(M){
+  const el = $("list");
+  const todo = M.rows.filter(r => r.done && !r.actual).length;
+  $("listHint").textContent = todo ? `${todo} без отметки ухода` : "";
+  if (!M.rows.length){
+    el.innerHTML = `<div class="empty">В этом месяце смен нет.<br>Загрузи фото графика от Ани или добавь смену кнопкой «+ Смена».</div>`;
+    return;
+  }
+  el.innerHTML = M.rows.map(r => {
+    const s = r.s, x = dateOf(s.date);
+    const chips = [];
+    if (r.hiH > 0.001) chips.push(`<span class="chip hi">${dur(r.hiH*60)} × ${S.cfg.hi}</span>`);
+    if (r.loH > 0.001) chips.push(`<span class="chip lo">${dur(r.loH*60)} × ${S.cfg.lo}</span>`);
+    if (!r.done) chips.push(`<span class="chip plan">по графику</span>`);
+    else if (!r.actual) chips.push(`<span class="chip todo">уход не отмечен</span>`);
+    const endM = mins(s.end) ?? mins(S.cfg.end);
+    const quick = r.done || s.date === today()
+      ? `<span class="lbl">Ушла в</span>
+         ${[0,20,30].map(a => `<button data-act="left" data-date="${s.date}" data-v="${hm(endM+a)}">${hm(endM+a)}</button>`).join("")}`
+      : "";
+    return `<article class="shift${S.sel===s.date?" sel":""}" id="row-${s.date}">
+      <div class="date">${pad(x.getDate())}.${pad(x.getMonth()+1)}<small>${DOW[x.getDay()]}</small></div>
+      <div class="mid">
+        <div class="time">${hm(r.st)}–${hm(r.en)}${r.actual ? "" : (r.done ? " <span class='muted small'>(по графику)</span>" : "")}</div>
+        <div class="small muted">${dur(r.span)}${r.brk ? ` − обед ${r.brk} мин` : ""} = <b style="color:var(--ink)">${dur(r.paid)}</b></div>
+        ${s.with && s.with.length ? `<div class="hand" style="font-size:1.1rem">в смене: ${esc(withText(s.with))}</div>` : ""}
+        ${s.note ? `<div class="small">${esc(s.note)}</div>` : ""}
+      </div>
+      <div class="money"><b>${eur(r.pay,1)}</b><div class="chips">${chips.join("")}</div></div>
+      <div class="tools">${quick}<span class="spacer"></span>
+        <a class="btn" href="${gcalUrl(s)}" target="_blank" rel="noopener" title="Добавить в Google Календарь">Google</a>
+        <button data-act="edit" data-date="${s.date}">Изменить</button>
+      </div>
+    </article>`;
+  }).join("");
+}
+
+function renderMonths(){
+  const months = {};
+  Object.values(S.shifts).forEach(s => { if (s.date) (months[s.date.slice(0,7)] ||= []).push(s); });
+  const keys = Object.keys(months).sort().reverse();
+  if (!keys.length){ $("months").innerHTML = `<tr><td class="muted">Пока пусто</td></tr>`; return; }
+  let tot = 0;
+  const rows = keys.map(k => {
+    const M = calcMonth(months[k], S.cfg); tot += M.total;
+    const [y,m] = k.split("-").map(Number);
+    return `<tr class="${k===S.month?"cur":""}"><td><button class="ghost" data-month="${k}">${MON[m-1]} ${y}</button></td>
+      <td class="num">${M.rows.length}</td><td class="num">${hShort(M.hours*60)}</td><td class="num">${eur(M.total,1)}</td></tr>`;
+  }).join("");
+  $("months").innerHTML = `<thead><tr><th>Месяц</th><th>Смены</th><th>Часы</th><th>Сумма</th></tr></thead><tbody>${rows}</tbody>
+    <tfoot><tr><td class="muted">Всего</td><td></td><td></td><td class="num"><b>${eur(tot,1)}</b></td></tr></tfoot>`;
+}
+
+/* ============ правка смены ============ */
+function openEditor(date){
+  const s = S.shifts[date];
+  S.editing = s ? { ...s, isNew:false } : { date, start:S.cfg.start, end:S.cfg.end, left:"", brk:null, with:[], note:"", src:"hand", isNew:true };
+  S.sel = date; render();
+  $("editor").scrollIntoView({behavior:"smooth", block:"nearest"});
+}
+function renderEditor(){
+  const el = $("editor"), e = S.editing;
+  if (!e){ el.hidden = true; return; }
+  el.hidden = false;
+  if (el.dataset.for === e.date + (e.isNew?"n":"")) return;   /* не сбрасываем поля, пока правим */
+  el.dataset.for = e.date + (e.isNew?"n":"");
+  el.innerHTML = `
+    <div class="row"><h2>${e.isNew ? "Новая смена" : "Смена"} · ${esc(fmtDate(e.date,true))}</h2></div>
+    <div class="grid2">
+      <label class="f">Дата<input type="date" id="edDate" value="${e.date}"></label>
+      <label class="f">Начало<input type="time" id="edStart" value="${esc(e.start||S.cfg.start)}"></label>
+      <label class="f">Конец по графику<input type="time" id="edEnd" value="${esc(e.end||S.cfg.end)}"></label>
+      <label class="f">Фактически ушла<input type="time" id="edLeft" value="${esc(e.left||"")}"></label>
+      <label class="f">Обед, мин<input type="number" id="edBrk" min="0" step="5" placeholder="авто" value="${e.brk ?? ""}"></label>
+      <label class="f">Кто ещё в смене<input id="edWith" value="${esc(withText(e.with))}" placeholder="Аня, Вика"></label>
+    </div>
+    <label class="f">Заметка<input id="edNote" value="${esc(e.note||"")}" placeholder="например: пришла раньше"></label>
+    <div class="small muted" id="edCalc"></div>
+    <div class="row">
+      <button class="primary" id="edSave">Сохранить</button>
+      <button id="edCancel">Отмена</button>
+      <span class="spacer"></span>
+      ${e.isNew ? "" : `<button class="danger" id="edDel">Удалить смену</button>`}
+    </div>`;
+  const recalc = () => {
+    const s = readEditor(); const c = calcShift(s, S.cfg);
+    $("edCalc").textContent = `${hm(c.st)}–${hm(c.en)}: ${dur(c.span)}${c.brk ? `, минус обед ${c.brk} мин` : ""} → оплачивается ${dur(c.paid)}`;
+  };
+  ["edStart","edEnd","edLeft","edBrk"].forEach(id => $(id).addEventListener("input", recalc));
+  recalc();
+  $("edSave").onclick = async () => {
+    const s = readEditor();
+    if (!s.date){ toast("Укажи дату"); return; }
+    const old = S.editing;
+    S.editing = null; $("editor").dataset.for = "";
+    if (!old.isNew && old.date !== s.date) await delShift(old.date);
+    await putShift(s);
+    S.sel = s.date; S.month = s.date.slice(0,7); render();
+    toast("Смена сохранена");
+  };
+  $("edCancel").onclick = () => { S.editing = null; el.dataset.for = ""; render(); };
+  if ($("edDel")) $("edDel").onclick = () => {
+    const b = $("edDel");
+    if (b.dataset.confirm){ S.editing = null; el.dataset.for = ""; delShift(e.date); toast("Смена удалена"); }
+    else { b.dataset.confirm = "1"; b.textContent = "Точно удалить?"; }
+  };
+}
+function readEditor(){
+  const e = S.editing || {};
+  const brk = $("edBrk").value.trim();
+  return {
+    date: $("edDate").value, start: $("edStart").value || S.cfg.start, end: $("edEnd").value || S.cfg.end,
+    left: $("edLeft").value || "", brk: brk === "" ? null : Math.max(0, +brk),
+    with: $("edWith").value.split(",").map(x=>x.trim()).filter(Boolean),
+    note: $("edNote").value.trim(), src: e.isNew ? "hand" : (e.src || "hand")
+  };
+}
+
+/* ============ календарь ============ */
+const compact = (d, t) => d.replace(/-/g,"") + "T" + t.replace(":","") + "00";
+function endDate(s, c){ return c.en >= 1440 ? iso(new Date(dateOf(s.date).getTime() + 864e5)) : s.date; }
+function gcalUrl(s){
+  const c = calcShift(s, S.cfg);
+  const p = new URLSearchParams({
+    action:"TEMPLATE", text:"Смена Yoko",
+    dates: compact(s.date, hm(c.st)) + "/" + compact(endDate(s,c), hm(c.en)),
+    ctz:"Europe/Berlin",
+    details: (s.with && s.with.length ? "В смене: " + withText(s.with) + "\n" : "") + `Обед ${c.brk} мин, оплачивается ${dur(c.paid)}`
+  });
+  return "https://calendar.google.com/calendar/render?" + p.toString();
+}
+function icsEsc(t){ return String(t).replace(/\\/g,"\\\\").replace(/;/g,"\\;").replace(/,/g,"\\,").replace(/\n/g,"\\n"); }
+function buildIcs(list){
+  const now = new Date();
+  const stamp = now.getUTCFullYear()+pad(now.getUTCMonth()+1)+pad(now.getUTCDate())+"T"+pad(now.getUTCHours())+pad(now.getUTCMinutes())+"00Z";
+  const L = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Tabel Yoko//RU","CALSCALE:GREGORIAN","METHOD:PUBLISH","X-WR-CALNAME:Смены Yoko",
+    "BEGIN:VTIMEZONE","TZID:Europe/Berlin",
+    "BEGIN:DAYLIGHT","TZOFFSETFROM:+0100","TZOFFSETTO:+0200","TZNAME:CEST","DTSTART:19700329T020000","RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU","END:DAYLIGHT",
+    "BEGIN:STANDARD","TZOFFSETFROM:+0200","TZOFFSETTO:+0100","TZNAME:CET","DTSTART:19701025T030000","RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU","END:STANDARD",
+    "END:VTIMEZONE"];
+  list.forEach(s => {
+    const c = calcShift(s, S.cfg);
+    L.push("BEGIN:VEVENT", "UID:shift-"+s.date.replace(/-/g,"")+"@tabel-yoko", "DTSTAMP:"+stamp,
+      "DTSTART;TZID=Europe/Berlin:"+compact(s.date, hm(c.st)),
+      "DTEND;TZID=Europe/Berlin:"+compact(endDate(s,c), hm(c.en)),
+      "SUMMARY:"+icsEsc("Смена Yoko"),
+      "DESCRIPTION:"+icsEsc((s.with && s.with.length ? "В смене: " + withText(s.with) + "\n" : "") + `Обед ${c.brk} мин, оплачивается ${dur(c.paid)}`),
+      "BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:"+icsEsc("Смена Yoko"),"TRIGGER:-PT1H","END:VALARM",
+      "END:VEVENT");
+  });
+  L.push("END:VCALENDAR");
+  return L.join("\r\n") + "\r\n";
+}
+function openIcs(){
+  const p = $("icsPanel");
+  if (!p.hidden){ p.hidden = true; return; }
+  const month = shiftsIn(S.month).sort((a,b)=>a.date.localeCompare(b.date));
+  const fut = Object.values(S.shifts).filter(s => s.date >= today()).sort((a,b)=>a.date.localeCompare(b.date));
+  const [y,m] = S.month.split("-").map(Number);
+  p.hidden = false;
+  p.innerHTML = `<div class="row"><h2>Добавить в календарь</h2><span class="spacer"></span><button class="ghost" id="icsClose">Закрыть</button></div>
+    <p class="small muted" style="margin:0">Файл .ics открывается в Google, Apple и Outlook-календаре. У каждой смены постоянный номер, поэтому повторный импорт обновит смену, а не задвоит её (в Google — при импорте в тот же календарь). Напоминание за час.</p>
+    <div class="row">
+      <button class="primary" id="icsFut" ${fut.length?"":"disabled"}>Все будущие смены · ${fut.length}</button>
+      <button id="icsMonth" ${month.length?"":"disabled"}>${MON[m-1]} ${y} · ${month.length}</button>
+    </div>
+    <p class="small muted" style="margin:0">Или по одной: кнопка «Google» у каждой смены открывает готовое событие.</p>
+    <div id="icsOut"></div>`;
+  $("icsClose").onclick = () => p.hidden = true;
+  $("icsFut").onclick = () => saveIcs(fut, "smeny-yoko.ics");
+  $("icsMonth").onclick = () => saveIcs(month, `smeny-yoko-${S.month}.ics`);
+}
+async function saveIcs(list, filename){
+  const data = buildIcs(list);
+  const dl = window.claude && window.claude.use ? await window.claude.use("downloads").catch(()=>null) : null;
+  if (dl){
+    try { await dl.save({ filename, data }); toast("Файл сохранён — открой его, чтобы добавить смены"); return; }
+    catch(e){ if (e && e.code === "declined") return; }
+  }
+  $("icsOut").innerHTML = `<p class="small" style="margin:0">Сохранить файл отсюда не получилось. Скопируй текст ниже в файл с расширением .ics или добавь смены кнопкой «Google».</p>
+    <textarea readonly style="width:100%;height:120px;font:12px var(--f-num);background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px">${esc(data)}</textarea>`;
+}
+
+/* ============ фото графика ============ */
+function myNames(){ return S.cfg.me.split(",").map(norm).filter(Boolean); }
+function isMe(name){ const n = norm(name); return myNames().some(a => a === n); }
+
+async function readPhotos(files){
+  const p = $("importPanel");
+  p.hidden = false;
+  const urls = Array.from(files).map(f => URL.createObjectURL(f));
+  const thumbs = `<div class="thumbs">${urls.map(u=>`<img src="${u}" alt="Фото графика">`).join("")}</div>`;
+  const sample = window.claude && window.claude.use ? await window.claude.use("sample").catch(()=>null) : null;
+  if (!sample){
+    p.innerHTML = `<h2>Фото графика</h2>${thumbs}<p style="margin:0">Распознавание работает, когда табель открыт в Claude. Пока можно перенести смены вручную кнопкой «+ Смена».</p><div class="row"><button id="impClose">Закрыть</button></div>`;
+    $("impClose").onclick = () => p.hidden = true; return;
+  }
+  const lim = await sample.limits().catch(()=>null);
+  if (!lim || !lim.images){
+    p.innerHTML = `<h2>Фото графика</h2>${thumbs}<p style="margin:0">В этом окне нельзя отправить фото на распознавание. Открой табель в браузере на claude.ai или в приложении Claude.</p><div class="row"><button id="impClose">Закрыть</button></div>`;
+    $("impClose").onclick = () => p.hidden = true; return;
+  }
+  const imgs = Array.from(files).slice(0, lim.images.maxCount);
+  const ctl = new AbortController();
+  p.innerHTML = `<h2>Читаю график…</h2>${thumbs}<p class="muted small" style="margin:0" id="impProg">Разбираю почерк, это занимает до минуты.</p><div class="row"><button id="impStop">Остановить</button></div>`;
+  $("impStop").onclick = () => ctl.abort();
+  const known = Array.from(new Set([...ROSTER, ...Object.values(S.shifts).flatMap(s => (s.with||[]).map(w => typeof w === "string" ? w.replace(/\s*\(.*$/,"") : w.n))]));
+  const prompt = `На фото — рукописный график смен (нем. «Dienstplan») суши-ресторана, его пишет руководитель Аня. Обычно это таблица: колонки Montag…Sonntag, в каждой ячейке дата вида «14.09» и имена работников столбиком. Рядом с именем может стоять время: «16:00» или «с 16:00» — человек выходит с 16:00; «до 18:00» — уходит в 18:00; «14:00 до 21:00» — и то и другое.
+Правила:
+1. Зачёркнутое имя — человек в этот день НЕ работает. Не включай его.
+2. Имена пиши так, как в списке известных, если это явно тот же человек (Kate/Katja/Катя → «Катя»). Известные: ${known.join(", ")}. Новое имя пиши как на листе.
+3. Год на листе не пишут. Сегодня ${today()}. Выбери год так, чтобы дата была ближе всего к сегодняшней.
+4. Ничего не выдумывай: неразборчивое опиши в "notes".
+Ответь только JSON такого вида:
+{"days":[{"date":"2026-11-16","people":[{"name":"Аня","from":null,"to":null},{"name":"Катя","from":"16:00","to":null}]}],"notes":""}`;
+  let res;
+  try {
+    res = await sample.json(prompt, { images: imgs, signal: ctl.signal, modelTier: "default",
+      onText: () => { const el = $("impProg"); if (el) el.textContent = "Почти готово…"; } });
+  } catch(e){
+    const msg = { cancelled:"Распознавание остановлено.", not_granted:"Без разрешения Claude фото не прочитать. Смены можно добавить вручную.",
+      rate_limited:"Слишком много запросов подряд. Попробуй через пару минут.", invalid_json:"Ответ не разобрался. Попробуй ещё раз или сделай фото ровнее и светлее.",
+      image_rejected:"Фото не подошло: нужен JPEG, PNG или WebP до 20 МБ." }[e && e.code] || ("Не получилось прочитать фото: " + (e && (e.message||e.code)));
+    p.innerHTML = `<h2>Фото графика</h2>${thumbs}<p style="margin:0">${esc(msg)}</p><div class="row"><button id="impClose">Закрыть</button></div>`;
+    $("impClose").onclick = () => p.hidden = true; return;
+  }
+  buildProposal(res, thumbs);
+}
+
+/* Что изменится: мои дни с фото — добавить/обновить; мои смены из того же периода, которых больше нет на листе, — убрать. */
+function buildProposal(res, thumbs){
+  const days = (res && Array.isArray(res.days) ? res.days : []).filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d.date||""))
+    .sort((a,b)=>a.date.localeCompare(b.date));
+  const items = [];
+  const t = (v) => (mins(v) !== null ? hm(mins(v)) : "");
+  days.forEach(d => {
+    const people = (d.people||[]).filter(p => p && p.name);
+    const me = people.find(p => isMe(p.name));
+    if (!me) return;
+    const others = people.filter(p => p !== me).map(p => ({ n: String(p.name).trim(), t: [p.from ? "с " + p.from : "", p.to ? "до " + p.to : ""].filter(Boolean).join(" ") }));
+    const cur = S.shifts[d.date];
+    const start = t(me.from) || (cur && cur.start) || S.cfg.start;
+    const end = t(me.to) || (cur && cur.end) || S.cfg.end;
+    items.push({ kind: cur ? "upd" : "add", date: d.date, start, end, with: others, cur });
+  });
+  if (days.length){
+    const lo = days[0].date, hi = days[days.length-1].date;
+    const onSheet = new Set(items.map(i => i.date));
+    Object.values(S.shifts).forEach(s => {
+      if (s.date >= lo && s.date <= hi && !onSheet.has(s.date) && days.some(d => d.date === s.date))
+        items.push({ kind:"rm", date:s.date, cur:s });
+    });
+  }
+  items.sort((a,b)=>a.date.localeCompare(b.date));
+  S.imp = items;
+  const p = $("importPanel");
+  const desc = i => i.kind === "rm" ? `Убрать: тебя больше нет в графике`
+    : `${i.start}–${i.end}${i.with.length ? ` · <span class="hand" style="font-size:1.05rem">в смене: ${esc(withText(i.with))}</span>` : ""}${i.kind==="upd" ? ` <span class="chip plan">уже есть, обновить</span>` : ""}`;
+  p.innerHTML = `<div class="row"><h2>С фото: ${days.length ? `${fmtDate(days[0].date)} — ${fmtDate(days[days.length-1].date)}` : "дни не найдены"}</h2><span class="spacer"></span><button class="ghost" id="impClose">Закрыть</button></div>
+    ${thumbs}
+    ${items.length ? `<p class="small muted" style="margin:0">Твои смены (имя в графике: ${esc(S.cfg.me)}). Сними галочку, если что-то прочиталось неверно.</p>
+      <div class="prop">${items.map((i,k)=>`<label class="${i.kind==="rm"?"rm":""}"><input type="checkbox" data-k="${k}" checked>
+        <span><b class="num">${esc(fmtDate(i.date))}</b> <span class="muted small">${DOW[dateOf(i.date).getDay()]}</span> · ${desc(i)}</span></label>`).join("")}</div>
+      <div class="row"><button class="primary" id="impApply">Сохранить ${items.length} ${plural(items.length,"изменение","изменения","изменений")}</button></div>`
+    : `<p style="margin:0">На листе не нашлось твоего имени (${esc(S.cfg.me)}). Проверь, как оно записано, в «Правилах и настройках», или посмотри весь график ниже.</p>`}
+    ${res && res.notes ? `<p class="small" style="margin:0"><b>Заметки распознавания:</b> ${esc(res.notes)}</p>` : ""}
+    ${days.length ? `<details><summary class="small" style="cursor:pointer;font-weight:700">Весь график с фото</summary>
+      <div class="alldays" style="margin-top:8px">${days.map(d => `<span class="num">${esc(fmtDate(d.date))}</span><span>${(d.people||[]).map(pp => {
+        const tx = esc(pp.name) + ((pp.from||pp.to) ? ` <span class="muted">(${esc([pp.from?"с "+pp.from:"", pp.to?"до "+pp.to:""].filter(Boolean).join(" "))})</span>` : "");
+        return isMe(pp.name) ? `<span class="me">${tx}</span>` : tx; }).join(", ")}</span>`).join("")}</div></details>` : ""}`;
+  $("impClose").onclick = () => { p.hidden = true; S.imp = null; };
+  if ($("impApply")) $("impApply").onclick = applyProposal;
+}
+async function applyProposal(){
+  const checked = Array.from(document.querySelectorAll("#importPanel input[data-k]")).filter(x => x.checked).map(x => S.imp[+x.dataset.k]);
+  $("impApply").disabled = true;
+  for (const i of checked){
+    if (i.kind === "rm") await delShift(i.date);
+    else await putShift({ ...(i.cur||{}), date:i.date, start:i.start, end:i.end, with:i.with,
+      left:(i.cur&&i.cur.left)||"", brk:(i.cur && i.cur.brk !== undefined) ? i.cur.brk : null, note:(i.cur&&i.cur.note)||"", src:"photo" });
+  }
+  $("importPanel").hidden = true; S.imp = null;
+  const firstAdd = checked.find(i => i.kind !== "rm");
+  if (firstAdd) S.month = firstAdd.date.slice(0,7);
+  render();
+  toast(`Сохранено: ${checked.length}`);
+}
+const plural = (n,a,b,c) => { const m10=n%10, m100=n%100; return m10===1&&m100!==11 ? a : (m10>=2&&m10<=4&&(m100<10||m100>=20) ? b : c); };
+
+/* ============ мелочи ============ */
+let toastT;
+function toast(t){ const el = $("toast"); el.textContent = t; el.hidden = false; clearTimeout(toastT); toastT = setTimeout(()=>el.hidden = true, 2800); }
+function showStatus(t){ const el = $("status"); el.textContent = t; el.hidden = false; }
+function hideStatus(){ $("status").hidden = true; }
+function fillCfg(){
+  const c = S.cfg;
+  $("cfgMe").value = c.me; $("cfgCap").value = c.cap; $("cfgHi").value = c.hi; $("cfgLo").value = c.lo;
+  $("cfgStart").value = c.start; $("cfgEnd").value = c.end; $("cfgBrk").value = c.brk; $("cfgBrkMin").value = c.brkMin;
+}
+function shiftMonth(delta){
+  S.picked = true;
+  const [y,m] = S.month.split("-").map(Number);
+  const d = new Date(y, m-1+delta, 1, 12);
+  S.month = d.getFullYear() + "-" + pad(d.getMonth()+1);
+  S.sel = null; render();
+}
+
+/* ============ события ============ */
+$("prevM").onclick = () => shiftMonth(-1);
+$("nextM").onclick = () => shiftMonth(1);
+$("addBtn").onclick = () => {
+  const t = today();
+  const def = S.month === t.slice(0,7) ? t : S.month + "-01";
+  openEditor(def);
+};
+$("icsBtn").onclick = openIcs;
+$("photoInput").onchange = e => { const f = e.target.files; if (f && f.length) readPhotos(f); e.target.value = ""; };
+$("cal").onclick = e => {
+  const b = e.target.closest("[data-date]"); if (!b) return;
+  const d = b.dataset.date;
+  if (S.shifts[d]){ S.sel = d; S.editing = null; render(); const r = $("row-"+d); if (r) r.scrollIntoView({behavior:"smooth", block:"center"}); }
+  else openEditor(d);
+};
+$("list").onclick = e => {
+  const b = e.target.closest("button[data-act]"); if (!b) return;
+  const d = b.dataset.date, s = S.shifts[d];
+  if (b.dataset.act === "edit") openEditor(d);
+  if (b.dataset.act === "left" && s){ putShift({ ...s, left: b.dataset.v }); toast(`Уход в ${b.dataset.v} отмечен`); }
+};
+$("months").onclick = e => { const b = e.target.closest("[data-month]"); if (b){ S.month = b.dataset.month; S.sel = null; render(); window.scrollTo({top:0, behavior:"smooth"}); } };
+$("cfgSave").onclick = () => {
+  const n = (id, d) => { const v = parseFloat($(id).value); return isFinite(v) && v >= 0 ? v : d; };
+  saveCfg({ me: $("cfgMe").value.trim() || DEF.me, cap:n("cfgCap",DEF.cap), hi:n("cfgHi",DEF.hi), lo:n("cfgLo",DEF.lo),
+    start: $("cfgStart").value || DEF.start, end: $("cfgEnd").value || DEF.end, brk:n("cfgBrk",DEF.brk), brkMin:n("cfgBrkMin",DEF.brkMin) });
+  toast("Правила сохранены");
+};
+
+S.month = today().slice(0,7);
+fillCfg(); render();
+initStore();
+</script>
